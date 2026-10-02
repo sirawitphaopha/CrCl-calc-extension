@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>มอคอัปกล่องแตกออกจากลำต้น</title>
+<!--
+  มอคอัปเสริมของแบบ "กล่องห้อยจากแถบ" 2 ต.ค. 2569
+  พี่กันสั่ง "ชอบแบบนี้ ที่อยู่ในหัวเรา มันจะคล้ายๆต้นไม้ เเต่ลองทำมอคอัปเสริม ลองตัดรายละเอียดออก"
+  แคลร์เข้าใจว่า แถบฐานที่ขอบจอคือลำต้น กล่องคือพุ่มใบที่แตกออกจากลำต้น
+  เลยตัดรายละเอียดของแถบลงทีละขั้น 3 แบบ แล้ววางแบบเดิมไว้เทียบเป็นแถวแรก
+  ไฟล์ก่อนหน้า crcl-box-edge-base-2026-10-02.html (รอยต่อ 3 แบบ) เก็บไว้เหมือนเดิม
+  ฟอนต์อยู่ที่ fonts/ ไม่โหลดจากเน็ต · ความสูงจอจำลอง 577 = โครมของพี่กัน
+-->
+<style>
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/sarabun-400-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/sarabun-400-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/sarabun-500-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/sarabun-500-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/sarabun-600-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/sarabun-600-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/sarabun-700-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/sarabun-700-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Roboto Mono";font-style:normal;font-weight:100 700;font-display:swap;src:url(fonts/roboto-mono-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Roboto Mono";font-style:normal;font-weight:100 700;font-display:swap;src:url(fonts/roboto-mono-greek.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}
+
+:root{
+  --font-sarabun:"Sarabun";
+  --font-mono:"Roboto Mono";
+  --font-en:var(--font-mono);
+  --ink:#1f2d2a; --ink-2:#465753; --ink-3:#687874; --ink-4:#9aa8a4;
+  --line:#d3e0dc; --line-2:#e5ecea; --field-line:#c3d5d0;
+  --surface:#fff; --surface-2:#f5f9f8;
+  --accent:#0f766e; --accent-ink:#0b5c55; --accent-soft:#e4f3ef; --accent-soft-2:#cde9e1; --accent-line:#93cfc2;
+  --brick:#c2543c; --brick-line:rgba(194,84,60,.32);
+  --tabW:52px; --r:12px;
+}
+*{box-sizing:border-box}
+html{font-family:var(--font-en),var(--font-sarabun),"Noto Sans Thai",Tahoma,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;background:#e9eeec;color:var(--ink);font-size:15px;line-height:1.6}
+.page{padding:22px 16px 64px}
+.pg-h h1{margin:0 0 6px;font:700 23px/1.35 var(--font-sarabun),sans-serif}
+.lead{margin:0 0 10px;color:var(--ink-2);max-width:1000px}
+.howto{margin:0 0 6px;padding-left:20px;color:var(--ink-2);font-size:14px}
+
+.concept{margin-top:34px}
+.concept>h2{margin:0 0 4px;font:700 20px/1.4 var(--font-sarabun),sans-serif}
+.concept>h2 small{margin-left:8px;color:var(--ink-3);font:500 13px/1 var(--font-en),var(--font-sarabun),sans-serif}
+.concept>p{margin:0 0 12px;color:var(--ink-2);font-size:14px;max-width:1000px}
+.strip{display:flex;flex-wrap:wrap;align-items:flex-start;gap:14px}
+.shot{margin:0}
+.shot figcaption{display:flex;align-items:center;gap:8px;min-height:28px;margin-bottom:6px;color:var(--ink-2);font:700 14px/1.4 var(--font-sarabun),sans-serif}
+.shot figcaption span{color:var(--ink-3);font:500 12.5px/1.4 var(--font-en),var(--font-sarabun),sans-serif}
+.replay{display:inline-flex;align-items:center;gap:6px;height:28px;margin-left:auto;padding:0 10px;border:1px solid var(--accent-line);border-radius:8px;background-color:#fff;color:var(--accent-ink);font:600 12.5px/1 var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease}
+.replay:hover{background-color:var(--accent-soft)}
+.replay:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+
+.scr{position:relative;box-sizing:content-box;height:577px;overflow:hidden;background:#f3f5f7;border:1px solid #c5ced6;border-radius:10px}
+.scr .bg-top{position:absolute;left:0;right:0;top:0;height:46px;background:#e3e8ec;border-bottom:1px solid #d4dbe1}
+.scr .bg-sheet{position:absolute;left:18px;right:-40px;top:64px;bottom:-40px;padding:24px 26px;border:1px solid #e0e5ea;border-radius:6px;background:#fff}
+.scr .bg-sheet i{display:block;height:9px;margin-bottom:13px;border-radius:5px;background:#eaeef2}
+
+/* ══════════ ตัวกล่อง (แผงแคบ กรณีน้ำหนักปกติ) ══════════ */
+.cx{display:flex;flex-direction:column;background:var(--surface);color:var(--ink);font-size:13px;line-height:1.45;text-align:left}
+.cx.narrow{width:320px}
+.cx-head{flex:none;display:flex;align-items:center;gap:4px;height:38px;padding:0 6px 0 10px;background:var(--accent-soft);border-bottom:1px solid var(--line);user-select:none}
+.cx-grip{display:grid;place-items:center;width:14px;margin-right:4px;color:var(--accent);opacity:.65}
+.cx-title{flex:1;min-width:0;margin:0;color:var(--accent-ink);font:700 14.5px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-ib{flex:none;display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:8px;background-color:transparent;color:var(--accent-ink);cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.cx-ib:hover{background-color:var(--accent-soft-2);color:var(--accent)}
+.cx-ib:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+span.cx-ib{cursor:default}
+span.cx-ib:hover{background-color:transparent;color:var(--accent-ink)}
+.cx-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:10px 12px 10px}
+.cx-body::-webkit-scrollbar{width:7px}
+.cx-body::-webkit-scrollbar-thumb{background:#c3dad4;border-radius:4px}
+.cx-inputs{display:grid;gap:6px;align-content:start}
+.cx-row{display:grid;grid-template-columns:76px minmax(0,1fr);align-items:start;gap:8px}
+.cx-lab{display:flex;align-items:center;height:32px;color:var(--ink-2);font:600 13px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-ctl{min-width:0}
+.cx-field{display:flex;height:32px;border:1px solid var(--field-line);border-radius:8px;background-color:#fff;overflow:hidden}
+.cx-in{flex:1 1 auto;min-width:0;height:100%;padding:0 10px;border:0;outline:0;background:transparent;color:var(--ink);font:600 15px/1 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
+.cx-unit{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;min-width:77px;padding:0 8px;border:0;border-left:1px solid var(--line-2);background-color:var(--surface-2);color:var(--ink-2);font:600 12px/1 var(--font-en),var(--font-sarabun),sans-serif}
+.cx-seg{display:flex;height:32px;border:1px solid var(--field-line);border-radius:8px;background:#fff;overflow:hidden}
+.cx-seg button{flex:1;border:0;background-color:#fff;color:var(--ink-3);font:600 13.5px/1 var(--font-sarabun),sans-serif}
+.cx-seg button+button{border-left:1px solid var(--field-line)}
+.cx-seg button[aria-pressed="true"]{background-color:var(--accent-soft-2);color:var(--accent-ink);font-weight:700}
+.cx-msg{display:flex;align-items:flex-start;gap:5px;margin-top:3px;color:var(--ink-3);font-size:12px;line-height:1.45}
+.cx-sec{margin-top:10px;padding-top:8px;border-top:1px solid var(--line-2)}
+.cx-sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cx-sec-t{margin:0;color:var(--ink);font:700 11.5px/1.4 var(--font-en),var(--font-sarabun),sans-serif;letter-spacing:-.2px}
+.cx-tag{flex:none;padding:1px 8px;border-radius:999px;font:600 11px/1.45 var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-tag.use{background:var(--accent-soft);color:var(--accent-ink)}
+.cx-tag.info{background:#eef1f3;color:var(--ink-3)}
+.cx-big{display:flex;align-items:baseline;gap:6px;margin-top:4px}
+.cx-big b{color:var(--ink);font:700 28px/1.05 var(--font-en),sans-serif;letter-spacing:-.5px}
+.cx-big span{color:var(--ink-3);font:500 13px/1 var(--font-en),sans-serif}
+.cx-big em{margin-left:auto;color:var(--ink-3);font:500 11px/1 var(--font-en),var(--font-sarabun),sans-serif;font-style:normal}
+.cx-note{margin:4px 0 0;color:var(--ink-3);font-size:11px;line-height:1.45}
+.cx-basis{margin-top:6px;padding:5px 8px;border:1px solid;border-radius:8px;font-size:12.5px;line-height:1.45}
+.cx-basis.normal{background:#edf8f2;border-color:#bfe4cf;color:#1b6141}
+.cx-basis-main{font-family:var(--font-en),var(--font-sarabun),sans-serif;font-weight:700}
+.cx-basis-why{font-size:11.5px;opacity:.88}
+.cx-bw{width:100%;margin-top:6px;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.cx-bw th,.cx-bw td{padding:3px 7px;border-bottom:1px solid var(--line-2);white-space:nowrap}
+.cx-bw thead th{border-bottom:1px solid var(--line);color:var(--ink-3);font:600 11px/1.3 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
+.cx-bw thead th:nth-child(1){width:36%}
+.cx-bw thead th:nth-child(2){width:26%}
+.cx-bw thead th:nth-child(3){width:38%}
+.cx-bw tbody th{color:var(--ink-2);font:600 12px/1.3 var(--font-en),sans-serif;text-align:left}
+.cx-bw td{color:var(--ink-2);font:500 12.5px/1.3 var(--font-en),sans-serif;text-align:right}
+.cx-bw tr.on th,.cx-bw tr.on td{background:var(--accent-soft);color:var(--ink);font-weight:700}
+.cx-bw tr.on th{box-shadow:inset 3px 0 0 var(--accent)}
+.cx-kv{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0 10px;margin-top:3px}
+.cx-val{color:var(--ink);font:700 17px/1.25 var(--font-en),sans-serif}
+.cx-val small{margin-left:4px;color:var(--ink-3);font:500 11.5px/1 var(--font-en),sans-serif}
+.cx-cls{font:700 12.5px/1.35 var(--font-en),var(--font-sarabun),sans-serif}
+.cx-meta{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin-top:3px;color:var(--ink-3);font-size:11px;line-height:1.45}
+.cx-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 12px;border-top:1px solid var(--line);background:var(--surface-2)}
+.cx-foot-note{color:var(--ink-3);font-size:11.5px;line-height:1.35}
+.cx-clear{flex:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--brick-line);border-radius:8px;background-color:#fff;color:var(--brick);font:600 13px/1 var(--font-sarabun),sans-serif}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ══════════ ลำต้นกับพุ่มใบ ══════════
+   --p คือจังหวะการกาง 0 = พับเหลือแถบ 1 = กางเต็ม
+   --bw --bh = ความกว้างและความสูงของแถบฐานตอนนั้น */
+.dock{--p:1;--bw:var(--tabW);--bh:var(--tabH);position:absolute;right:0;top:40px;bottom:8px;width:420px;pointer-events:none;
+  filter:drop-shadow(0 0 .7px rgba(16,52,45,.55)) drop-shadow(0 10px 22px rgba(16,52,45,.17))}
+.dock .base,.dock .cx{pointer-events:auto}
+.dock[data-open="false"] .cx{pointer-events:none}
+.dock .cx{position:absolute;top:0;right:var(--bw);max-height:100%;border:0;overflow:hidden}
+.base{position:absolute;right:0;top:0;z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;width:var(--bw);height:var(--bh);padding:10px 0 9px;overflow:hidden;border:0;background-color:var(--accent-soft);color:var(--accent-ink);cursor:pointer;font-family:var(--font-en),var(--font-sarabun),sans-serif;transition:background-color .15s ease;
+  border-radius:calc(var(--r) * (1 - var(--p))) 0 0 calc(var(--r) * (1 - var(--p)))}
+.base:hover{background-color:var(--accent-soft-2)}
+.base:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.base svg{flex:none}
+.base .k{font-size:11px;font-weight:700;line-height:1.2}
+.base .v{color:var(--ink);font-size:13.5px;font-weight:700;line-height:1.2}
+.base .u{color:var(--ink-3);font-size:9.5px;line-height:1.1}
+.fillet{position:absolute;right:calc(var(--bw) - var(--r));width:var(--r);height:var(--r);pointer-events:none;opacity:calc((var(--p) - .75) * 4)}
+.fillet.down{top:var(--bh);background:radial-gradient(circle at 100% 100%,transparent calc(var(--r) - .5px),var(--accent-soft) var(--r))}
+.fillet.up{background:radial-gradient(circle at 100% 0,transparent calc(var(--r) - .5px),var(--accent-soft) var(--r))}
+
+/* ลำต้นต่อที่หัวกล่อง กล่องค่อย ๆ ออกจากมุมบนที่ติดลำต้น */
+.va .cx,.vb .cx,.vc .cx{border-radius:var(--r) 0 var(--r) var(--r);
+  clip-path:inset(0 0 calc((1 - var(--p)) * 100%) calc((1 - var(--p)) * 100%) round var(--r) 0 var(--r) var(--r))}
+
+/* แบบที่ 2 แถบเหลือไอคอน */
+.vb{--bh:calc(var(--tabH) - (var(--tabH) - 46px) * var(--p))}
+.vb .base{padding-top:calc(10px + 3px * var(--p))}
+.vb .base .k,.vb .base .v,.vb .base .u{opacity:calc(1 - var(--p) * 1.6)}
+
+/* แบบที่ 3 ลำต้นเรียว ต่อที่หัวกล่อง */
+.vc{--bw:calc(var(--tabW) - 28px * var(--p));--bh:calc(var(--tabH) - (var(--tabH) - 58px) * var(--p))}
+.vc .base>*{opacity:calc(1 - var(--p) * 1.6)}
+
+/* แบบที่ 4 ลำต้นเรียว ต่อกลางกล่อง โค้งเว้าทั้งบนและล่าง */
+.vd{top:8px;--bw:calc(var(--tabW) - 28px * var(--p));--bh:calc(var(--tabH) - (var(--tabH) - 72px) * var(--p))}
+.vd .base{top:calc(var(--sy) - var(--bh) / 2)}
+.vd .base>*{opacity:calc(1 - var(--p) * 1.6)}
+.vd .cx{top:var(--ptop);border-radius:var(--r);
+  clip-path:inset(calc((1 - var(--p)) * var(--syp)) 0 calc((1 - var(--p)) * (var(--panelH) - var(--syp))) calc((1 - var(--p)) * 100%) round var(--r))}
+.vd .fillet.down{top:calc(var(--sy) + var(--bh) / 2)}
+.vd .fillet.up{top:calc(var(--sy) - var(--bh) / 2 - var(--r))}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="pg-h">
+  <h1>มอคอัปเสริม กล่องแตกออกจากลำต้นที่ขอบจอ</h1>
+  <p class="lead">ต่อยอดจากแบบกล่องห้อยจากแถบที่พี่กันชอบ คิดแบบต้นไม้ แถบฐานที่ขอบจอคือลำต้น กล่องคือพุ่มใบที่แตกออกมา แถวแรกคือแบบเดิมไว้เทียบ แถวถัดมาตัดรายละเอียดของแถบลงทีละขั้น</p>
+  <ul class="howto">
+    <li>ภาพตัดมาเฉพาะฝั่งขวาของจอ ขนาดจริง สูง 577 จุดเท่าโครมของพี่กัน เส้นขอบขวาของแต่ละภาพคือขอบจอ</li>
+    <li>แต่ละแบบเรียงจากซ้ายไปขวา ตอนพับ กำลังกาง และกางเต็ม ตอนพับทุกแบบยังเป็นแถบเดิมที่มีค่า CrCl</li>
+    <li>ภาพกางเต็มกดได้จริง กดลำต้นหรือปุ่มพับที่หัวกล่องเพื่อดูจังหวะพับและกาง ปุ่มอื่นในหน้านี้ยังกดไม่ได้</li>
+  </ul>
+</header>
+
+<section class="concept" data-variant="va">
+  <h2>แบบเดิมที่พี่กันชอบ <small data-w></small></h2>
+  <p>แถบกว้างเท่าตอนพับ มีไอคอน คำว่า CrCl ค่า และหน่วยครบ ใต้แถบมีโค้งเว้าต่อเข้าขอบกล่อง</p>
+  <div class="strip"></div>
+</section>
+
+<section class="concept" data-variant="vb">
+  <h2>แถบเหลือแค่ไอคอน <small data-w></small></h2>
+  <p>ตอนกาง ตัวหนังสือในแถบหายไป เหลือไอคอนอย่างเดียว เพราะค่าอยู่ในกล่องแล้ว แถบเตี้ยลงเกือบเท่าหัวกล่อง</p>
+  <div class="strip"></div>
+</section>
+
+<section class="concept" data-variant="vc">
+  <h2>ลำต้นเรียว ต่อที่หัวกล่อง <small data-w></small></h2>
+  <p>ตอนกาง แถบหดเหลือลำต้นเรียวสีเดียว ไม่มีตัวหนังสือ ไม่มีไอคอน ต่อตรงหัวกล่อง ใต้ลำต้นมีโค้งเว้า กล่องแคบลงเหลือส่วนที่เกินจากเดิมน้อยที่สุด</p>
+  <div class="strip"></div>
+</section>
+
+<section class="concept" data-variant="vd">
+  <h2>ลำต้นเรียว ต่อกลางกล่อง <small data-w></small></h2>
+  <p>เหมือนต้นไม้ที่สุด ลำต้นเรียวออกจากขอบจอ แล้วกล่องแผ่ออกทั้งขึ้นและลงจากลำต้น มีโค้งเว้าทั้งบนและล่างของลำต้น ตอนกางกล่องค่อย ๆ แผ่ออกจากจุดที่ติดลำต้น</p>
+  <div class="strip"></div>
+</section>
+
+</div>
+
+<script>
+(() => {
+'use strict';
+
+const sv = (s, body, sw = 2.2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+const ICON = {
+  grip: '<svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="2.5" cy="2.5" r="1.5"/><circle cx="7.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="8" r="1.5"/><circle cx="7.5" cy="8" r="1.5"/><circle cx="2.5" cy="13.5" r="1.5"/><circle cx="7.5" cy="13.5" r="1.5"/></svg>',
+  narrow: sv(18, '<rect x="7" y="3.5" width="10" height="17" rx="2"/><path d="M10 8.5h4"/><path d="M10 12h4"/><path d="M10 15.5h4"/>', 1.9),
+  flip: sv(16, '<path d="M4 8h15"/><path d="M15 4l4 4-4 4"/><path d="M20 16H5"/><path d="M9 12l-4 4 4 4"/>'),
+  foldR: sv(16, '<path d="M6 6l6 6-6 6"/><path d="M13 6l6 6-6 6"/>'),
+  close: sv(16, '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>'),
+  x: sv(13, '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>', 2.6),
+  swapSm: sv(12, '<path d="M4 8h14"/><path d="M14 4l4 4-4 4"/><path d="M20 16H6"/><path d="M10 12l-4 4 4 4"/>', 2.4),
+  play: sv(13, '<path d="M7 5l12 7-12 7z"/>', 2.2),
+  calc: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="2.5" width="16" height="19" rx="3.2" fill="currentColor"/><rect x="7" y="5.5" width="10" height="4.2" rx="1.2" fill="#fff"/><g fill="#fff"><circle cx="8.6" cy="13.3" r="1.25"/><circle cx="12" cy="13.3" r="1.25"/><circle cx="15.4" cy="13.3" r="1.25"/><circle cx="8.6" cy="17.3" r="1.25"/><circle cx="12" cy="17.3" r="1.25"/><circle cx="15.4" cy="17.3" r="1.25"/></g></svg>',
+};
+
+// ค่าตัวอย่าง ผู้ชาย 65 ปี BW 70 kg Height 170 cm Cr 1.2 mg/dL คำนวณสดด้วยสูตรเดียวกับ TB calc
+const S = { age: 65, w: 70, h: 170, scr: 1.2 };
+const crcl = (bw) => ((140 - S.age) * bw) / (72 * S.scr);
+const ibw = 50 + 2.3 * Math.max(0, S.h / 2.54 - 60);
+const adj = ibw + 0.4 * (S.w - ibw);
+const egfr = 142 * Math.pow(Math.min(S.scr / 0.9, 1), -0.302) * Math.pow(Math.max(S.scr / 0.9, 1), -1.2) * Math.pow(0.9938, S.age);
+const bmi = S.w / ((S.h / 100) ** 2);
+const f1 = (v) => v.toFixed(1);
+const VALUE = crcl(ibw);
+
+function panelHTML() {
+  const field = (label, val, unit) => `<div class="cx-row"><span class="cx-lab">${label}</span><div class="cx-ctl"><div class="cx-field"><input class="cx-in" value="${val}" aria-label="${label}">${unit ? `<span class="cx-unit"><span>${unit}</span>${ICON.swapSm}</span>` : ''}</div></div></div>`;
+  return `
+    <div class="cx-head">
+      <span class="cx-grip" aria-hidden="true">${ICON.grip}</span>
+      <h3 class="cx-title">คำนวณ CrCl</h3>
+      <span class="cx-ib" aria-hidden="true">${ICON.narrow}</span>
+      <span class="cx-ib" aria-hidden="true">${ICON.flip}</span>
+      <button type="button" class="cx-ib" data-fold aria-label="พับเก็บเข้าลำต้น" title="พับเก็บเข้าลำต้น">${ICON.foldR}</button>
+      <span class="cx-ib" aria-hidden="true">${ICON.close}</span>
+    </div>
+    <div class="cx-body" inert>
+      <div class="cx-inputs">
+        <div class="cx-row"><span class="cx-lab">เพศกำเนิด</span><div class="cx-ctl"><div class="cx-seg"><button type="button" aria-pressed="true">ชาย</button><button type="button" aria-pressed="false">หญิง</button></div></div></div>
+        ${field('อายุ (ปี)', S.age)}${field('BW', S.w, 'kg')}${field('Height', S.h, 'cm')}
+        <div class="cx-row"><span class="cx-lab">Cr</span><div class="cx-ctl"><div class="cx-field"><input class="cx-in" value="${S.scr}" aria-label="Cr"><span class="cx-unit"><span>mg/dL</span>${ICON.swapSm}</span></div><div class="cx-msg">ค่าอ้างอิง Cr ชาย 0.7–1.2 mg/dL</div></div></div>
+      </div>
+      <div class="cx-sec"><div class="cx-sec-h"><h4 class="cx-sec-t">Creatinine Clearance (CrCl)</h4><span class="cx-tag use">ใช้ปรับขนาดยา</span></div>
+        <div class="cx-big"><b>${f1(VALUE)}</b><span>mL/min</span><em>สูตร Cockcroft-Gault</em></div>
+        <div class="cx-basis normal"><div class="cx-basis-main">Normal ใช้ Ideal BW ${f1(ibw)} kg</div><div class="cx-basis-why">เพราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW</div></div>
+        <table class="cx-bw"><thead><tr><th scope="col"><span class="sr">ชนิดน้ำหนัก</span></th><th scope="col">BW (kg)</th><th scope="col">CrCl (mL/min)</th></tr></thead><tbody>
+          <tr><th scope="row">Actual BW</th><td>${f1(S.w)}</td><td>${f1(crcl(S.w))}</td></tr>
+          <tr class="on"><th scope="row">Ideal BW</th><td>${f1(ibw)}</td><td>${f1(crcl(ibw))}</td></tr>
+          <tr><th scope="row">Adjusted BW</th><td>${f1(adj)}</td><td>${f1(crcl(adj))}</td></tr>
+        </tbody></table>
+        <p class="cx-note">IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4</p>
+      </div>
+      <div class="cx-sec"><h4 class="cx-sec-t">eGFR</h4><div class="cx-kv"><span class="cx-val">${f1(egfr)}<small>mL/min/1.73m²</small></span><span class="cx-cls" style="color:#65a30d">CKD Stage 2</span></div><div class="cx-meta"><span>สูตร CKD-EPI 2021</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>
+      <div class="cx-sec"><h4 class="cx-sec-t">BMI</h4><div class="cx-kv"><span class="cx-val">${f1(bmi)}<small>kg/m²</small></span><span class="cx-cls" style="color:#f97316">Overweight (น้ำหนักเกิน)</span></div><div class="cx-meta"><span>เกณฑ์ WHO Asia-Pacific</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>
+    </div>
+    <div class="cx-foot" inert><span class="cx-foot-note">เปลี่ยนผู้ป่วย กดล้างค่าก่อนทุกครั้ง</span><span class="cx-clear">${ICON.x}ล้างค่า</span></div>`;
+}
+
+const BASE = `${ICON.calc}<span class="k">CrCl</span><span class="v">${f1(VALUE)}</span><span class="u">mL/min</span>`;
+let TAB_H = 88;   // ความสูงแถบตอนพับ วัดจริงตอนเริ่ม
+
+class Dock {
+  constructor(host, variant, p, live) {
+    this.variant = variant;
+    this.el = document.createElement('div');
+    this.el.className = `dock ${variant}`;
+    this.el.innerHTML = `<button type="button" class="base">${BASE}</button>`
+      + '<div class="fillet down" aria-hidden="true"></div>'
+      + (variant === 'vd' ? '<div class="fillet up" aria-hidden="true"></div>' : '')
+      + `<section class="cx narrow" role="dialog" aria-label="กล่องคำนวณ CrCl">${panelHTML()}</section>`;
+    host.appendChild(this.el);
+    this.base = this.el.querySelector('.base');
+    this.panel = this.el.querySelector('.cx');
+    this.set(p);
+    if (live) {
+      this.base.addEventListener('click', () => this.toggle());
+      this.panel.querySelector('[data-fold]').addEventListener('click', () => this.animateTo(0));
+    } else {
+      this.el.setAttribute('inert', '');
+    }
+    this.measure();
+  }
+  measure() {
+    const st = this.el.style;
+    st.setProperty('--tabH', TAB_H + 'px');
+    const dockH = this.el.clientHeight;
+    const panelH = this.panel.offsetHeight;
+    st.setProperty('--panelH', panelH + 'px');
+    if (this.variant === 'vd') {
+      // ลำต้นอยู่กลางจอ กล่องจัดกึ่งกลางที่ลำต้น แต่ไม่ให้หลุดจอ
+      const sy = Math.round(dockH / 2);
+      const ptop = Math.max(0, Math.min(dockH - panelH, Math.round(sy - panelH / 2)));
+      st.setProperty('--sy', sy + 'px');
+      st.setProperty('--ptop', ptop + 'px');
+      st.setProperty('--syp', (sy - ptop) + 'px');
+    }
+  }
+  set(p) {
+    this.p = p;
+    this.el.style.setProperty('--p', String(p));
+    this.el.dataset.open = String(p > 0.5);
+    const say = p > 0.5 ? 'พับกล่องเก็บเข้าลำต้น' : 'กางกล่องคำนวณ CrCl';
+    this.base.setAttribute('aria-label', say);
+    this.base.title = say;
+  }
+  animateTo(target) {
+    cancelAnimationFrame(this.raf);
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce || document.hidden) { this.set(target); return; }
+    const from = this.p, dur = 230;
+    let t0 = null;
+    const step = (ts) => {
+      if (t0 === null) t0 = ts;
+      const k = Math.min(1, (ts - t0) / dur);
+      const e = 1 - Math.pow(1 - k, 3);
+      this.set(from + (target - from) * e);
+      if (k < 1) this.raf = requestAnimationFrame(step);
+    };
+    this.raf = requestAnimationFrame(step);
+  }
+  toggle() { this.animateTo(this.p > 0.5 ? 0 : 1); }
+}
+
+const SHOTS = [
+  { p: 0,   w: 200, cap: 'ตอนพับ',   sub: 'เหลือแถบเดิม' },
+  { p: 0.5, w: 330, cap: 'กำลังกาง', sub: 'ภาพนิ่งกลางจังหวะ' },
+  { p: 1,   w: 440, cap: 'กางเต็ม',  sub: 'กดได้จริง', live: true },
+];
+const BG = '<div class="bg-top" aria-hidden="true"></div><div class="bg-sheet" aria-hidden="true"><i style="width:62%"></i><i></i><i style="width:84%"></i><i></i><i style="width:55%"></i><i></i><i style="width:76%"></i><i></i><i style="width:48%"></i><i></i><i style="width:70%"></i><i></i><i style="width:58%"></i><i></i><i style="width:80%"></i></div>';
+const docks = [];
+
+// วัดความสูงแถบตอนพับจากของจริงก่อนสร้างทุกภาพ
+(() => {
+  const probe = document.createElement('div');
+  probe.className = 'dock va';
+  probe.style.cssText = 'visibility:hidden;--p:0';
+  probe.innerHTML = `<button type="button" class="base" style="height:auto">${BASE}</button>`;
+  document.body.appendChild(probe);
+  TAB_H = probe.querySelector('.base').offsetHeight || 88;
+  probe.remove();
+})();
+
+document.querySelectorAll('[data-variant]').forEach((sec) => {
+  const variant = sec.dataset.variant;
+  const strip = sec.querySelector('.strip');
+  for (const s of SHOTS) {
+    const fig = document.createElement('figure');
+    fig.className = 'shot';
+    fig.innerHTML = `<figcaption>${s.cap}<span>${s.sub}</span>${s.live ? `<button type="button" class="replay">${ICON.play}ดูจังหวะพับแล้วกาง</button>` : ''}</figcaption><div class="scr" style="width:${s.w}px">${BG}</div>`;
+    strip.appendChild(fig);
+    const dock = new Dock(fig.querySelector('.scr'), variant, s.p, !!s.live);
+    docks.push(dock);
+    if (s.live) {
+      fig.querySelector('.replay').addEventListener('click', () => {
+        dock.animateTo(0);
+        setTimeout(() => dock.animateTo(1), 520);
+      });
+      sec.querySelector('[data-w]').dataset.dock = String(docks.length - 1);
+    }
+  }
+});
+
+const remeasure = () => {
+  docks.forEach((d) => d.measure());
+  document.querySelectorAll('[data-w]').forEach((m) => {
+    const d = docks[Number(m.dataset.dock)];
+    const r = d.base.getBoundingClientRect();
+    const pr = d.panel.getBoundingClientRect();
+    m.textContent = `กว้างรวมตอนกาง ${Math.round(r.right - pr.left)} จุด จากเดิม 320 จุด`;
+  });
+};
+remeasure();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => {
+  const probe = document.createElement('div');
+  probe.className = 'dock va';
+  probe.style.cssText = 'visibility:hidden;--p:0';
+  probe.innerHTML = `<button type="button" class="base" style="height:auto">${BASE}</button>`;
+  document.body.appendChild(probe);
+  TAB_H = probe.querySelector('.base').offsetHeight || TAB_H;
+  probe.remove();
+  remeasure();
+});
+window.addEventListener('resize', remeasure);
+})();
+</script>
+</body>
+</html>

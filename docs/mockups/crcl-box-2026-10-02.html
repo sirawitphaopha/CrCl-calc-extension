@@ -1,0 +1,1106 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>มอคอัปกล่องคำนวณ CrCl</title>
+<!--
+  มอคอัปกล่องคำนวณ CrCl บน Chrome (ส่วนขยายของ Chrome) 2 ต.ค. 2569
+
+  ที่มาของค่าทุกตัวในไฟล์นี้
+  - สูตรและเกณฑ์ ยกจาก TB calc 100% ที่ C:/Users/PKH/tb-calculator (ตรงกับ origin/main a7b45b3)
+      script.js  calcCrCl() กับส่วน CrCl ใน calculate() (IBW Devine, AdjBW ตัวคูณ 0.4, สูงต่ำกว่า 152 cm, 1.2 เท่าของ IBW)
+                 calcEGFR() CKD-EPI 2021, getCKDStage(), getBmiClass(), LIMITS, toggleWeightUnit/HeightUnit/ScrUnit
+      lang.js    ข้อความภาษาไทย (crcl_*, err_*, scr_*, bmi_*, bw_*, egfr_hint, bmi_hint, warn_sex)
+  - ฟอนต์ Sarabun กับ Roboto Mono คัดลอกจาก warfarin-dash/.next/static/media มาไว้ที่ fonts/ ไม่โหลดจากเน็ต
+  - ความสูงจอจำลอง 577 = โครมของพี่กัน (สกิล testing-proof ข้อ 5.6)
+  - กฎหน้าจอจากสกิล web-craft, form-input, button-feedback, medical-data-safety, new-web-checklist
+  - ข้อมูลทุกกล่องเป็นค่าตัวอย่าง ไม่ใช่ผู้ป่วยจริง
+-->
+<style>
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/sarabun-400-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/sarabun-400-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/sarabun-500-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/sarabun-500-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/sarabun-600-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/sarabun-600-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/sarabun-700-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/sarabun-700-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Roboto Mono";font-style:normal;font-weight:100 700;font-display:swap;src:url(fonts/roboto-mono-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Roboto Mono";font-style:normal;font-weight:100 700;font-display:swap;src:url(fonts/roboto-mono-greek.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}
+
+:root{
+  --font-sarabun:"Sarabun";
+  --font-mono:"Roboto Mono";
+  --font-en:var(--font-mono);
+  --ink:#1f2d2a; --ink-2:#465753; --ink-3:#687874; --ink-4:#9aa8a4;
+  --line:#d3e0dc; --line-2:#e5ecea; --field-line:#c3d5d0;
+  --surface:#fff; --surface-2:#f5f9f8;
+  --accent:#0f766e; --accent-ink:#0b5c55; --accent-soft:#e4f3ef; --accent-soft-2:#cde9e1; --accent-line:#93cfc2;
+  --warn-ink:#b45309; --warn-bg:#fff7ec;
+  --danger-ink:#b42318; --danger-bg:#fef2f1; --danger-line:#f3b2aa;
+  --brick:#c2543c; --brick-bg:#fdf1ed; --brick-line:rgba(194,84,60,.32);
+}
+*{box-sizing:border-box}
+html{font-family:var(--font-en),var(--font-sarabun),"Noto Sans Thai",Tahoma,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;background:#e9eeec;color:var(--ink);font-size:15px;line-height:1.6}
+.page{padding:22px 16px 64px}
+
+/* ── หัวหน้า ── */
+.pg-h h1{margin:0 0 6px;font:700 23px/1.35 var(--font-sarabun),sans-serif}
+.lead{margin:0 0 10px;color:var(--ink-2);max-width:980px}
+.howto{margin:0 0 14px;padding-left:20px;color:var(--ink-2);font-size:14px}
+.toc{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 6px}
+.toc a{display:inline-flex;align-items:center;height:32px;padding:0 13px;border:1px solid var(--line);border-radius:999px;background-color:#fff;color:var(--accent-ink);font:600 13.5px/1 var(--font-sarabun),sans-serif;text-decoration:none;transition:background-color .15s ease,border-color .15s ease}
+.toc a:hover{background-color:var(--accent-soft);border-color:var(--accent-line)}
+.toc a:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ── หัวข้อส่วน ── */
+.part{margin-top:34px}
+.part>h2{margin:0 0 4px;font:700 20px/1.4 var(--font-sarabun),sans-serif}
+.part>.sub{margin:0 0 12px;color:var(--ink-3);font-size:14px}
+.var{margin-top:26px}
+.var-h{display:flex;flex-wrap:wrap;align-items:baseline;gap:4px 14px;margin-bottom:8px}
+.var-h h3{margin:0;font:700 18px/1.4 var(--font-sarabun),sans-serif}
+.meas{font-size:13px;color:var(--ink-3)}
+.meas b{color:var(--ink-2)}
+.meas .fit{color:#1b6141;font-weight:600}
+.meas .over{color:#b45309;font-weight:600}
+.procon{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;font-size:14px}
+.pro,.con{padding:8px 12px;border:1px solid;border-radius:10px}
+.pro{background:#edf8f2;border-color:#c6e7d4;color:#1d5b3c}
+.con{background:#fff6ec;border-color:#f3d2ab;color:#874a12}
+.pro b,.con b{font-family:var(--font-sarabun),sans-serif}
+
+/* ── จอจำลอง ── */
+.chrome{position:relative;display:flex;align-items:center;gap:10px;height:42px;padding:0 10px 0 12px;background:#dde3e8;border:1px solid #c5ced6;border-bottom:0;border-radius:10px 10px 0 0}
+.tabpill{align-self:flex-end;height:31px;display:flex;align-items:center;padding:0 16px;border-radius:8px 8px 0 0;background:#f3f5f7;color:#4b5a66;font-size:12.5px}
+.addr{flex:1;min-width:0;height:27px;display:flex;align-items:center;padding:0 12px;border-radius:14px;background:#f8fafb;color:#71808c;font-size:12.5px;white-space:nowrap;overflow:hidden}
+.exts{display:flex;align-items:center;gap:4px}
+.ext-dim{display:grid;place-items:center;width:30px;height:30px;color:#71808c}
+.ext{display:grid;place-items:center;width:32px;height:32px;border:0;border-radius:8px;background-color:transparent;color:var(--accent);cursor:pointer;transition:background-color .15s ease}
+.ext:hover{background-color:var(--accent-soft-2)}
+.ext:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.callout{position:absolute;right:92px;top:50%;transform:translateY(-50%);z-index:30;padding:5px 11px;border-radius:8px;background:#0f3d38;color:#fff;font:600 12.5px/1.4 var(--font-sarabun),sans-serif;white-space:nowrap;box-shadow:0 4px 12px rgba(0,0,0,.18);pointer-events:none}
+.callout::after{content:"";position:absolute;right:-6px;top:50%;transform:translateY(-50%);border:6px solid transparent;border-right:0;border-left-color:#0f3d38}
+.scr{position:relative;box-sizing:content-box;height:577px;overflow:hidden;background:#f3f5f7;border:1px solid #c5ced6;border-radius:0 0 10px 10px}
+.pl{position:absolute;inset:0}
+.pl i{display:block;border-radius:5px}
+.pl-top{position:absolute;left:0;right:0;top:0;height:46px;display:flex;align-items:center;gap:12px;padding:0 16px;background:#e3e8ec;border-bottom:1px solid #d4dbe1}
+.pl-top i{height:11px;background:#c8d1d9}
+.pl-side{position:absolute;left:0;top:46px;bottom:0;width:230px;padding:14px 12px;background:#eceff2;border-right:1px solid #d9dfe5}
+.pl-side i{height:30px;margin-bottom:8px;background:#e0e5ea}
+.pl-main{position:absolute;left:230px;right:0;top:46px;bottom:0;padding:18px 26px;overflow:hidden}
+.pl-pt{display:flex;align-items:center;gap:14px;height:64px;margin-bottom:14px;padding:0 16px;border-radius:10px;background:#e6eaee}
+.pl-pt .av{width:38px;height:38px;border-radius:50%;background:#d3dae1}
+.pl-pt div i{height:10px;background:#d3dae1}
+.pl-sheet{height:640px;padding:24px 28px;border:1px solid #e0e5ea;border-radius:6px;background:#fff}
+.pl-sheet i{height:9px;margin-bottom:13px;background:#eaeef2}
+.pl-mark{position:absolute;left:50%;top:56%;transform:translate(-50%,-50%);color:#b6c1ca;font:600 16px/1 var(--font-sarabun),sans-serif;pointer-events:none;white-space:nowrap}
+.scr-closed{position:absolute;right:14px;top:60px;z-index:19;max-width:300px;padding:10px 13px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--ink-2);font-size:13.5px;box-shadow:0 6px 18px rgba(0,0,0,.08)}
+.scr-closed[hidden]{display:none}
+
+/* ══════════ กล่องคำนวณ (ตัวที่จะใช้จริงในส่วนขยาย) ══════════ */
+.cx{--cx-r:12px;position:absolute;z-index:20;display:flex;flex-direction:column;max-height:calc(100% - 16px);background:var(--surface);border:1px solid var(--line);color:var(--ink);font-size:13px;line-height:1.45;box-shadow:0 12px 32px rgba(16,52,45,.18),0 2px 6px rgba(16,52,45,.08);text-align:left}
+.cx[hidden]{display:none}
+.cx[data-side="right"]{right:0;border-right:0;border-radius:var(--cx-r) 0 0 var(--cx-r)}
+.cx[data-side="left"]{left:0;border-left:0;border-radius:0 var(--cx-r) var(--cx-r) 0}
+.cx.v1,.cx.v3{width:320px}
+.cx.v2{width:620px}
+.cx-head{flex:none;display:flex;align-items:center;gap:4px;height:38px;padding:0 6px 0 10px;background:var(--accent-soft);border-bottom:1px solid var(--line);cursor:grab;user-select:none;touch-action:none}
+.cx[data-side="right"] .cx-head{border-top-left-radius:calc(var(--cx-r) - 1px)}
+.cx[data-side="left"] .cx-head{border-top-right-radius:calc(var(--cx-r) - 1px)}
+.cx.is-drag .cx-head{cursor:grabbing}
+.cx-grip{display:grid;place-items:center;width:14px;margin-right:4px;color:var(--accent);opacity:.65}
+.cx-title{flex:1;min-width:0;margin:0;color:var(--accent-ink);font:700 14.5px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-ib{flex:none;display:grid;place-items:center;width:30px;height:30px;border:0;border-radius:8px;background-color:transparent;color:var(--accent-ink);cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.cx-ib:hover{background-color:var(--accent-soft-2);color:var(--accent)}
+.cx-ib:focus-visible,.cx-unit:focus-visible,.cx-seg button:focus-visible,.cx-clear:focus-visible,.cx-tab:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.cx-body{flex:1 1 auto;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:10px 12px 10px}
+.cx-body::-webkit-scrollbar{width:7px}
+.cx-body::-webkit-scrollbar-thumb{background:#c3dad4;border-radius:4px}
+.cx-body::-webkit-scrollbar-track{background:transparent}
+
+/* ช่องกรอก */
+.cx-inputs{display:grid;gap:6px;align-content:start}
+.cx-row{display:grid;grid-template-columns:76px minmax(0,1fr);align-items:start;gap:8px}
+.cx-lab{display:flex;align-items:center;height:32px;color:var(--ink-2);font:600 13px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-ctl{min-width:0}
+.cx-field{display:flex;height:32px;border:1px solid var(--field-line);border-radius:8px;background-color:#fff;overflow:hidden;transition:border-color .15s ease,box-shadow .15s ease}
+.cx-field:hover{border-color:var(--accent-line)}
+.cx-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,118,110,.14)}
+.cx-field.is-warn{border-color:#eda24c;background-color:var(--warn-bg)}
+.cx-field.is-err{border-color:#e5484d;background-color:var(--danger-bg)}
+.cx-in{flex:1 1 auto;min-width:0;height:100%;padding:0 10px;border:0;outline:0;background:transparent;color:var(--ink);font:600 15px/1 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
+.cx-in::placeholder{color:var(--ink-4);font-size:13px;font-weight:400}
+.cx-unit{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;min-width:77px;padding:0 8px;border:0;border-left:1px solid var(--line-2);background-color:var(--surface-2);color:var(--ink-2);font:600 12px/1 var(--font-en),var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.cx-unit:hover{background-color:var(--accent-soft);color:var(--accent-ink)}
+.cx-seg{display:flex;height:32px;border:1px solid var(--field-line);border-radius:8px;background:#fff;overflow:hidden}
+.cx-seg.is-warn{border-color:#eda24c}
+.cx-seg button{flex:1;border:0;background-color:#fff;color:var(--ink-3);font:600 13.5px/1 var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.cx-seg button+button{border-left:1px solid var(--field-line)}
+.cx-seg button:hover{background-color:var(--accent-soft);color:var(--accent-ink)}
+.cx-seg button[aria-pressed="true"]{background-color:var(--accent-soft-2);color:var(--accent-ink);font-weight:700}
+.cx-seg button[aria-pressed="true"]:hover{background-color:#bde0d6}
+.cx-msg{display:flex;align-items:flex-start;gap:5px;margin-top:3px;color:var(--ink-3);font-size:12px;line-height:1.45}
+.cx-msg[hidden]{display:none}
+.cx-msg svg{flex:none;margin-top:2px}
+.cx-msg.err{color:var(--danger-ink)}
+.cx-msg.warn{color:var(--warn-ink)}
+.cx-msg.hi{color:#855a00}
+
+/* ผลลัพธ์ */
+.cx-sec{margin-top:10px;padding-top:8px;border-top:1px solid var(--line-2)}
+.cx-sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cx-sec-t{margin:0;color:var(--ink);font:700 11.5px/1.4 var(--font-en),var(--font-sarabun),sans-serif;letter-spacing:-.2px}
+.cx-tag{flex:none;padding:1px 8px;border-radius:999px;font:600 11px/1.45 var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-tag.use{background:var(--accent-soft);color:var(--accent-ink)}
+.cx-tag.info{background:#eef1f3;color:var(--ink-3)}
+.cx-big{display:flex;align-items:baseline;gap:6px;margin-top:4px}
+.cx-big b{color:var(--ink);font:700 28px/1.05 var(--font-en),sans-serif;letter-spacing:-.5px}
+.cx-big span{color:var(--ink-3);font:500 13px/1 var(--font-en),sans-serif}
+.cx-big em{margin-left:auto;color:var(--ink-3);font:500 11px/1 var(--font-en),var(--font-sarabun),sans-serif;font-style:normal}
+.cx-big .cx-none{color:var(--ink-4);font:600 15px/1.4 var(--font-sarabun),sans-serif}
+.cx-hint{margin:3px 0 0;color:var(--ink-3);font-size:12px}
+.cx-note{margin:4px 0 0;color:var(--ink-3);font-size:11px;line-height:1.45}
+.cx-alert{display:flex;align-items:flex-start;gap:6px;margin-top:6px;padding:7px 10px;border-radius:8px;font-size:12.5px}
+.cx-alert svg{flex:none;margin-top:2px}
+.cx-alert.err{border:1px solid var(--danger-line);background:var(--danger-bg);color:var(--danger-ink)}
+.cx-basis{margin-top:6px;padding:5px 8px;border:1px solid;border-radius:8px;font-size:12.5px;line-height:1.45}
+.cx-basis-main{font-family:var(--font-en),var(--font-sarabun),sans-serif;font-weight:700}
+.cx-basis-why{font-size:11.5px;opacity:.88}
+.cx-basis.normal{background:#edf8f2;border-color:#bfe4cf;color:#1b6141}
+.cx-basis.under,.cx-basis.noht{background:#fff8e9;border-color:#efd18d;color:#7a5106}
+.cx-basis.short{background:#fff3e8;border-color:#f4c493;color:#9a4510}
+.cx-basis.obese.o1{background:#fff3f2;border-color:#f6c3bc;color:#b4382a}
+.cx-basis.obese.o2{background:#fff0ee;border-color:#f0aaa0;color:#a32b1d}
+.cx-basis.obese.o3{background:#feecea;border-color:#e88f84;color:#8f2214}
+.cx-warnline{display:flex;align-items:flex-start;gap:5px;margin-top:3px;color:var(--warn-ink);font-size:12px}
+.cx-warnline svg{flex:none;margin-top:2px}
+.cx-bw{width:100%;margin-top:6px;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.cx-bw th,.cx-bw td{padding:3px 7px;border-bottom:1px solid var(--line-2);white-space:nowrap}
+.cx-bw thead th{border-bottom:1px solid var(--line);color:var(--ink-3);font:600 11px/1.3 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
+.cx-bw tbody th{color:var(--ink-2);font:600 12px/1.3 var(--font-en),sans-serif;text-align:left}
+.cx-bw td{color:var(--ink-2);font:500 12.5px/1.3 var(--font-en),sans-serif;text-align:right}
+.cx-bw td.cx-na{color:var(--ink-4);font-family:var(--font-en),var(--font-sarabun),sans-serif;font-weight:500;text-align:center;white-space:normal}
+.cx-bw-v thead th:nth-child(1){width:36%}
+.cx-bw-v thead th:nth-child(2){width:26%}
+.cx-bw-v thead th:nth-child(3){width:38%}
+.cx-bw-v tr.on th,.cx-bw-v tr.on td{background:var(--accent-soft);color:var(--ink);font-weight:700}
+.cx-bw-v tr.on th{box-shadow:inset 3px 0 0 var(--accent)}
+.cx-bw-h thead th:nth-child(1){width:25%}
+.cx-bw-h thead th{text-align:center}
+.cx-bw-h td{text-align:center}
+.cx-bw-h .on{background:var(--accent-soft);color:var(--ink);font-weight:700}
+.cx-bw-h thead th.on{box-shadow:inset 0 3px 0 var(--accent);color:var(--accent-ink)}
+.cx-kv{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0 10px;margin-top:3px}
+.cx-val{color:var(--ink);font:700 17px/1.25 var(--font-en),sans-serif}
+.cx-val small{margin-left:4px;color:var(--ink-3);font:500 11.5px/1 var(--font-en),sans-serif}
+.cx-cls{font:700 12.5px/1.35 var(--font-en),var(--font-sarabun),sans-serif}
+.cx-meta{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin-top:3px;color:var(--ink-3);font-size:11px;line-height:1.45}
+.cx-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 12px;border-top:1px solid var(--line);background:var(--surface-2)}
+.cx[data-side="right"] .cx-foot{border-bottom-left-radius:calc(var(--cx-r) - 1px)}
+.cx[data-side="left"] .cx-foot{border-bottom-right-radius:calc(var(--cx-r) - 1px)}
+.cx-foot-note{color:var(--ink-3);font-size:11.5px;line-height:1.35}
+.cx-clear{flex:none;display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border:1px solid var(--brick-line);border-radius:8px;background-color:#fff;color:var(--brick);font:600 13px/1 var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+.cx-clear:hover{background-color:var(--brick-bg);border:1px solid rgba(194,84,60,.55)}
+
+/* แบบแผงกว้างสองฝั่ง */
+.v2 .cx-body{display:grid;grid-template-columns:262px minmax(0,1fr);gap:0 16px;align-items:start}
+.v2 .cx-inputs{align-self:stretch;padding-right:16px;border-right:1px solid var(--line-2)}
+.v2 .cx-results>.cx-sec:first-child{margin-top:0;padding-top:0;border-top:0}
+.v2 .cx-pair{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+
+/* แบบแผงแคบแบบกระชับ */
+.v3 .cx-body{padding:9px 10px 9px}
+.v3 .cx-inputs{grid-template-columns:1fr 1fr;gap:6px 8px}
+.v3 .cx-row{display:block;min-width:0}
+.v3 .cx-row[data-row="sex"]{grid-column:1/-1;display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px}
+.v3 .cx-row[data-row="sex"] .cx-lab{height:30px}
+.v3 .cx-field,.v3 .cx-seg{height:30px}
+.v3 .cx-pre{flex:none;display:flex;align-items:center;padding:0 0 0 8px;color:var(--ink-3);font:600 12px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap;cursor:text}
+.v3 .cx-suf{flex:none;display:flex;align-items:center;padding:0 8px 0 2px;color:var(--ink-3);font:600 12px/1 var(--font-sarabun),sans-serif}
+.v3 .cx-in{padding:0 6px;font-size:14px}
+.v3 .cx-unit{min-width:73px;padding:0 6px}
+.v3 .cx-inputs>.cx-msg{grid-column:1/-1;margin-top:0}
+.v3 .cx-head .cx-clear{height:26px;margin-right:2px;padding:0 9px;font-size:12.5px}
+.v3 .cx-sec{margin-top:8px;padding-top:7px}
+.v3 .cx-big{margin-top:2px}
+.v3 .cx-big b{font-size:26px}
+.v3 .cx-basis{padding:4px 8px;font-size:12px}
+.v3 .cx-val{font-size:16px}
+
+/* แถบตอนพับเก็บ */
+.cx-tab{position:absolute;z-index:20;display:flex;flex-direction:column;align-items:center;gap:3px;width:52px;padding:10px 0 9px;border:1px solid var(--accent-line);background-color:var(--accent-soft);color:var(--accent-ink);box-shadow:0 8px 22px rgba(16,52,45,.18);cursor:pointer;font-family:var(--font-en),var(--font-sarabun),sans-serif;touch-action:none;transition:background-color .15s ease}
+.cx-tab[hidden]{display:none}
+.cx-tab[data-side="right"]{right:0;border-right:0;border-radius:12px 0 0 12px}
+.cx-tab[data-side="left"]{left:0;border-left:0;border-radius:0 12px 12px 0}
+.cx-tab:hover{background-color:var(--accent-soft-2)}
+.cx-tab.is-drag{cursor:grabbing}
+.cx-tab .k{font-size:11px;font-weight:700;line-height:1.2}
+.cx-tab .v{color:var(--ink);font-size:13.5px;font-weight:700;line-height:1.2}
+.cx-tab .u{color:var(--ink-3);font-size:9.5px;line-height:1.1}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* ── ผลลัพธ์ทุกกรณี ── */
+.mx-row{margin:22px 0 34px}
+.mx-h{margin:0 0 10px;font:700 16.5px/1.4 var(--font-sarabun),sans-serif}
+.mx-cells{display:flex;flex-wrap:wrap;align-items:flex-start;gap:18px}
+.mx-cell{margin:0;max-width:100%}
+.mx-cap{display:flex;flex-wrap:wrap;gap:2px 10px;margin-bottom:6px;color:var(--ink-3);font-size:12.5px}
+.mx-cap b{color:var(--ink-2);font-family:var(--font-sarabun),sans-serif}
+.mx-cap .over{color:#b45309;font-weight:600}
+.mx-cap .fit{color:#1b6141;font-weight:600}
+.mx-stage{position:relative;display:inline-block;max-width:100%;border-right:3px solid #b6c2ca}
+.mx-stage .cx{position:relative;max-height:none}
+.mx-limit{position:absolute;left:-6px;right:-3px;z-index:25;height:0;border-top:2px solid #e5484d;pointer-events:none}
+.mx-limit[hidden]{display:none}
+.mx-limit span{position:absolute;left:10px;top:3px;padding:1px 6px;border-radius:5px;background:#fff;color:#c2341f;font:600 11.5px/1.4 var(--font-sarabun),sans-serif;white-space:nowrap}
+
+/* ── ท้ายหน้า ── */
+.notes{max-width:1000px}
+.notes ul{margin:6px 0 18px;padding-left:22px}
+.notes li{margin:4px 0}
+.notes h3{margin:18px 0 4px;font:700 17px/1.4 var(--font-sarabun),sans-serif}
+
+@media (max-width:760px){.procon{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="pg-h">
+  <h1>มอคอัปกล่องคำนวณ CrCl บน Chrome</h1>
+  <p class="lead">มี 3 แบบให้เลือก ทุกแบบใช้ระบบคำนวณ CrCl ของ TB calc ทั้งชุด ตัวเลขทุกตัวในหน้านี้คำนวณสดจากสูตรจริง ข้อมูลเป็นค่าตัวอย่าง ไม่ใช่ผู้ป่วยจริง</p>
+  <ul class="howto">
+    <li>จอจำลองทุกจอสูง 577 จุด เท่ากับโครมของพี่กัน กล่องจึงมีขนาดเท่าของจริง</li>
+    <li>กล่องในจอจำลอง ลองพิมพ์ ลองกด ลองลากหัวกล่องขึ้นลงได้จริง ลากข้ามกลางจอเพื่อย้ายไปอีกขอบ</li>
+    <li>ส่วนผลลัพธ์ทุกกรณีด้านล่างเป็นภาพนิ่ง วางทุกกรณีไว้ให้เทียบสามแบบพร้อมกัน</li>
+  </ul>
+  <nav class="toc" aria-label="ไปยังส่วนต่าง ๆ">
+    <a href="#v1">แผงแคบเรียงลงมา</a>
+    <a href="#v2">แผงกว้างสองฝั่ง</a>
+    <a href="#v3">แผงแคบแบบกระชับ</a>
+    <a href="#fold">ตอนพับเก็บและย้ายขอบ</a>
+    <a href="#states">ผลลัพธ์ทุกกรณี</a>
+    <a href="#notes">พฤติกรรมและส่วนที่ต่างจาก TB calc</a>
+  </nav>
+</header>
+
+<section class="part" aria-labelledby="h-pick">
+  <h2 id="h-pick">เลือกแบบกล่อง</h2>
+  <p class="sub">ทุกจอแสดงกรณีน้ำหนักปกติ ผู้ชายอายุ 65 ปี BW 70 kg Height 170 cm Cr 1.2 mg/dL</p>
+
+  <div class="var" id="v1">
+    <div class="var-h"><h3>แผงแคบเรียงลงมา</h3><span class="meas" data-meas="v1"></span></div>
+    <div class="procon">
+      <div class="pro"><b>ข้อดี</b> บังหน้า paperless น้อย อ่านเรียงจากบนลงล่างตามลำดับที่กรอก ตัวหนังสือใหญ่อ่านง่าย</div>
+      <div class="con"><b>ข้อเสีย</b> กล่องสูงกว่าจอโครมของพี่กัน ต้องเลื่อนดูส่วนล่างในกล่องเกือบทุกครั้ง</div>
+    </div>
+    <div class="frame" data-frame="v1"></div>
+  </div>
+
+  <div class="var" id="v2">
+    <div class="var-h"><h3>แผงกว้างสองฝั่ง</h3><span class="meas" data-meas="v2"></span></div>
+    <div class="procon">
+      <div class="pro"><b>ข้อดี</b> ช่องกรอกอยู่ซ้าย ผลอยู่ขวา เห็นครบทุกอย่างโดยไม่ต้องเลื่อน กล่องเตี้ยที่สุด</div>
+      <div class="con"><b>ข้อเสีย</b> กว้างเกือบครึ่งจอ บังหน้า paperless มากที่สุด อาจต้องพับเก็บบ่อย</div>
+    </div>
+    <div class="frame" data-frame="v2"></div>
+  </div>
+
+  <div class="var" id="v3">
+    <div class="var-h"><h3>แผงแคบแบบกระชับ</h3><span class="meas" data-meas="v3"></span></div>
+    <div class="procon">
+      <div class="pro"><b>ข้อดี</b> แคบเท่าแบบแรก บังหน้า paperless น้อย ชื่อช่องอยู่ในกรอบ วางสองคอลัมน์ กล่องจึงเตี้ยลงมาก</div>
+      <div class="con"><b>ข้อเสีย</b> ตัวหนังสือเล็กลง ช่องกรอกเบียดกัน ปุ่มล้างค่าย้ายขึ้นไปอยู่หัวกล่อง</div>
+    </div>
+    <div class="frame" data-frame="v3"></div>
+  </div>
+</section>
+
+<section class="part" id="fold" aria-labelledby="h-fold">
+  <h2 id="h-fold">ตอนพับเก็บ และตอนย้ายไปติดขอบซ้าย</h2>
+  <p class="sub">ใช้กับทุกแบบเหมือนกัน ตัวอย่างนี้ใช้แผงแคบแบบกระชับ</p>
+  <div class="var">
+    <div class="var-h"><h3>พับเก็บ เหลือแถบเล็กติดขอบ แสดงค่า CrCl ล่าสุด กดแถบเพื่อกางกลับ</h3></div>
+    <div class="frame" data-frame="fold"></div>
+  </div>
+  <div class="var">
+    <div class="var-h"><h3>ย้ายไปติดขอบซ้าย ลากหัวกล่องข้ามกลางจอ หรือกดปุ่มย้ายขอบ</h3></div>
+    <div class="frame" data-frame="left"></div>
+  </div>
+</section>
+
+<section class="part" id="states" aria-labelledby="h-states">
+  <h2 id="h-states">ผลลัพธ์ทุกกรณี</h2>
+  <p class="sub">ภาพนิ่ง แต่ละแถวคือหนึ่งกรณี เทียบสามแบบพร้อมกัน เส้นแดงคือความสูงที่จอโครมของพี่กันแสดงได้ ส่วนที่เกินเส้นต้องเลื่อนดูในกล่อง เส้นเทาด้านขวาคือขอบจอ</p>
+  <div id="mx"></div>
+</section>
+
+<section class="part notes" id="notes" aria-labelledby="h-notes">
+  <h2 id="h-notes">พฤติกรรมของกล่อง</h2>
+  <ul>
+    <li>กดไอคอนส่วนขยายบนแถบ Chrome กล่องจะแสดงที่ตำแหน่งที่วางไว้ล่าสุด ใช้ได้ทุกเว็บ</li>
+    <li>ลากหัวกล่องขึ้นลงเพื่อเลื่อนตามขอบ ลากข้ามกลางจอเพื่อย้ายไปติดอีกขอบ หรือกดปุ่มย้ายขอบ</li>
+    <li>ปุ่มพับเก็บ กล่องจะเหลือแถบเล็กที่ขอบ แสดงค่า CrCl ล่าสุด กดแถบเพื่อกางกลับ ปุ่ม Esc ก็พับได้</li>
+    <li>ปุ่มปิด กล่องหายไปแต่ค่าที่กรอกยังอยู่ กดไอคอนส่วนขยายอีกครั้ง กล่องกลับมาพร้อมค่าเดิม</li>
+    <li>ค่าที่กรอกอยู่ข้ามหน้า จนกว่าจะกดล้างค่าหรือปิดแท็บนั้น ตามที่พี่กันเลือก</li>
+    <li>ปุ่มล้างค่าล้างทันที ไม่มีหน้าต่างถามย้ำ เหมือน TB calc</li>
+    <li>ทุกตัวเลขคิดในเครื่องนั้น ไม่ส่งข้อมูลผู้ป่วยออกไปที่ไหน</li>
+  </ul>
+  <h3>ส่วนที่ต่างจาก TB calc</h3>
+  <ul>
+    <li>ไม่มีสีแดงตอน CrCl ต่ำกว่า 30 และไม่มีข้อความว่าไม่ต้องปรับขนาดยา เพราะเป็นเกณฑ์ของยาวัณโรค เกณฑ์ของยาแต่ละตัวไว้ทำรอบสอง</li>
+    <li>น้ำหนักเริ่มที่ช่องว่าง ไม่ได้ตั้งไว้ 50 kg และไม่มีแถบเลื่อนน้ำหนัก กันเผลอใช้ค่าตั้งต้นกับผู้ป่วย</li>
+    <li>ป้ายช่องกรอกใช้ BW, Height และ Cr</li>
+    <li>ตอนยังไม่เลือกเพศ จะยังไม่เตือนว่า Cr สูงหรือต่ำ (TB calc ใช้ช่วงของผู้หญิงเตือนไปก่อน)</li>
+    <li>ค่าที่เกินขอบเขตจะไม่คำนวณ eGFR และ BMI ต่อ (TB calc ยังคำนวณ eGFR จากค่า Cr ที่เกินขอบเขตให้)</li>
+    <li>เพิ่มบรรทัดบอกเหตุผลว่าทำไมเลือกน้ำหนักตัวนั้น เขียนชื่อสูตรไว้ข้างค่าแต่ละตัว และทำน้ำหนักสามแบบเป็นตารางจริง</li>
+    <li>ช่องกรอกไม่มีลูกศรขึ้นลง กันหมุนล้อเมาส์แล้วค่าเปลี่ยนเอง</li>
+    <li>ไอคอนเตือนเป็นเส้นวาดแทนอีโมจิ และข้อความเตือนตัดเครื่องหมายขีดยาวออกตามกฎข้อความบนจอ</li>
+  </ul>
+</section>
+
+</div>
+
+<script>
+(() => {
+'use strict';
+
+/* ══════════ ระบบคำนวณ ยกจาก TB calc 100% (script.js และ lang.js) ══════════ */
+const UNIT = {
+  wu: { kg: { lim: [20, 200], next: 'lb' }, lb: { lim: [44, 441], next: 'kg' } },
+  hu: { cm: { lim: [100, 230], next: 'inch' }, inch: { lim: [40, 91], next: 'cm' } },
+  su: { mgdl: { lim: [0.1, 30], next: 'umol' }, umol: { lim: [9, 2652], next: 'mgdl' } },
+};
+const UNIT_TXT = { kg: 'kg', lb: 'lb', cm: 'cm', inch: 'in', mgdl: 'mg/dL', umol: 'μmol/L' };
+const FIELD_OF = { wu: 'w', hu: 'h', su: 'scr' };
+const UNIT_OF = { w: 'wu', h: 'hu', scr: 'su' };
+const PH = {
+  age: 'เช่น 45',
+  w: { kg: 'เช่น 60', lb: 'เช่น 132' },
+  h: { cm: 'เช่น 165', inch: 'เช่น 65' },
+  scr: { mgdl: 'เช่น 1.0', umol: 'เช่น 88' },
+};
+const ERR = {
+  w: { kg: ['น้ำหนักต่ำเกินไป (ต่ำสุด 20 kg)', 'น้ำหนักสูงเกินไป (สูงสุด 200 kg)'], lb: ['น้ำหนักต่ำเกินไป (ต่ำสุด 44 lb)', 'น้ำหนักสูงเกินไป (สูงสุด 441 lb)'] },
+  h: { cm: ['ส่วนสูงต่ำเกินไป (ต่ำสุด 100 cm)', 'ส่วนสูงสูงเกินไป (สูงสุด 230 cm)'], inch: ['ส่วนสูงต่ำเกินไป (ต่ำสุด 40 in)', 'ส่วนสูงสูงเกินไป (สูงสุด 91 in)'] },
+  age: ['อายุต่ำเกินไป (ต่ำสุด 15 ปี)', 'อายุสูงเกินไป (สูงสุด 110 ปี)'],
+  scr: { mgdl: ['ค่า Cr ต่ำเกินไป (ต่ำสุด 0.1 mg/dL)', 'ค่า Cr สูงเกินไป (สูงสุด 30 mg/dL)'], umol: ['ค่า Cr ต่ำเกินไป (ต่ำสุด 9 μmol/L)', 'ค่า Cr สูงเกินไป (สูงสุด 2652 μmol/L)'] },
+};
+
+function calcCrCl(bw, age, scr, sex) {
+  const v = ((140 - age) * bw) / (72 * scr);
+  return sex === 'female' ? v * 0.85 : v;
+}
+function calcEGFR(scr, age, sex) {
+  const k = sex === 'female' ? 0.7 : 0.9;
+  const a = sex === 'female' ? -0.241 : -0.302;
+  const r = scr / k;
+  return 142 * Math.pow(Math.min(r, 1), a) * Math.pow(Math.max(r, 1), -1.2) * Math.pow(0.9938, age) * (sex === 'female' ? 1.012 : 1);
+}
+function ckdStage(v) {
+  if (v >= 90) return { label: 'Stage 1', color: '#16a34a' };
+  if (v >= 60) return { label: 'Stage 2', color: '#65a30d' };
+  if (v >= 45) return { label: 'Stage 3a', color: '#d97706' };
+  if (v >= 30) return { label: 'Stage 3b', color: '#ea580c' };
+  if (v >= 15) return { label: 'Stage 4', color: '#dc2626' };
+  return { label: 'Stage 5 (ESRD)', color: '#991b1b' };
+}
+function bmiClass(b) {
+  if (b < 18.5) return { label: 'Underweight (ผอม)', color: '#d97706' };
+  if (b < 23) return { label: 'Normal Weight (ปกติ)', color: '#16a34a' };
+  if (b < 25) return { label: 'Overweight (น้ำหนักเกิน)', color: '#f97316' };
+  if (b < 30) return { label: 'Obese I (อ้วนระดับ 1)', color: '#f87171' };
+  if (b < 35) return { label: 'Obese II (อ้วนระดับ 2)', color: '#ef4444' };
+  return { label: 'Obese III (อ้วนระดับ 3)', color: '#dc2626' };
+}
+function num(s) {
+  if (s === '' || s == null) return NaN;
+  const v = Number(String(s));
+  return Number.isFinite(v) ? v : NaN;
+}
+
+function compute(st) {
+  const r = { err: {} };
+  const wRaw = num(st.w), hRaw = num(st.h), age = num(st.age), sRaw = num(st.scr);
+  const check = (key, v, lim, msgs) => {
+    if (!Number.isFinite(v)) return;
+    if (v < lim[0]) r.err[key] = msgs[0];
+    else if (v > lim[1]) r.err[key] = msgs[1];
+  };
+  check('w', wRaw, UNIT.wu[st.wu].lim, ERR.w[st.wu]);
+  check('h', hRaw, UNIT.hu[st.hu].lim, ERR.h[st.hu]);
+  check('age', age, [15, 110], ERR.age);
+  check('scr', sRaw, UNIT.su[st.su].lim, ERR.scr[st.su]);
+  const w = st.wu === 'lb' ? wRaw / 2.20462 : wRaw;
+  const h = st.hu === 'inch' ? hRaw * 2.54 : hRaw;
+  const scr = st.su === 'umol' ? sRaw / 88.4 : sRaw;
+  const sex = st.sex;
+  r.hasError = Object.keys(r.err).length > 0;
+  r.ageWarn = Number.isFinite(age) && !r.err.age && (age < 18 || age > 92);
+  r.sexWarn = !sex && (Number.isFinite(sRaw) || Number.isFinite(hRaw) || Number.isFinite(age));
+
+  // ค่าอ้างอิง Cr ตาม TB calc (ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL) ยังไม่เลือกเพศ = ยังไม่เตือน
+  r.crRef = 'neutral';
+  if (Number.isFinite(sRaw) && !r.err.scr && sex) {
+    const ref = sex === 'male' ? [0.7, 1.2] : [0.5, 1.0];
+    r.crRef = scr < ref[0] ? 'low' : scr > ref[1] ? 'high' : 'ok';
+  }
+
+  // CrCl (Cockcroft-Gault) เลือกน้ำหนักตามกติกาของ TB calc
+  const ready = w > 0 && Number.isFinite(age) && Number.isFinite(scr) && (sex === 'male' || sex === 'female');
+  if (r.hasError) {
+    r.crcl = { state: 'error' };
+  } else if (ready && Number.isFinite(h)) {
+    const over60 = Math.max(0, h / 2.54 - 60);
+    const ibw = sex === 'male' ? 50 + 2.3 * over60 : 45.5 + 2.3 * over60;
+    const adj = ibw + 0.4 * (w - ibw);
+    const short = h < 152;
+    const cA = calcCrCl(w, age, scr, sex);
+    const cI = short ? null : calcCrCl(ibw, age, scr, sex);
+    const cJ = short ? null : calcCrCl(adj, age, scr, sex);
+    let pick, kind;
+    if (short) { pick = 'A'; kind = 'short'; }
+    else if (w < ibw) { pick = 'A'; kind = 'under'; }
+    else if (w > ibw * 1.2) { pick = 'J'; kind = 'obese'; }
+    else { pick = 'I'; kind = 'normal'; }
+    const bmi = w / ((h / 100) ** 2);
+    r.crcl = { state: 'full', w, ibw, adj, short, cA, cI, cJ, pick, kind,
+               obLevel: bmi < 30 ? 1 : bmi < 35 ? 2 : 3,
+               value: pick === 'A' ? cA : pick === 'I' ? cI : cJ };
+  } else if (ready) {
+    const cA = calcCrCl(w, age, scr, sex);
+    r.crcl = { state: 'noheight', w, cA, pick: 'A', value: cA };
+  } else {
+    const miss = [];
+    if (!sex) miss.push('เพศกำเนิด');
+    if (!Number.isFinite(age)) miss.push('อายุ');
+    if (!(w > 0)) miss.push('BW');
+    if (!Number.isFinite(scr)) miss.push('Cr');
+    r.crcl = { state: 'incomplete', missing: miss };
+  }
+
+  // eGFR (CKD-EPI 2021) แสดงผลเท่านั้น
+  if (Number.isFinite(scr) && Number.isFinite(age) && sex && !r.err.scr && !r.err.age) {
+    const v = calcEGFR(scr, age, sex);
+    r.egfr = { v, stage: ckdStage(v) };
+  } else {
+    r.egfr = { state: (r.err.scr || r.err.age) ? 'error' : 'incomplete' };
+  }
+  // BMI แสดงผลเท่านั้น
+  if (w > 0 && Number.isFinite(h) && !r.err.w && !r.err.h) {
+    const v = w / ((h / 100) ** 2);
+    r.bmi = { v, cls: bmiClass(v) };
+  } else {
+    r.bmi = { state: (r.err.w || r.err.h) ? 'error' : 'incomplete' };
+  }
+  return r;
+}
+
+/* ══════════ ไอคอน วาดด้วยเส้น ห้ามใช้ตัวอักษรพิเศษ ══════════ */
+const sv = (s, body, sw = 2.2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
+const ICON = {
+  grip: '<svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="2.5" cy="2.5" r="1.5"/><circle cx="7.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="8" r="1.5"/><circle cx="7.5" cy="8" r="1.5"/><circle cx="2.5" cy="13.5" r="1.5"/><circle cx="7.5" cy="13.5" r="1.5"/></svg>',
+  flip: sv(16, '<path d="M4 8h15"/><path d="M15 4l4 4-4 4"/><path d="M20 16H5"/><path d="M9 12l-4 4 4 4"/>'),
+  foldR: sv(16, '<path d="M6 6l6 6-6 6"/><path d="M13 6l6 6-6 6"/>'),
+  foldL: sv(16, '<path d="M18 6l-6 6 6 6"/><path d="M11 6l-6 6 6 6"/>'),
+  close: sv(16, '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>'),
+  x: sv(13, '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>', 2.6),
+  alert: sv(15, '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.3v.2"/>'),
+  alertSm: sv(13, '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.3v.2"/>', 2.4),
+  swapSm: sv(12, '<path d="M4 8h14"/><path d="M14 4l4 4-4 4"/><path d="M20 16H6"/><path d="M10 12l-4 4 4 4"/>', 2.4),
+  calc: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="2.5" width="16" height="19" rx="3.2" fill="currentColor"/><rect x="7" y="5.5" width="10" height="4.2" rx="1.2" fill="#fff"/><g fill="#fff"><circle cx="8.6" cy="13.3" r="1.25"/><circle cx="12" cy="13.3" r="1.25"/><circle cx="15.4" cy="13.3" r="1.25"/><circle cx="8.6" cy="17.3" r="1.25"/><circle cx="12" cy="17.3" r="1.25"/><circle cx="15.4" cy="17.3" r="1.25"/></g></svg>',
+  puzzle: sv(18, '<path d="M10 3.5a2 2 0 0 1 4 0V5h4a1 1 0 0 1 1 1v4h-1.5a2 2 0 0 0 0 4H19v4a1 1 0 0 1-1 1h-4v-1.5a2 2 0 0 0-4 0V19H6a1 1 0 0 1-1-1v-4h1.5a2 2 0 0 0 0-4H5V6a1 1 0 0 1 1-1h4z"/>', 1.7),
+};
+
+/* ══════════ ข้อความผลลัพธ์ ══════════ */
+const f1 = (v) => v.toFixed(1);
+function joinThai(list) {
+  if (list.length <= 1) return list.join('');
+  return list.slice(0, -1).join(' ') + ' และ ' + list[list.length - 1];
+}
+function warnLine(t) { return `<div class="cx-warnline">${ICON.alertSm}<span>${t}</span></div>`; }
+
+function basisHTML(c, r) {
+  const lines = [];
+  let cls, main, why;
+  if (c.state === 'noheight') {
+    cls = 'noht'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะยังไม่ได้กรอกส่วนสูง';
+    lines.push('กรอกส่วนสูงเพื่อความแม่นยำ');
+  } else if (c.kind === 'short') {
+    cls = 'short'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะสูงต่ำกว่า 152 cm';
+    lines.push('อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง');
+  } else if (c.kind === 'under') {
+    cls = 'under'; main = `Underweight ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะ BW น้อยกว่า IBW';
+    lines.push('มวลกล้ามเนื้อน้อย ค่า CrCl อาจสูงกว่าความเป็นจริง');
+  } else if (c.kind === 'obese') {
+    cls = 'obese o' + c.obLevel; main = `Obese ใช้ Adjusted BW ${f1(c.adj)} kg`; why = 'เพราะ BW มากกว่า 1.2 เท่าของ IBW';
+  } else {
+    cls = 'normal'; main = `Normal ใช้ Ideal BW ${f1(c.ibw)} kg`; why = 'เพราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW';
+  }
+  if (r.ageWarn) lines.push('อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ');
+  return `<div class="cx-basis ${cls}"><div class="cx-basis-main">${main}</div><div class="cx-basis-why">${why}</div>${lines.map(warnLine).join('')}</div>`;
+}
+
+/* ตารางน้ำหนักสามแบบ แนวตั้ง (แผงแคบเรียงลงมา และแผงกว้าง) */
+function tableV(c) {
+  const row = (key, label, bw, cc, note) => {
+    const on = c.pick === key;
+    const cells = note ? `<td colspan="2" class="cx-na">${note}</td>` : `<td>${f1(bw)}</td><td>${f1(cc)}</td>`;
+    return `<tr class="${on ? 'on' : ''}"><th scope="row">${label}${on ? '<span class="sr"> ใช้ค่านี้</span>' : ''}</th>${cells}</tr>`;
+  };
+  const note = c.state === 'noheight' ? 'กรอกส่วนสูง' : c.short ? 'N/A' : '';
+  const rows = row('A', 'Actual BW', c.w, c.cA)
+    + (note ? row('I', 'Ideal BW', 0, 0, note) + row('J', 'Adjusted BW', 0, 0, note)
+            : row('I', 'Ideal BW', c.ibw, c.cI) + row('J', 'Adjusted BW', c.adj, c.cJ));
+  return `<table class="cx-bw cx-bw-v"><thead><tr><th scope="col"><span class="sr">ชนิดน้ำหนัก</span></th><th scope="col">BW (kg)</th><th scope="col">CrCl (mL/min)</th></tr></thead><tbody>${rows}</tbody></table>`;
+}
+
+/* ตารางน้ำหนักสามแบบ แนวนอน (แผงแคบแบบกระชับ) */
+function tableH(c) {
+  const note = c.state === 'noheight' ? 'กรอกส่วนสูง' : c.short ? 'N/A' : '';
+  const on = (k) => (c.pick === k ? ' class="on"' : '');
+  const head = `<tr><th scope="col"><span class="sr">ค่า</span></th><th scope="col"${on('A')}>Actual</th><th scope="col"${on('I')}>Ideal</th><th scope="col"${on('J')}>Adjusted</th></tr>`;
+  const bwRow = `<tr><th scope="row">BW (kg)</th><td${on('A')}>${f1(c.w)}</td>`
+    + (note ? `<td rowspan="2" class="cx-na">${note}</td><td rowspan="2" class="cx-na">${note}</td>` : `<td${on('I')}>${f1(c.ibw)}</td><td${on('J')}>${f1(c.adj)}</td>`) + '</tr>';
+  const ccRow = `<tr><th scope="row">CrCl</th><td${on('A')}>${f1(c.cA)}</td>`
+    + (note ? '' : `<td${on('I')}>${f1(c.cI)}</td><td${on('J')}>${f1(c.cJ)}</td>`) + '</tr>';
+  return `<table class="cx-bw cx-bw-h"><thead>${head}</thead><tbody>${bwRow}${ccRow}</tbody></table>`;
+}
+
+function crclHTML(r, v) {
+  const c = r.crcl;
+  let h = '<div class="cx-sec cx-crcl"><div class="cx-sec-h"><h3 class="cx-sec-t">Creatinine Clearance (CrCl)</h3><span class="cx-tag use">ใช้ปรับขนาดยา</span></div>';
+  if (c.state === 'error') {
+    h += `<div class="cx-alert err">${ICON.alert}<span>ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ</span></div>`;
+  } else if (c.state === 'incomplete') {
+    h += `<div class="cx-big"><span class="cx-none">ยังคำนวณไม่ได้</span><em>สูตร Cockcroft-Gault</em></div><p class="cx-hint">ยังไม่ได้กรอก ${joinThai(c.missing)}</p>`;
+    if (r.ageWarn) h += warnLine('อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ');
+  } else {
+    h += `<div class="cx-big"><b>${f1(c.value)}</b><span>mL/min</span><em>สูตร Cockcroft-Gault</em></div>`
+      + basisHTML(c, r)
+      + (v === 'v3' ? tableH(c) : tableV(c))
+      + '<p class="cx-note">IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4</p>';
+  }
+  return h + '</div>';
+}
+
+function egfrHTML(r) {
+  let b;
+  if (r.egfr.v != null) {
+    const s = r.egfr.stage;
+    b = `<div class="cx-kv"><span class="cx-val">${f1(r.egfr.v)}<small>mL/min/1.73m²</small></span><span class="cx-cls" style="color:${s.color}">CKD ${s.label}</span></div>`;
+  } else if (r.egfr.state === 'error') {
+    b = '<p class="cx-hint">คำนวณไม่ได้ เพราะค่า Cr หรืออายุเกินขอบเขต</p>';
+  } else {
+    b = '<p class="cx-hint">กรุณากรอก เพศกำเนิด อายุ และ Cr</p>';
+  }
+  return `<div class="cx-sec cx-egfr"><h3 class="cx-sec-t">eGFR</h3>${b}<div class="cx-meta"><span>สูตร CKD-EPI 2021</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>`;
+}
+
+function bmiHTML(r) {
+  let b;
+  if (r.bmi.v != null) {
+    b = `<div class="cx-kv"><span class="cx-val">${f1(r.bmi.v)}<small>kg/m²</small></span><span class="cx-cls" style="color:${r.bmi.cls.color}">${r.bmi.cls.label}</span></div>`;
+  } else if (r.bmi.state === 'error') {
+    b = '<p class="cx-hint">คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต</p>';
+  } else {
+    b = '<p class="cx-hint">กรุณากรอก BW และ Height</p>';
+  }
+  return `<div class="cx-sec cx-bmi"><h3 class="cx-sec-t">BMI</h3>${b}<div class="cx-meta"><span>เกณฑ์ WHO Asia-Pacific</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>`;
+}
+
+function resultsHTML(r, v) {
+  const pair = egfrHTML(r) + bmiHTML(r);
+  return crclHTML(r, v) + (v === 'v2' ? `<div class="cx-pair">${pair}</div>` : pair);
+}
+
+function crRefMsg(r, sex) {
+  const refTxt = sex === 'male' ? 'ชาย 0.7–1.2 mg/dL' : 'หญิง 0.5–1.0 mg/dL';
+  if (r.crRef === 'low') return ['warn', `Cr ต่ำกว่าค่าอ้างอิง (${refTxt}) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง`];
+  if (r.crRef === 'high') return ['hi', `Cr สูงกว่าค่าอ้างอิง (${refTxt}) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด`];
+  if (r.crRef === 'ok') return ['mute', `ค่าอ้างอิง Cr ${refTxt}`];
+  return ['mute', 'ค่าอ้างอิง Cr ชาย 0.7–1.2 และหญิง 0.5–1.0 mg/dL'];
+}
+
+/* ══════════ ตัวกล่อง ══════════ */
+const SAMPLE = {
+  empty:  {},
+  normal: { sex: 'male',   age: '65', w: '70',  h: '170',  scr: '1.2' },
+  under:  { sex: 'female', age: '78', w: '41',  h: '158',  scr: '0.8' },
+  obese:  { sex: 'male',   age: '55', w: '95',  h: '165',  scr: '1.1' },
+  short:  { sex: 'female', age: '72', w: '52',  h: '148',  scr: '1.0' },
+  noht:   { sex: 'male',   age: '60', w: '58',  h: '',     scr: '1.1' },
+  multi:  { sex: 'male',   age: '95', w: '50',  h: '160',  scr: '1.6' },
+  nosex:  { sex: '',       age: '45', w: '60',  h: '165',  scr: '0.9' },
+  error:  { sex: 'female', age: '50', w: '60',  h: '160',  scr: '45' },
+  units:  { sex: 'male',   age: '65', w: '154', h: '66.9', scr: '106', wu: 'lb', hu: 'inch', su: 'umol' },
+};
+const VNAME = { v1: 'แผงแคบเรียงลงมา', v2: 'แผงกว้างสองฝั่ง', v3: 'แผงแคบแบบกระชับ' };
+const emptyState = () => ({ sex: '', age: '', w: '', h: '', scr: '', wu: 'kg', hu: 'cm', su: 'mgdl' });
+let uid = 0;
+
+class CrClBox {
+  constructor(o) {
+    this.o = o;
+    this.v = o.variant;
+    this.id = 'cx' + (++uid);
+    this.st = Object.assign(emptyState(), o.state || {});
+    this.side = o.side || 'right';
+    this.top = o.top == null ? 60 : o.top;
+    this.typing = new Set();
+    this.timers = {};
+    this.tab = null;
+    this.el = this.build();
+    if (o.live) this.bind();
+    this.update();
+  }
+
+  /* ช่องกรอกหนึ่งช่อง แบบกระชับใส่ชื่อช่องไว้ในกรอบ แบบอื่นวางชื่อช่องด้านซ้าย */
+  field(k) {
+    const id = `${this.id}-${k}`;
+    const unitKey = UNIT_OF[k];
+    const ph = unitKey ? PH[k][this.st[unitKey]] : PH[k];
+    const unit = unitKey ? `<button type="button" class="cx-unit" data-unit="${unitKey}"></button>` : '';
+    const input = `<input id="${id}" class="cx-in" data-k="${k}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="${ph}">`;
+    const msg = `<div class="cx-msg" data-msg="${k}" hidden></div>`;
+    if (this.v === 'v3') {
+      const pre = { age: 'อายุ', w: 'BW', h: 'Ht', scr: 'Cr' }[k];
+      const suf = k === 'age' ? '<span class="cx-suf" aria-hidden="true">ปี</span>' : '';
+      return `<div class="cx-row" data-row="${k}"><div class="cx-field" data-f="${k}"><label class="cx-pre" for="${id}">${pre}${k === 'age' ? '<span class="sr"> (ปี)</span>' : ''}</label>${input}${suf}${unit}</div>${msg}</div>`;
+    }
+    const label = { age: 'อายุ (ปี)', w: 'BW', h: 'Height', scr: 'Cr' }[k];
+    const ref = k === 'scr' ? '<div class="cx-msg" data-msg="scrref" hidden></div>' : '';
+    return `<div class="cx-row" data-row="${k}"><label class="cx-lab" for="${id}">${label}</label><div class="cx-ctl"><div class="cx-field" data-f="${k}">${input}${unit}</div>${msg}${ref}</div></div>`;
+  }
+
+  build() {
+    const el = document.createElement('section');
+    el.className = `cx ${this.v}`;
+    el.dataset.side = this.side;
+    el.setAttribute('role', 'dialog');
+    el.setAttribute('aria-label', 'กล่องคำนวณ CrCl');
+    const sexId = `${this.id}-sex`;
+    const inputs = `
+      <div class="cx-row" data-row="sex">
+        <span class="cx-lab" id="${sexId}">เพศกำเนิด</span>
+        <div class="cx-ctl">
+          <div class="cx-seg" role="group" aria-labelledby="${sexId}">
+            <button type="button" data-sex="male" aria-pressed="false">ชาย</button><button type="button" data-sex="female" aria-pressed="false">หญิง</button>
+          </div>
+          <div class="cx-msg" data-msg="sex" hidden></div>
+        </div>
+      </div>
+      ${this.field('age')}${this.field('w')}${this.field('h')}${this.field('scr')}
+      ${this.v === 'v3' ? '<div class="cx-msg" data-msg="scrref" hidden></div>' : ''}`;
+    const clearBtn = `<button type="button" class="cx-clear" data-act="clear">${ICON.x}ล้างค่า</button>`;
+    el.innerHTML = `
+      <div class="cx-head">
+        <span class="cx-grip" aria-hidden="true">${ICON.grip}</span>
+        <h2 class="cx-title">คำนวณ CrCl</h2>
+        ${this.v === 'v3' ? clearBtn : ''}
+        <button type="button" class="cx-ib" data-act="flip"></button>
+        <button type="button" class="cx-ib" data-act="fold"></button>
+        <button type="button" class="cx-ib" data-act="close" aria-label="ปิดกล่อง ค่าที่กรอกยังอยู่" title="ปิดกล่อง ค่าที่กรอกยังอยู่">${ICON.close}</button>
+      </div>
+      <div class="cx-body">
+        <div class="cx-inputs">${inputs}</div>
+        <div class="cx-results" aria-live="polite"></div>
+      </div>
+      ${this.v === 'v3' ? '' : `<div class="cx-foot"><span class="cx-foot-note">เปลี่ยนผู้ป่วย กดล้างค่าก่อนทุกครั้ง</span>${clearBtn}</div>`}`;
+    this.paintSide(el);
+    return el;
+  }
+
+  paintSide(el = this.el) {
+    el.dataset.side = this.side;
+    const flip = el.querySelector('[data-act="flip"]');
+    const fold = el.querySelector('[data-act="fold"]');
+    const to = this.side === 'right' ? 'ย้ายไปติดขอบซ้าย' : 'ย้ายไปติดขอบขวา';
+    flip.innerHTML = ICON.flip; flip.setAttribute('aria-label', to); flip.title = to;
+    fold.innerHTML = this.side === 'right' ? ICON.foldR : ICON.foldL;
+    fold.setAttribute('aria-label', 'พับเก็บไว้ที่ขอบจอ'); fold.title = 'พับเก็บไว้ที่ขอบจอ';
+    if (this.tab) this.tab.dataset.side = this.side;
+  }
+
+  setMsg(k, spec) {
+    const m = this.el.querySelector(`[data-msg="${k}"]`);
+    if (!m) return;
+    if (!spec) { m.hidden = true; m.className = 'cx-msg'; m.innerHTML = ''; return; }
+    const [type, text] = spec;
+    m.hidden = false;
+    m.className = 'cx-msg ' + type;
+    m.innerHTML = (type === 'mute' ? '' : ICON.alertSm) + `<span>${text}</span>`;
+  }
+
+  update() {
+    const st = this.st, el = this.el, r = compute(st);
+    this.r = r;
+    el.querySelectorAll('[data-sex]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sex === st.sex)));
+    el.querySelector('.cx-seg').classList.toggle('is-warn', r.sexWarn);
+    this.setMsg('sex', r.sexWarn ? ['warn', 'กรุณาเลือกเพศ'] : null);
+    for (const k of ['age', 'w', 'h', 'scr']) {
+      const inp = el.querySelector(`[data-k="${k}"]`);
+      if (document.activeElement !== inp && inp.value !== st[k]) inp.value = st[k];
+      const showErr = r.err[k] && !this.typing.has(k);
+      const fld = inp.closest('.cx-field');
+      fld.classList.toggle('is-err', !!showErr);
+      fld.classList.toggle('is-warn', k === 'age' && r.ageWarn);
+      inp.setAttribute('aria-invalid', showErr ? 'true' : 'false');
+      if (showErr) this.setMsg(k, ['err', r.err[k]]);
+      else if (k === 'age' && r.ageWarn) this.setMsg(k, ['warn', 'CrCl อาจไม่แม่นยำ สูตรนี้ใช้กับอายุ 18–92 ปี']);
+      else this.setMsg(k, null);
+    }
+    el.querySelectorAll('[data-unit]').forEach((b) => {
+      const key = b.dataset.unit, cur = st[key], nxt = UNIT[key][cur].next;
+      const say = `หน่วยตอนนี้ ${UNIT_TXT[cur]} กดเพื่อสลับเป็น ${UNIT_TXT[nxt]}`;
+      b.innerHTML = `<span>${UNIT_TXT[cur]}</span>${ICON.swapSm}`;
+      b.setAttribute('aria-label', say); b.title = say;
+    });
+    this.setMsg('scrref', crRefMsg(r, st.sex));
+    el.querySelector('.cx-results').innerHTML = resultsHTML(r, this.v);
+    this.paintTab();
+  }
+
+  /* ── ผูกการใช้งาน (เฉพาะกล่องในจอจำลอง) ── */
+  bind() {
+    const el = this.el;
+    el.addEventListener('input', (e) => {
+      const inp = e.target.closest('[data-k]');
+      if (!inp) return;
+      const k = inp.dataset.k;
+      const raw = inp.value;
+      let v = raw.replace(/,/g, '.').replace(/[^0-9.]/g, '');
+      const dot = v.indexOf('.');
+      if (dot !== -1) v = v.slice(0, dot + 1) + v.slice(dot + 1).replace(/[.]/g, '');
+      if (v !== raw) {
+        const pos = Math.max(0, (inp.selectionStart || 0) - (raw.length - v.length));
+        inp.value = v;
+        inp.setSelectionRange(pos, pos);
+      }
+      this.st[k] = v;
+      this.typing.add(k);
+      clearTimeout(this.timers[k]);
+      this.timers[k] = setTimeout(() => { this.typing.delete(k); this.update(); }, 600);
+      this.update();
+    });
+    el.addEventListener('focusout', (e) => {
+      const inp = e.target.closest && e.target.closest('[data-k]');
+      if (!inp) return;
+      this.typing.delete(inp.dataset.k);
+      clearTimeout(this.timers[inp.dataset.k]);
+      this.update();
+    });
+    el.addEventListener('click', (e) => {
+      const b = e.target.closest('button');
+      if (!b || !el.contains(b)) return;
+      if (b.dataset.sex) { this.st.sex = b.dataset.sex; this.update(); return; }
+      if (b.dataset.unit) { this.toggleUnit(b.dataset.unit); return; }
+      const act = b.dataset.act;
+      if (act === 'clear') this.clear();
+      else if (act === 'fold') this.fold();
+      else if (act === 'flip') this.setSide(this.side === 'right' ? 'left' : 'right');
+      else if (act === 'close') this.close();
+    });
+    el.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') { e.stopPropagation(); this.fold(); }
+    });
+    this.dragOn(el.querySelector('.cx-head'), el, false);
+    new ResizeObserver(() => { this.clampTop(); if (this.o.onSize) this.o.onSize(this); }).observe(el);
+  }
+
+  toggleUnit(key) {
+    const st = this.st, cur = st[key], nxt = UNIT[key][cur].next, f = FIELD_OF[key];
+    const val = parseFloat(st[f]);
+    if (Number.isFinite(val)) {
+      let out;
+      if (key === 'wu') out = cur === 'kg' ? Math.round(val * 2.20462) : Math.round(val / 2.20462);
+      else if (key === 'hu') out = cur === 'cm' ? (val / 2.54).toFixed(1) : Math.round(val * 2.54);
+      else out = cur === 'mgdl' ? Math.round(val * 88.4) : (val / 88.4).toFixed(2);
+      st[f] = String(out);
+    }
+    st[key] = nxt;
+    this.typing.delete(f);
+    const inp = this.el.querySelector(`[data-k="${f}"]`);
+    inp.value = st[f];
+    inp.placeholder = PH[f][nxt];
+    this.update();
+  }
+
+  clear() {
+    this.st = emptyState();
+    this.typing.clear();
+    for (const k of ['age', 'w', 'h', 'scr']) {
+      const inp = this.el.querySelector(`[data-k="${k}"]`);
+      inp.value = '';
+      inp.placeholder = k === 'age' ? PH.age : PH[k][this.st[UNIT_OF[k]]];
+    }
+    this.update();
+  }
+
+  setSide(side) {
+    this.side = side;
+    this.paintSide();
+    if (this.o.onSize) this.o.onSize(this);
+  }
+
+  clampTop() {
+    const scr = this.o.frame;
+    if (!scr) return;
+    const t = this.tab && !this.tab.hidden ? this.tab : this.el;
+    const max = Math.max(8, scr.clientHeight - t.offsetHeight - 8);
+    this.top = Math.max(8, Math.min(max, this.top));
+    t.style.top = this.top + 'px';
+  }
+
+  makeTab() {
+    const t = document.createElement('button');
+    t.type = 'button';
+    t.className = 'cx-tab';
+    t.setAttribute('aria-label', 'กางกล่องคำนวณ CrCl');
+    t.title = 'กางกล่องคำนวณ CrCl';
+    t.hidden = true;
+    t.addEventListener('click', () => {
+      if (this.justDragged) { this.justDragged = false; return; }
+      this.unfold();
+    });
+    this.dragOn(t, t, true);
+    this.el.after(t);
+    this.tab = t;
+    t.dataset.side = this.side;
+    this.paintTab();
+    return t;
+  }
+
+  paintTab() {
+    if (!this.tab) return;
+    const c = this.r && this.r.crcl;
+    const has = c && (c.state === 'full' || c.state === 'noheight');
+    this.tab.innerHTML = ICON.calc + '<span class="k">CrCl</span>' + (has ? `<span class="v">${f1(c.value)}</span><span class="u">mL/min</span>` : '');
+  }
+
+  fold() {
+    if (!this.tab) this.makeTab();
+    this.el.hidden = true;
+    this.tab.hidden = false;
+    this.paintTab();
+    this.clampTop();
+    this.tab.focus({ preventScroll: true });
+    if (this.o.onSize) this.o.onSize(this);
+  }
+
+  unfold() {
+    this.tab.hidden = true;
+    this.el.hidden = false;
+    this.clampTop();
+    this.el.querySelector('[data-act="fold"]').focus({ preventScroll: true });
+    if (this.o.onSize) this.o.onSize(this);
+  }
+
+  close() {
+    this.el.hidden = true;
+    if (this.tab) this.tab.hidden = true;
+    this.closed = true;
+    if (this.o.onClose) this.o.onClose(this);
+  }
+
+  open() {
+    this.closed = false;
+    if (this.tab) this.tab.hidden = true;
+    this.el.hidden = false;
+    this.clampTop();
+    this.el.querySelector('[data-act="fold"]').focus({ preventScroll: true });
+    if (this.o.onSize) this.o.onSize(this);
+  }
+
+  /* ลากขึ้นลงตามขอบ ลากข้ามกลางจอ = ย้ายขอบ */
+  dragOn(handle, target, isTab) {
+    handle.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0) return;
+      if (!isTab && e.target.closest('button')) return;
+      const scr = this.o.frame;
+      if (!scr) return;
+      const sr = scr.getBoundingClientRect();
+      const y0 = e.clientY, x0 = e.clientX, top0 = target.offsetTop;
+      let moved = false;
+      handle.setPointerCapture(e.pointerId);
+      const move = (ev) => {
+        if (!moved && Math.abs(ev.clientY - y0) < 4 && Math.abs(ev.clientX - x0) < 4) return;
+        moved = true;
+        target.classList.add('is-drag');
+        const max = Math.max(8, scr.clientHeight - target.offsetHeight - 8);
+        this.top = Math.max(8, Math.min(max, top0 + ev.clientY - y0));
+        target.style.top = this.top + 'px';
+        const want = ev.clientX < sr.left + sr.width / 2 ? 'left' : 'right';
+        if (want !== this.side) this.setSide(want);
+      };
+      const up = () => {
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', up);
+        handle.removeEventListener('pointercancel', up);
+        target.classList.remove('is-drag');
+        if (isTab) this.justDragged = moved;
+      };
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', up);
+      handle.addEventListener('pointercancel', up);
+    });
+  }
+}
+
+/* ══════════ จอจำลอง ══════════ */
+const PAPERLESS = `<div class="pl" aria-hidden="true">
+  <div class="pl-top"><i style="width:120px"></i><i style="width:84px"></i><i style="width:70px;margin-left:auto"></i></div>
+  <div class="pl-side"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="pl-main">
+    <div class="pl-pt"><i class="av"></i><div><i style="width:220px"></i><i style="width:300px;margin-top:9px"></i></div></div>
+    <div class="pl-sheet"><i style="width:42%"></i><i></i><i></i><i style="width:86%"></i><i></i><i style="width:62%"></i><i></i><i></i><i style="width:74%"></i><i></i><i style="width:52%"></i><i></i><i style="width:80%"></i></div>
+  </div>
+  <div class="pl-mark">หน้า paperless จำลอง</div>
+</div>`;
+
+function chromeBar(callout) {
+  return `<div class="chrome">
+    <div class="tabpill">paperless</div>
+    <div class="addr">ที่อยู่เว็บ paperless ของโรงพยาบาล</div>
+    ${callout ? '<div class="callout">ไอคอนส่วนขยาย กดตรงนี้เพื่อเรียกกล่อง</div>' : ''}
+    <div class="exts">
+      <span class="ext-dim" aria-hidden="true">${ICON.puzzle}</span>
+      <button type="button" class="ext" data-ext aria-label="ไอคอนส่วนขยาย กดเพื่อเปิดกล่องคำนวณ CrCl" title="กดเพื่อเปิดกล่องคำนวณ CrCl">${ICON.calc}</button>
+    </div>
+  </div>`;
+}
+
+const boxes = {};
+function mountFrame(host, cfg) {
+  host.innerHTML = chromeBar(cfg.callout) + `<div class="scr">${PAPERLESS}<div class="scr-closed" hidden>กล่องถูกปิดอยู่ ค่าที่กรอกยังอยู่ กดไอคอนส่วนขยายบนแถบด้านบนเพื่อเปิดอีกครั้ง</div></div>`;
+  const scr = host.querySelector('.scr');
+  const hint = host.querySelector('.scr-closed');
+  const box = new CrClBox({
+    variant: cfg.variant, state: cfg.state, side: cfg.side, top: cfg.top, live: true, frame: scr,
+    onSize: (b) => { hint.hidden = true; if (cfg.meas) paintMeas(cfg.meas, b, scr); },
+    onClose: (b) => { hint.hidden = false; if (cfg.meas) paintMeas(cfg.meas, b, scr); },
+  });
+  scr.appendChild(box.el);
+  box.el.style.top = box.top + 'px';
+  host.querySelector('[data-ext]').addEventListener('click', () => box.open());
+  if (cfg.folded) box.fold();
+  if (cfg.meas) boxes[cfg.meas] = { box, scr };
+  return box;
+}
+
+function paintMeas(key, b, scr) {
+  const m = document.querySelector(`[data-meas="${key}"]`);
+  if (!m) return;
+  if (b.closed) { m.textContent = 'กล่องถูกปิดอยู่ กดไอคอนส่วนขยายในจอจำลองเพื่อเปิดอีกครั้ง'; return; }
+  if (b.el.hidden) { m.textContent = 'ตอนนี้พับเก็บอยู่ กดแถบที่ขอบจอเพื่อกางกลับ'; return; }
+  const w = Math.round(b.el.offsetWidth), h = Math.round(b.el.offsetHeight);
+  const body = b.el.querySelector('.cx-body');
+  const over = body.scrollHeight - body.clientHeight;
+  const pct = Math.round((w / scr.clientWidth) * 100);
+  m.innerHTML = `กล่องกว้าง <b>${w}</b> สูง <b>${h}</b> จุด บังความกว้างจอ <b>${pct}%</b> `
+    + (over > 1 ? `<span class="over">เนื้อหายาวกว่ากล่อง ${over} จุด ต้องเลื่อนดูในกล่อง</span>` : '<span class="fit">อยู่ในจอครบ ไม่ต้องเลื่อน</span>');
+}
+
+/* ══════════ ผลลัพธ์ทุกกรณี (ภาพนิ่ง) ══════════ */
+const STATES = [
+  ['empty',  'เพิ่งเปิด ยังไม่ได้กรอก'],
+  ['normal', 'BW อยู่ระหว่าง IBW ถึง 1.2 เท่า ใช้ Ideal BW'],
+  ['under',  'BW น้อยกว่า IBW ใช้ Actual BW'],
+  ['obese',  'BW มากกว่า 1.2 เท่าของ IBW ใช้ Adjusted BW'],
+  ['short',  'สูงต่ำกว่า 152 cm ใช้ Actual BW'],
+  ['noht',   'ยังไม่ได้กรอกส่วนสูง'],
+  ['multi',  'คำเตือนซ้อนกันหลายข้อ อายุ 95 ปี Cr สูง และ BW น้อยกว่า IBW'],
+  ['nosex',  'ยังไม่ได้เลือกเพศกำเนิด'],
+  ['error',  'ค่าเกินขอบเขต คำนวณไม่ได้ (Cr 45 mg/dL)'],
+  ['units',  'สลับหน่วยเป็น lb, in และ μmol/L'],
+];
+const SCREEN_LIMIT = 577 - 16;   // จอโครมของพี่กันสูง 577 กล่องเว้นขอบบนล่างข้างละ 8
+
+function buildMatrix() {
+  const mx = document.getElementById('mx');
+  STATES.forEach(([key, label], i) => {
+    const row = document.createElement('div');
+    row.className = 'mx-row';
+    row.innerHTML = `<h3 class="mx-h">${i + 1}. ${label}</h3><div class="mx-cells"></div>`;
+    const cells = row.querySelector('.mx-cells');
+    for (const v of ['v1', 'v2', 'v3']) {
+      const fig = document.createElement('figure');
+      fig.className = 'mx-cell';
+      fig.innerHTML = `<figcaption class="mx-cap"><b>${VNAME[v]}</b><span data-h></span></figcaption><div class="mx-stage" inert><div class="mx-limit" hidden><span>จอโครมของพี่กันแสดงได้ถึงเส้นนี้</span></div></div>`;
+      const box = new CrClBox({ variant: v, state: SAMPLE[key], live: false });
+      fig.querySelector('.mx-stage').prepend(box.el);
+      cells.appendChild(fig);
+    }
+    mx.appendChild(row);
+  });
+}
+
+function measureMatrix() {
+  document.querySelectorAll('.mx-cell').forEach((fig) => {
+    const box = fig.querySelector('.cx');
+    const h = Math.round(box.offsetHeight);
+    const lab = fig.querySelector('[data-h]');
+    const line = fig.querySelector('.mx-limit');
+    if (h > SCREEN_LIMIT) {
+      lab.innerHTML = `สูง ${h} จุด <span class="over">เกินที่จอแสดงได้ ${h - SCREEN_LIMIT} จุด</span>`;
+      line.style.top = SCREEN_LIMIT + 'px';
+      line.hidden = false;
+    } else {
+      lab.innerHTML = `สูง ${h} จุด <span class="fit">อยู่ในจอครบ</span>`;
+      line.hidden = true;
+    }
+  });
+}
+
+/* ══════════ ปุ่มสารบัญ เลื่อนนุ่ม ห้ามวาร์ป ══════════ */
+function glideTo(y) {
+  const end = Math.max(0, Math.min(y, document.documentElement.scrollHeight - innerHeight));
+  if (document.hidden) { window.scrollTo(0, end); return; }
+  const start = window.scrollY, dist = end - start;
+  const dur = Math.min(620, Math.max(280, Math.abs(dist) * 0.42));
+  let t0 = null, stop = false;
+  const cancel = () => { stop = true; };
+  for (const ev of ['wheel', 'touchstart', 'keydown', 'pointerdown']) window.addEventListener(ev, cancel, { once: true, passive: true });
+  const step = (ts) => {
+    if (stop) return;
+    if (t0 === null) t0 = ts;
+    const k = Math.min(1, (ts - t0) / dur);
+    const e = k < 0.5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+    window.scrollTo(0, start + dist * e);
+    if (k < 1) requestAnimationFrame(step);
+  };
+  requestAnimationFrame(step);
+}
+document.querySelectorAll('.toc a').forEach((a) => {
+  a.addEventListener('click', (e) => {
+    const t = document.querySelector(a.getAttribute('href'));
+    if (!t) return;
+    e.preventDefault();
+    glideTo(t.getBoundingClientRect().top + window.scrollY - 12);
+  });
+});
+
+/* ══════════ เริ่ม ══════════ */
+const frame = (k) => document.querySelector(`[data-frame="${k}"]`);
+mountFrame(frame('v1'), { variant: 'v1', state: SAMPLE.normal, top: 60, meas: 'v1', callout: true });
+mountFrame(frame('v2'), { variant: 'v2', state: SAMPLE.normal, top: 60, meas: 'v2' });
+mountFrame(frame('v3'), { variant: 'v3', state: SAMPLE.normal, top: 60, meas: 'v3' });
+mountFrame(frame('fold'), { variant: 'v3', state: SAMPLE.normal, top: 150, folded: true });
+mountFrame(frame('left'), { variant: 'v3', state: SAMPLE.normal, top: 60, side: 'left' });
+buildMatrix();
+
+const remeasure = () => {
+  for (const k of Object.keys(boxes)) { boxes[k].box.clampTop(); paintMeas(k, boxes[k].box, boxes[k].scr); }
+  measureMatrix();
+};
+remeasure();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(remeasure);
+window.addEventListener('resize', remeasure);
+})();
+</script>
+</body>
+</html>

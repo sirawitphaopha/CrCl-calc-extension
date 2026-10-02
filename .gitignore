@@ -1,0 +1,18 @@
+# ตัวแปรลับ ห้ามขึ้น git เด็ดขาด (repo นี้เป็น public)
+.env
+.env.*
+!.env.example
+
+# กุญแจกับไฟล์แพ็กของส่วนขยาย ห้ามขึ้น git
+*.pem
+*.crx
+*.zip
+
+# เครื่องมือและระบบ
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.log
+node_modules/
