@@ -5,7 +5,7 @@
  * - docs/mockups/crcl-box-tree-2026-10-02.html         ลำต้นกับโค้งเว้า (รอยต่อแบบต้นไม้ รวมแถว 3+4)
  *
  * - สีทุกสีอยู่ในไฟล์นี้ ไม่ฝังในแท็ก เผื่อหน้าเว็บตั้งกติกาความปลอดภัย (CSP) ที่บล็อก style ในแท็ก
- * - ตำแหน่งและขนาดที่เปลี่ยนตามจอ box.js ส่งมาเป็นตัวแปร --bt --bw --bh --pt --ph และอื่น ๆ
+ * - ตำแหน่งและขนาดที่เปลี่ยนตามจอ box.js ส่งมาเป็นตัวแปร --bx --by --bw --bh --px --py --ph และอื่น ๆ
  * - ฟอนต์ประกาศที่ระดับหน้าเว็บด้วยชื่อเฉพาะของส่วนขยาย (content/fonts.js) เพราะ @font-face ใน Shadow DOM ใช้ไม่ได้
  */
 :host{
@@ -24,20 +24,21 @@
 *,*::before,*::after{box-sizing:border-box}
 
 /* ══════════ ลำต้นกับกล่อง (กล่องลอยบนหน้าเว็บ) ══════════
-   --p จังหวะการกาง 0 = พับเหลือแถบ 1 = กางเต็ม
-   --bt --bw --bh ตำแหน่งบน ความกว้าง ความสูงของแถบฐานตอนนั้น · --pt --ph ตำแหน่งบนกับความสูงของกล่อง */
-.dock{position:fixed;top:0;bottom:0;right:0;pointer-events:none;color:var(--ink);
+   ชั้นลอยกางเต็มหน้าต่าง ติดได้ 4 ขอบ (data-side) box.js คิดพิกัดทุกชิ้นแล้วส่งมาเป็นตัวแปร
+   --bx --by --bw --bh --brad  แถบฐานหรือลำต้น · --px --py --ph  กล่อง (กว้างตามแผงแคบหรือแผงกว้าง)
+   --c-tl --c-tr --c-br --c-bl  มุมกล่อง · --k-t --k-r --k-b --k-l  ระยะตัดตอนกล่องค่อย ๆ ออกจากลำต้น
+   --f1* --f2*  โค้งเว้าสองฝั่งของลำต้น · data-axis  v = ขอบซ้ายขวา h = ขอบบนล่าง */
+.dock{position:fixed;inset:0;pointer-events:none;color:var(--ink);
   font-family:var(--font-en),var(--font-sarabun),sans-serif;font-size:13px;line-height:1.45;text-align:left;
   filter:drop-shadow(0 0 .7px rgba(16,52,45,.55)) drop-shadow(0 10px 22px rgba(16,52,45,.17))}
-.dock[data-side="left"]{right:auto;left:0}
 .dock[hidden]{display:none}
 .dock .base,.dock .cx{pointer-events:auto}
 .dock[data-open="false"] .cx{pointer-events:none}
 .dock[data-folded="true"] .cx{visibility:hidden}
 
-.base{position:absolute;top:var(--bt);z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;width:var(--bw);height:var(--bh);margin:0;padding:10px 0 9px;overflow:hidden;border:0;background-color:var(--accent-soft);color:var(--accent-ink);cursor:pointer;font-family:var(--font-en),var(--font-sarabun),sans-serif;touch-action:none;transition:background-color .15s ease}
-.dock[data-side="right"] .base{right:0;border-radius:var(--br) 0 0 var(--br)}
-.dock[data-side="left"] .base{left:0;border-radius:0 var(--br) var(--br) 0}
+.base{position:absolute;left:var(--bx);top:var(--by);z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;width:var(--bw);height:var(--bh);margin:0;padding:10px 0 9px;overflow:hidden;border:0;border-radius:var(--brad);background-color:var(--accent-soft);color:var(--accent-ink);cursor:pointer;font-family:var(--font-en),var(--font-sarabun),sans-serif;touch-action:none;transition:background-color .15s ease}
+/* แถบตอนพับที่ขอบบนล่าง เรียงไอคอน คำว่า CrCl ค่า และหน่วยเป็นแถวเดียว */
+.dock[data-axis="h"] .base{flex-direction:row;justify-content:center;gap:6px;padding:0 12px}
 .dock[data-open="true"] .base{transition:none}
 .base:hover{background-color:var(--accent-soft-2)}
 .base:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
@@ -51,19 +52,45 @@
 .fillet{--fc:var(--accent-soft);position:absolute;display:none;width:var(--r);height:var(--r);pointer-events:none;opacity:var(--fo)}
 .base:hover~.fillet{--fc:var(--accent-soft-2)}
 .dock[data-up="true"] .fillet.up,.dock[data-down="true"] .fillet.down{display:block}
-.fillet.up{top:calc(var(--bt) - var(--r))}
-.fillet.down{top:calc(var(--bt) + var(--bh))}
-.dock[data-side="right"] .fillet{right:calc(var(--bw) - var(--r))}
-.dock[data-side="left"] .fillet{left:calc(var(--bw) - var(--r))}
-.dock[data-side="right"] .fillet.up{background:radial-gradient(circle at 100% 0,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
-.dock[data-side="right"] .fillet.down{background:radial-gradient(circle at 100% 100%,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
-.dock[data-side="left"] .fillet.up{background:radial-gradient(circle at 0 0,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
-.dock[data-side="left"] .fillet.down{background:radial-gradient(circle at 0 100%,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
+.fillet.up{left:var(--f1x);top:var(--f1y);background:radial-gradient(circle at var(--f1a),transparent calc(var(--r) - .5px),var(--fc) var(--r))}
+.fillet.down{left:var(--f2x);top:var(--f2y);background:radial-gradient(circle at var(--f2a),transparent calc(var(--r) - .5px),var(--fc) var(--r))}
 
 /* กล่องห้อยจากลำต้น ค่อย ๆ ออกจากจุดที่ติดลำต้น มุมฝั่งที่ชิดลำต้นเป็นเหลี่ยมเมื่อลำต้นชิดขอบกล่องพอดี */
-.dock .cx{position:absolute;top:var(--pt);height:var(--ph);border-radius:var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl)}
-.dock[data-side="right"] .cx{right:var(--bw);clip-path:inset(var(--ct) 0 var(--cb) var(--cs) round var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl))}
-.dock[data-side="left"] .cx{left:var(--bw);clip-path:inset(var(--ct) var(--cs) var(--cb) 0 round var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl))}
+.dock .cx{position:absolute;left:var(--px);top:var(--py);height:var(--ph);border-radius:var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl);
+  clip-path:inset(var(--k-t) var(--k-r) var(--k-b) var(--k-l) round var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl))}
+
+/* ขอบบนล่าง ลูกศรปุ่มพับชี้ขึ้นลงเข้าหาขอบ */
+.dock[data-side="top"] .cx-ib[data-act="fold"] svg{transform:rotate(-90deg)}
+.dock[data-side="bottom"] .cx-ib[data-act="fold"] svg{transform:rotate(90deg)}
+
+/* แผงเลือกขอบใต้ปุ่มเลือกขอบ เป็นรูปจอ กดขอบไหนกล่องไปติดขอบนั้น ขอบที่ติดอยู่ตอนนี้เป็นสีทึบ */
+.cx-pop{position:absolute;z-index:4;top:42px;left:var(--pop-x);width:148px;padding:10px 12px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 10px 26px rgba(16,52,45,.18)}
+.cx-pop[hidden]{display:none}
+.cx-pop-t{margin:0 0 8px;color:var(--ink-2);font:600 12px/1.3 var(--font-sarabun),sans-serif}
+.cx-scr{position:relative;width:122px;height:76px;border:1.5px solid var(--field-line);border-radius:7px;background:var(--surface-2)}
+.cx-edge{position:absolute;margin:0;padding:0;border:0;border-radius:4px;background-color:#d9ebe6;cursor:pointer;transition:background-color .15s ease}
+.cx-edge[data-edge="top"]{left:22px;right:22px;top:4px;height:10px}
+.cx-edge[data-edge="bottom"]{left:22px;right:22px;bottom:4px;height:10px}
+.cx-edge[data-edge="left"]{top:18px;bottom:18px;left:4px;width:10px}
+.cx-edge[data-edge="right"]{top:18px;bottom:18px;right:4px;width:10px}
+.cx-edge:hover{background-color:#9fd3c6}
+.cx-edge[aria-current="true"]{background-color:var(--accent)}
+.cx-edge[aria-current="true"]:hover{background-color:var(--accent-ink)}
+.cx-edge:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+
+/* ระหว่างลาก กล่องหลุดจากขอบ ลอยขึ้น เงาเข้มขึ้น ลำต้นกับโค้งเว้าจางหายไป (มอคอัปลากย้าย 3 ต.ค. 2569) */
+.dock[data-lifted="true"]{filter:drop-shadow(0 0 .7px rgba(16,52,45,.55)) drop-shadow(0 24px 40px rgba(16,52,45,.30))}
+.dock[data-lifted="true"][data-liftfold="false"] .base,.dock[data-lifted="true"] .fillet{opacity:0;transition:opacity .16s ease}
+.dock[data-lifted="true"] .cx,.dock[data-lifted="true"][data-liftfold="true"] .base{transition:transform .14s ease-out}
+.dock[data-lifted="true"] .cx-head{cursor:grabbing}
+
+/* กรอบเส้นประบอกว่าปล่อยตอนนี้กล่องจะไปติดตรงไหน */
+.gh{position:fixed;inset:0;display:none;pointer-events:none}
+.gh[data-on="true"]{display:block}
+.gh-trunk,.gh-panel{position:absolute;border:2px dashed rgba(15,118,110,.6);background:rgba(15,118,110,.07)}
+.gh-trunk{left:var(--gbx);top:var(--gby);width:var(--gbw);height:var(--gbh);border-radius:var(--gbr)}
+.gh-panel{left:var(--gpx);top:var(--gpy);width:var(--gpw);height:var(--gph);border-radius:var(--gpr)}
+.gh[data-folded="true"] .gh-panel{display:none}
 
 /* ══════════ ตัวกล่อง ══════════ */
 .cx{display:flex;flex-direction:column;overflow:hidden;border:0;background:var(--surface);color:var(--ink);font-family:var(--font-en),var(--font-sarabun),sans-serif;font-size:13px;line-height:1.45;text-align:left}

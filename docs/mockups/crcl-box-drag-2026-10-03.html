@@ -1,0 +1,608 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>มอคอัปลากย้ายกล่อง CrCl</title>
+<!--
+  มอคอัปวิธีลากย้ายกล่อง 3 ต.ค. 2569
+  พี่กันสั่ง "ขอมอคอัปวิธีลากย้ายหน่อย เเบบให้มีความรู้สึกว่าเรากำลังลากย้ายมันจริงๆ ไม่ใช่มันวารืบจากซ้ายไปขวา"
+  และเลือกว่า "ติดขอบบนหรือขอบล่างของจอได้" (ติดได้ 4 ขอบ)
+
+  วาดด้วยกล่องตัวจริงของส่วนขยาย โหลดจาก /extension/ ผ่านเซิร์ฟเวอร์ crcl-dev พอร์ต 3311
+  - ตัวกล่อง สูตร ปุ่ม สไตล์ มาจาก calc.js render.js box.js box.css ชุดเดียวกับส่วนขยาย
+  - ของใหม่ที่ยังไม่มีในส่วนขยาย (ลากแบบตามมือ ติดขอบบนล่าง) เขียนเป็นคลาสลูก DemoBox ในไฟล์นี้เท่านั้น
+  เปิดไฟล์นี้ตรง ๆ จากดิสก์ไม่ได้ ต้องเปิดผ่าน http://127.0.0.1:3311/docs/mockups/
+  ฟอนต์อยู่ที่ fonts/ ไม่โหลดจากเน็ต · ความสูงจอ 577 = โครมของพี่กัน
+-->
+<style>
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/sarabun-400-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:400;font-display:swap;src:url(fonts/sarabun-400-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/sarabun-500-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:500;font-display:swap;src:url(fonts/sarabun-500-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/sarabun-600-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:600;font-display:swap;src:url(fonts/sarabun-600-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/sarabun-700-thai.woff2) format("woff2");unicode-range:U+02D7,U+0303,U+0331,U+0E01-0E5B,U+200C-200D,U+25CC}
+@font-face{font-family:"Sarabun";font-style:normal;font-weight:700;font-display:swap;src:url(fonts/sarabun-700-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Roboto Mono";font-style:normal;font-weight:100 700;font-display:swap;src:url(fonts/roboto-mono-latin.woff2) format("woff2");unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+@font-face{font-family:"Roboto Mono";font-style:normal;font-weight:100 700;font-display:swap;src:url(fonts/roboto-mono-greek.woff2) format("woff2");unicode-range:U+0370-0377,U+037A-037F,U+0384-038A,U+038C,U+038E-03A1,U+03A3-03FF}
+
+:root{
+  --font-sarabun:"Sarabun";
+  --font-mono:"Roboto Mono";
+  --font-en:var(--font-mono);
+  --ink:#1f2d2a; --ink-2:#465753; --ink-3:#687874;
+  --accent:#0f766e; --accent-ink:#0b5c55; --accent-soft:#e4f3ef; --accent-line:#93cfc2;
+}
+*{box-sizing:border-box}
+html{font-family:var(--font-en),var(--font-sarabun),"Noto Sans Thai",Tahoma,sans-serif;-webkit-text-size-adjust:100%}
+body{margin:0;background:#e9eeec;color:var(--ink);font-size:15px;line-height:1.6}
+.page{padding:22px 16px 64px}
+.pg-h h1{margin:0 0 6px;font:700 23px/1.35 var(--font-sarabun),sans-serif}
+.lead{margin:0 0 10px;color:var(--ink-2);max-width:1040px}
+.howto{margin:0;padding-left:20px;color:var(--ink-2);font-size:14px}
+.howto b{color:var(--ink)}
+.key-land{display:inline-block;width:26px;height:12px;margin:0 2px;vertical-align:-1px;border:2px dashed rgba(15,118,110,.6);border-radius:3px;background:rgba(15,118,110,.07)}
+.key-start{display:inline-block;width:26px;height:12px;margin:0 2px;vertical-align:-1px;border:2px dotted rgba(70,87,83,.5);border-radius:3px;background:rgba(70,87,83,.05)}
+
+.concept{margin-top:30px}
+.concept>h2{margin:0 0 4px;font:700 20px/1.4 var(--font-sarabun),sans-serif}
+.concept>p{margin:0 0 12px;color:var(--ink-2);font-size:14px;max-width:1040px}
+
+/* จอจำลองหน้า paperless (ภาพนิ่ง กดไม่ได้) */
+/* transform ทำให้กล่อง (position:fixed ใน Shadow DOM) วางตามกรอบภาพ ไม่ใช่ตามหน้าต่าง */
+.scr{position:relative;height:577px;overflow:hidden;background:#f3f5f7;border-radius:10px;box-shadow:0 0 0 1px #c5ced6;transform:translateZ(0)}
+.scr .bg-top{position:absolute;left:0;right:0;top:0;height:46px;background:#e3e8ec;border-bottom:1px solid #d4dbe1}
+.scr .bg-top::before{content:"";position:absolute;left:18px;top:17px;width:170px;height:12px;border-radius:6px;background:#cfd8de}
+.scr .bg-side{position:absolute;left:12px;top:60px;bottom:0;width:205px;background:repeating-linear-gradient(#e4e9ed 0 30px,transparent 30px 38px)}
+.scr .bg-sheet{position:absolute;left:256px;right:24px;top:64px;bottom:-20px;border:1px solid #e0e5ea;border-radius:8px;background:#fff}
+.scr .bg-sheet::before{content:"";position:absolute;left:28px;right:40%;top:26px;bottom:0;background:repeating-linear-gradient(#eaeef2 0 9px,transparent 9px 34px)}
+.scr .host{position:absolute;inset:0}
+.scr .ov{position:absolute;inset:0;z-index:5;pointer-events:none}
+.scr .ov svg{position:absolute;left:0;top:0;overflow:visible}
+.cursor{position:absolute;width:22px;height:26px}
+.call{position:absolute;display:flex;align-items:flex-start;gap:8px;max-width:230px;padding:7px 10px 7px 8px;border:1px solid var(--accent-line);border-radius:10px;background:#fff;box-shadow:0 4px 14px rgba(16,52,45,.12);color:var(--ink);font:600 13px/1.45 var(--font-sarabun),sans-serif}
+.call b{flex:none;display:grid;place-items:center;width:22px;height:22px;border-radius:50%;background:var(--accent);color:#fff;font:700 12px/1 var(--font-en),sans-serif}
+
+/* ภาพย่อครึ่งหนึ่ง วางสองภาพต่อแถว */
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px 16px}
+.shot{margin:0}
+.shot figcaption{display:flex;align-items:baseline;gap:8px;min-height:26px;margin-bottom:6px;color:var(--ink);font:700 14px/1.4 var(--font-sarabun),sans-serif}
+.shot figcaption span{color:var(--ink-3);font:500 12.5px/1.4 var(--font-sarabun),sans-serif}
+.fw{position:relative;overflow:hidden;border-radius:10px}
+.fw>.scr{position:absolute;left:0;top:0;width:1366px;transform-origin:0 0}
+
+.notes{margin:0;padding-left:20px;color:var(--ink-2);font-size:14px}
+.notes li{margin:2px 0}
+
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="page">
+
+<header class="pg-h">
+  <h1>มอคอัปลากย้ายกล่อง ให้รู้สึกว่าหยิบไปวางจริง</h1>
+  <p class="lead">ตอนนี้ลากแล้วกล่องวาร์ปจากขอบหนึ่งไปอีกขอบทันทีที่เมาส์ข้ามกลางจอ แบบใหม่ กล่องหลุดจากขอบแล้วตามมือไปตลอดทาง ปล่อยเมาส์แล้วค่อยไหลเข้าไปติดขอบเอง และติดขอบบนกับขอบล่างได้ด้วย ตามที่พี่กันเลือก</p>
+  <ul class="howto">
+    <li>ภาพแรกขนาดจริง สูง 577 จุดเท่าโครมของพี่กัน ภาพชุดล่างย่อเหลือครึ่งหนึ่งให้เห็นพร้อมกันทีละสองภาพ</li>
+    <li><span class="key-land"></span> <b>เส้นประสีเขียว</b> คือที่ที่กล่องจะไปติด ถ้าปล่อยเมาส์ตอนนั้น</li>
+    <li><span class="key-start"></span> <b>เส้นจุดสีเทา</b> คือที่ที่กล่องอยู่ตอนเริ่มลาก</li>
+    <li><b>ลองของจริงได้</b> ในกรอบสุดท้ายของหน้านี้ กล่องในกรอบนั้นลากได้จริง</li>
+  </ul>
+</header>
+
+<section class="concept">
+  <h2>ลากจากขอบขวาไปขอบซ้าย</h2>
+  <p>กดค้างที่หัวกล่องแล้วลาก กล่องหลุดจากขอบ ลอยขึ้นมีเงาเข้มขึ้น เอียงนิด ๆ ตามทิศที่ลาก และตามมือไปทุกจุด ลำต้นหายไประหว่างลาก ปล่อยเมาส์แล้วกล่องไหลเข้าไปติดขอบตามเส้นประเองใน 0.3 วินาที แล้วลำต้นค่อยโผล่กลับ</p>
+  <div class="scr" id="scrA" inert></div>
+</section>
+
+<section class="concept">
+  <h2>ติดขอบบนและขอบล่าง</h2>
+  <p>ลากจนเมาส์ชนขอบบนหรือขอบล่างของหน้าต่าง เส้นประจะย้ายไปอยู่ที่ขอบนั้น ปล่อยแล้วกล่องห้อยลงจากขอบบน หรือตั้งขึ้นจากขอบล่าง ลำต้นกับโค้งเว้าใช้กฎเดียวกับขอบซ้ายขวาแค่หมุนตาม ตอนพับเป็นแถบแนวนอน</p>
+  <div class="grid" id="gridB"></div>
+</section>
+
+<section class="concept">
+  <h2>ลองลากของจริง</h2>
+  <p>กรอบนี้ขนาดเท่าจอจริง ขอบของกรอบคือขอบจอ จับหัวกล่องลากไปมาได้เลย ลากชนขอบบนหรือขอบล่างของกรอบแล้วปล่อย กล่องจะไปติดขอบนั้น กดปุ่มพับแล้วจับแถบลากก็ได้</p>
+  <div class="scr" id="scrLive"></div>
+</section>
+
+<section class="concept">
+  <h2>รายละเอียดที่แคลร์ตั้งเองในมอคอัปนี้</h2>
+  <ul class="notes">
+    <li>ระหว่างลาก กล่องขยายขึ้น 2.5% กับเงาเข้มขึ้นให้รู้ว่ายกขึ้นมาแล้ว เอียงได้ไม่เกิน 2.5 องศาตามความเร็วที่ลาก หยุดมือแล้วกลับมาตรง</li>
+    <li>ติดขอบซ้ายหรือขวา ตัดสินจากว่าเมาส์อยู่ครึ่งไหนของจอ ติดขอบบนหรือล่าง ต้องลากจนเมาส์ชนขอบหน้าต่าง (ห่างไม่เกิน 6 จุด) จับหัวกล่องลากไปทางข้างจะได้ไม่เผลอไปติดขอบบน</li>
+    <li>ปล่อยแล้ว กล่องลงที่ตำแหน่งเดียวกับที่ปล่อยมากที่สุด เลื่อนเท่าที่จำเป็นให้อยู่ในจอ</li>
+    <li>แถบตอนพับที่ขอบบนกับขอบล่างหนา 44 จุด เรียงไอคอน คำว่า CrCl ค่า และหน่วยเป็นแถวเดียว</li>
+    <li>ปุ่มย้ายขอบที่หัวกล่องย้ายไปขอบตรงข้าม ซ้ายกับขวา บนกับล่าง</li>
+    <li>ผู้ใช้ที่ตั้งลดการเคลื่อนไหวไว้ ลากแล้วไม่เอียง ไม่ขยาย ปล่อยแล้วไปติดขอบทันทีไม่ไหล</li>
+  </ul>
+</section>
+
+</div>
+
+<script src="/extension/content/calc.js"></script>
+<script src="/extension/content/render.js"></script>
+<script src="/extension/content/box.js"></script>
+<script>
+(async () => {
+'use strict';
+
+const CrCl = window.CrCl;
+const ICON = CrCl.render.ICON;
+
+// ขนาดชุดเดียวกับส่วนขยาย (box.js) · ของใหม่ในมอคอัป: TAB_HZ แถบตอนพับที่ขอบบนล่าง · SNAP ระยะชนขอบบนล่าง
+const TAB_W = 52, TAB_HZ = 44, TRUNK_W = 24, TRUNK_H = 58, RAD = 12, EDGE = 8, SNAP = 6;
+const GLIDE_MS = 300, LIFT_SCALE = 1.025, TILT_MAX = 2.5;
+const WIDTH = { narrow: 320, wide: 620 };
+const OPP = { left: 'right', right: 'left', top: 'bottom', bottom: 'top' };
+const EDGE_TH = { left: 'ขอบซ้าย', right: 'ขอบขวา', top: 'ขอบบน', bottom: 'ขอบล่าง' };
+const ROT = { right: 0, left: 180, top: -90, bottom: 90 };   // ลูกศรปุ่มพับชี้เข้าหาขอบ
+const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
+const px = (v) => Math.round(v * 100) / 100 + 'px';
+const isSide = (e) => e === 'left' || e === 'right';
+const reduce = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+/* สไตล์เพิ่มของมอคอัป ใส่ต่อจาก box.css ใน Shadow DOM เดียวกัน */
+const DEMO_CSS = `
+.dock[data-side="free"]{left:0;right:0;top:0;bottom:0;width:auto}
+.dock[data-side="free"] .base{right:auto}
+.dock[data-axis="h"] .base{flex-direction:row;justify-content:center;gap:6px;padding:0 12px}
+.dock[data-side="free"][data-open] .base{transition:background-color .15s ease,opacity .16s ease}
+.dock .fillet{transition:opacity .16s ease}
+.dock[data-lifted="true"]{filter:drop-shadow(0 0 .7px rgba(16,52,45,.55)) drop-shadow(0 24px 40px rgba(16,52,45,.30))}
+.dock[data-lifted="true"][data-liftfold="false"] .base,.dock[data-lifted="true"] .fillet{opacity:0}
+.dock[data-lifted="true"] .cx-head,.dock[data-lifted="true"] .base{cursor:grabbing}
+.dock[data-lifted="true"] .cx,.dock[data-lifted="true"][data-liftfold="true"] .base{transition:transform .14s ease-out}
+.gh{position:fixed;display:none;pointer-events:none;border:2px dashed rgba(15,118,110,.6);background:rgba(15,118,110,.07)}
+.gh.on{display:block}
+.gh.start{border:2px dotted rgba(70,87,83,.5);background:rgba(70,87,83,.05)}
+@media (prefers-reduced-motion:reduce){.dock[data-lifted="true"] .cx,.dock[data-lifted="true"] .base{transition:none}}
+`;
+
+const boxCss = await (await fetch('/extension/styles/box.css', { cache: 'no-store' })).text();
+const sheetBox = new CSSStyleSheet();
+sheetBox.replaceSync(boxCss);
+const sheetDemo = new CSSStyleSheet();
+sheetDemo.replaceSync(DEMO_CSS);
+
+/** กรอบเส้นประบอกที่ลง (หรือเส้นจุดบอกที่เริ่ม) ลำต้นกับกล่องวาดเป็นสองชิ้น */
+function makeGhost(root, kind) {
+  const panel = document.createElement('div');
+  const trunk = document.createElement('div');
+  panel.className = trunk.className = 'gh ' + kind;
+  root.append(panel, trunk);
+  const put = (el, r, rad) => Object.assign(el.style, { left: px(r.x), top: px(r.y), width: px(r.w), height: px(r.h), borderRadius: rad });
+  return {
+    show(L, folded) {
+      put(trunk, L.base, L.base.rad);
+      trunk.classList.add('on');
+      if (folded) { panel.classList.remove('on'); return; }
+      put(panel, L.panel, L.corners.map(px).join(' '));
+      panel.classList.add('on');
+    },
+    hide() { panel.classList.remove('on'); trunk.classList.remove('on'); },
+  };
+}
+
+/**
+ * กล่องตัวจริงของส่วนขยาย + ของใหม่ที่มอคอัปนี้เสนอ
+ * - ติดได้ 4 ขอบ คิดตำแหน่งด้วยกฎ 3+4 ชุดเดิม แต่หมุนแกนตามขอบ (ขอบซ้ายขวาไล่ตามแนวตั้ง ขอบบนล่างไล่ตามแนวนอน)
+ * - ลากแล้วกล่องหลุดจากขอบตามมือ ปล่อยแล้วไหลเข้าขอบที่เลือก
+ * - this.top คือตำแหน่งของแถบตามแนวขอบ (ขอบซ้ายขวา = ระยะจากบน · ขอบบนล่าง = ระยะจากซ้าย)
+ */
+class DemoBox extends CrCl.Box {
+  constructor(o) {
+    super(o);
+    this.side = o.side || 'right';
+    this.tilt = 0;
+    this.ghost = makeGhost(o.root, 'land');
+    this.startGhost = makeGhost(o.root, 'start');
+    // ปุ่มย้ายขอบ ไปขอบตรงข้ามได้ทั้ง 4 ขอบ (ของเดิมสลับได้แค่ซ้ายขวา)
+    this.panel.addEventListener('click', (e) => {
+      if (!(e.target.closest && e.target.closest('[data-act="flip"]'))) return;
+      e.stopPropagation();
+      this.setSide(OPP[this.side]);
+      this.emitPrefs();
+    }, true);
+    this.paintHead();
+  }
+
+  vp() { return this.o.viewport(); }
+
+  paintHead() {
+    super.paintHead();
+    const d = this.dock;
+    if (!d) return;
+    d.dataset.side = 'free';
+    d.dataset.edge = this.side;
+    d.dataset.axis = isSide(this.side) ? 'v' : 'h';
+    d.style.width = '';
+    const flip = this.panel.querySelector('[data-act="flip"]');
+    const say = 'ย้ายไปติด' + EDGE_TH[OPP[this.side]];
+    flip.setAttribute('aria-label', say);
+    flip.title = say;
+    this.panel.querySelector('[data-act="fold"]').innerHTML =
+      ICON.foldR.replace('<svg ', `<svg style="transform:rotate(${ROT[this.side]}deg)" `);
+  }
+
+  relayout() {
+    if (this.scene) { this.scene(); return; }
+    if (this.lifted) return;
+    super.relayout();
+  }
+
+  /** ความยาวของแถบตอนพับตามแนวขอบ วัดจากของจริง (แนวตั้งที่ขอบซ้ายขวา แนวนอนที่ขอบบนล่าง) */
+  tabLen(edge) {
+    const b = this.base, d = this.dock, s = b.style;
+    const axis = d.dataset.axis, w = s.width, h = s.height;
+    d.dataset.axis = isSide(edge) ? 'v' : 'h';
+    if (isSide(edge)) { s.width = TAB_W + 'px'; s.height = 'auto'; } else { s.height = TAB_HZ + 'px'; s.width = 'auto'; }
+    const len = isSide(edge) ? b.offsetHeight : b.offsetWidth;
+    s.width = w;
+    s.height = h;
+    d.dataset.axis = axis;
+    return len;
+  }
+
+  /** กฎ 3+4 ชุดเดียวกับ box.js measure() คิดตามแนวขอบที่เลือก ไม่แตะหน้าจอ */
+  calcGeo(edge, along, natH) {
+    const { w: vw, h: vh } = this.vp();
+    const side = isSide(edge), L = side ? vh : vw;
+    const tabLen = this.tabLen(edge);
+    const pw = WIDTH[this.layout];
+    if (natH == null) natH = this.panelNatural();
+    const pa = side ? Math.min(natH, vh - 2 * EDGE) : Math.min(pw, vw - 2 * EDGE);   // ขนาดกล่องตามแนวขอบ
+    const pc = side ? pw : Math.min(natH, vh - TRUNK_W - EDGE);                       // ขนาดกล่องตามแนวที่ยื่นออกจากขอบ
+    const pos = Math.round(clamp(along, EDGE, Math.max(EDGE, L - EDGE - tabLen)));
+    const k = clamp((pos - EDGE) / Math.max(1, L - 2 * EDGE - tabLen), 0, 1);
+    let tt = Math.round(pos + (tabLen - TRUNK_H) * k);
+    const pt = Math.round(clamp(tt, EDGE, Math.max(EDGE, L - EDGE - pa)));
+    if (tt - pt > 0 && tt - pt < RAD) tt = pt;
+    if (pt + pa - (tt + TRUNK_H) < RAD) tt = Math.max(pt, Math.round(pt + pa - TRUNK_H));
+    return { edge, vw, vh, thick: side ? TAB_W : TAB_HZ, tabLen, natH, pa, pc, pos, tt, pt,
+      gapA: tt - pt, gapB: pt + pa - (tt + TRUNK_H), j: tt + TRUNK_H / 2 - pt };
+  }
+
+  measure(keepNatural) {
+    const g = this.calcGeo(this.side, this.top, keepNatural && this.geo ? this.geo.natH : null);
+    this.top = g.pos;
+    this.geo = g;
+  }
+
+  /** ตำแหน่งทุกชิ้นที่จังหวะ p (0 = พับ 1 = กาง) เป็นพิกัดในจอ */
+  layoutAt(p, g) {
+    const q = 1 - p;
+    const thick = g.thick + (TRUNK_W - g.thick) * p;
+    const bA = g.pos + (g.tt - g.pos) * p;
+    const bL = g.tabLen + (TRUNK_H - g.tabLen) * p;
+    const r = RAD * q;
+    const sIn = g.gapA > 0 ? RAD : 0, eIn = g.gapB > 0 ? RAD : 0;
+    const ca = q * g.j, cb = q * (g.pa - g.j), cs = Math.round(q * 10000) / 100 + '%';
+    let base, panel, corners, clip, fA, fB;
+    if (g.edge === 'right') {
+      base = { x: g.vw - thick, y: bA, w: thick, h: bL, rad: `${px(r)} 0 0 ${px(r)}` };
+      panel = { x: g.vw - thick - g.pc, y: g.pt, w: g.pc, h: g.pa };
+      corners = [RAD, sIn, eIn, RAD];
+      clip = [ca, 0, cb, cs];
+      fA = { x: g.vw - thick, y: bA - RAD, at: '100% 0' };
+      fB = { x: g.vw - thick, y: bA + bL, at: '100% 100%' };
+    } else if (g.edge === 'left') {
+      base = { x: 0, y: bA, w: thick, h: bL, rad: `0 ${px(r)} ${px(r)} 0` };
+      panel = { x: thick, y: g.pt, w: g.pc, h: g.pa };
+      corners = [sIn, RAD, RAD, eIn];
+      clip = [ca, cs, cb, 0];
+      fA = { x: thick - RAD, y: bA - RAD, at: '0 0' };
+      fB = { x: thick - RAD, y: bA + bL, at: '0 100%' };
+    } else if (g.edge === 'top') {
+      base = { x: bA, y: 0, w: bL, h: thick, rad: `0 0 ${px(r)} ${px(r)}` };
+      panel = { x: g.pt, y: thick, w: g.pa, h: g.pc };
+      corners = [sIn, eIn, RAD, RAD];
+      clip = [0, cb, cs, ca];
+      fA = { x: bA - RAD, y: thick - RAD, at: '0 0' };
+      fB = { x: bA + bL, y: thick - RAD, at: '100% 0' };
+    } else {
+      base = { x: bA, y: g.vh - thick, w: bL, h: thick, rad: `${px(r)} ${px(r)} 0 0` };
+      panel = { x: g.pt, y: g.vh - thick - g.pc, w: g.pa, h: g.pc };
+      corners = [RAD, RAD, eIn, sIn];
+      clip = [cs, cb, 0, ca];
+      fA = { x: bA - RAD, y: g.vh - thick, at: '0 100%' };
+      fB = { x: bA + bL, y: g.vh - thick, at: '100% 100%' };
+    }
+    return { p, base, panel, corners, clip, fA, fB, up: g.gapA >= RAD, down: g.gapB >= RAD,
+      bo: clamp(1 - p * 1.6, 0, 1), fo: clamp((p - 0.75) * 4, 0, 1) };
+  }
+
+  fillets() { return [this.dock.querySelector('.fillet.up'), this.dock.querySelector('.fillet.down')]; }
+
+  apply(p) {
+    this.p = p;
+    if (!this.geo || this.lifted) return;
+    const L = this.layoutAt(p, this.geo);
+    const d = this.dock, b = this.base.style, c = this.panel.style;
+    d.style.setProperty('--bo', String(L.bo));
+    d.style.setProperty('--fo', String(L.fo));
+    Object.assign(b, { left: px(L.base.x), top: px(L.base.y), width: px(L.base.w), height: px(L.base.h),
+      borderRadius: L.base.rad, transform: '', transformOrigin: '' });
+    const rr = L.corners.map(px).join(' ');
+    Object.assign(c, { left: px(L.panel.x), top: px(L.panel.y), width: px(L.panel.w), height: px(L.panel.h),
+      borderRadius: rr, transform: '', transformOrigin: '',
+      clipPath: `inset(${L.clip.map((v) => (typeof v === 'number' ? px(v) : v)).join(' ')} round ${rr})` });
+    const [fu, fd] = this.fillets();
+    for (const [el, f] of [[fu, L.fA], [fd, L.fB]]) {
+      el.style.left = px(f.x);
+      el.style.top = px(f.y);
+      el.style.background = `radial-gradient(circle at ${f.at},transparent calc(var(--r) - .5px),var(--fc) var(--r))`;
+    }
+    const ds = d.dataset;
+    ds.open = String(p > 0.5);
+    ds.folded = String(p === 0);
+    ds.up = String(L.up);
+    ds.down = String(L.down);
+    const say = p > 0.5 ? 'พับกล่องเก็บไว้ที่ขอบจอ' : 'กางกล่องคำนวณ CrCl';
+    this.base.setAttribute('aria-label', say);
+    this.base.title = say;
+  }
+
+  /* ══════════ ลากแบบหยิบไปวาง ══════════ */
+
+  /** หยิบขึ้นจากขอบ · gx gy = จุดที่จับ วัดจากมุมบนซ้ายของสิ่งที่ลาก */
+  lift(folded, gx, gy) {
+    this.lifted = true;
+    this.liftFolded = folded;
+    this.tilt = 0;
+    const d = this.dock;
+    d.dataset.lifted = 'true';
+    d.dataset.liftfold = String(folded);
+    const s = (folded ? this.base : this.panel).style;
+    s.clipPath = 'none';
+    s.borderRadius = px(RAD);
+    s.transformOrigin = `${px(gx)} ${px(gy)}`;
+  }
+
+  /** วางสิ่งที่ลากไว้ที่ fx fy (พิกัดในจอ) */
+  floatAt(fx, fy) {
+    this.fx = fx;
+    this.fy = fy;
+    const s = (this.liftFolded ? this.base : this.panel).style;
+    s.left = px(fx);
+    s.top = px(fy);
+    s.transform = reduce() ? '' : `rotate(${this.tilt.toFixed(2)}deg) scale(${LIFT_SCALE})`;
+  }
+
+  /** ขอบที่จะไปติด · บนล่างต้องชนขอบหน้าต่าง · นอกนั้นดูว่าเมาส์อยู่ครึ่งไหนของจอ */
+  pickEdge(x, y) {
+    const { w, h } = this.vp();
+    if (y <= SNAP) return 'top';
+    if (y >= h - SNAP) return 'bottom';
+    return x < w / 2 ? 'left' : 'right';
+  }
+
+  ghostAt(edge, along, folded, gh = this.ghost) {
+    const g = this.calcGeo(edge, along, this.geo ? this.geo.natH : null);
+    gh.show(this.layoutAt(folded ? 0 : 1, g), folded);
+  }
+
+  /** ปล่อยเมาส์ ติดขอบใหม่ แล้วไหลจากที่ปล่อยเข้าไปหาตำแหน่งนั้น */
+  drop(edge, along) {
+    const folded = this.liftFolded, el = folded ? this.base : this.panel;
+    const fx = this.fx, fy = this.fy, tilt = this.tilt, origin = el.style.transformOrigin;
+    this.lifted = false;
+    delete this.dock.dataset.lifted;
+    delete this.dock.dataset.liftfold;
+    this.ghost.hide();
+    this.side = edge;
+    this.top = along;
+    this.paintHead();
+    this.measure(false);
+    this.goal = folded ? 0 : 1;
+    this.apply(this.goal);
+    this.thumbPlace();
+    if (reduce()) { this.emitPrefs(); return; }
+    const to = this.layoutAt(this.goal, this.geo)[folded ? 'base' : 'panel'];
+    el.style.transformOrigin = origin;
+    el.animate([
+      { transform: `translate(${px(fx - to.x)}, ${px(fy - to.y)}) rotate(${tilt}deg) scale(${LIFT_SCALE})` },
+      { transform: 'none' },
+    ], { duration: GLIDE_MS, easing: 'cubic-bezier(.2,.8,.25,1)' }).finished.then(() => { el.style.transformOrigin = ''; }, () => {});
+    if (!folded) {
+      for (const x of [this.base, ...this.fillets()]) {
+        x.animate([{ opacity: 0 }, { opacity: 0, offset: 0.55 }, { opacity: 1 }], { duration: GLIDE_MS + 120, easing: 'ease-out' });
+      }
+    }
+    this.emitPrefs();
+  }
+
+  dragOn(handle, isTab) {
+    handle.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || this.scene) return;
+      if (!isTab && e.target.closest('button')) return;
+      if (this.p > 0 && this.p < 1) return;
+      const folded = this.p === 0;
+      const vp = this.vp();
+      const r0 = (folded ? this.base : this.panel).getBoundingClientRect();
+      const gx = e.clientX - r0.left, gy = e.clientY - r0.top;
+      const x0 = e.clientX, y0 = e.clientY;
+      let moved = false, target = this.side, along = this.top, lastX = x0, lastT = e.timeStamp, idle = 0;
+      try { handle.setPointerCapture(e.pointerId); } catch (_) { /* ลากต่อได้ตามปกติ */ }
+      const move = (ev) => {
+        if (!moved) {
+          if (Math.abs(ev.clientX - x0) < 4 && Math.abs(ev.clientY - y0) < 4) return;
+          moved = true;
+          handle.classList.add('is-drag');
+          this.lift(folded, gx, gy);
+        }
+        const x = ev.clientX - vp.left, y = ev.clientY - vp.top;
+        const vx = (ev.clientX - lastX) / Math.max(1, ev.timeStamp - lastT);
+        lastX = ev.clientX;
+        lastT = ev.timeStamp;
+        this.tilt = reduce() ? 0 : clamp(this.tilt * 0.55 + vx * 1.4, -TILT_MAX, TILT_MAX);
+        this.floatAt(x - gx, y - gy);
+        target = this.pickEdge(x, y);
+        along = isSide(target) ? y - gy : x - gx;
+        this.ghostAt(target, along, folded);
+        // หยุดมือ กล่องค่อย ๆ กลับมาตรง
+        clearTimeout(idle);
+        idle = setTimeout(() => { this.tilt = 0; if (this.lifted) this.floatAt(this.fx, this.fy); }, 90);
+      };
+      const up = () => {
+        handle.removeEventListener('pointermove', move);
+        handle.removeEventListener('pointerup', up);
+        handle.removeEventListener('pointercancel', up);
+        handle.classList.remove('is-drag');
+        clearTimeout(idle);
+        if (isTab) this.justDragged = moved;
+        if (moved) this.drop(target, along);
+      };
+      handle.addEventListener('pointermove', move);
+      handle.addEventListener('pointerup', up);
+      handle.addEventListener('pointercancel', up);
+    });
+  }
+}
+
+/* ══════════ ตัวช่วยวาดภาพนิ่ง ══════════ */
+
+const SAMPLE = { sex: 'male', age: '65', w: '70', h: '170', scr: '1.2' };
+
+function paperless(scr) {
+  scr.innerHTML = '<div class="bg-top"></div><div class="bg-side"></div><div class="bg-sheet"></div><div class="host"></div><div class="ov"></div>';
+  return { host: scr.querySelector('.host'), ov: scr.querySelector('.ov') };
+}
+
+function mount(host, { layout = 'narrow', side = 'right', top = 96, viewport }) {
+  const root = host.attachShadow({ mode: 'open' });
+  root.adoptedStyleSheets = [sheetBox, sheetDemo];
+  return new DemoBox({ root, mode: 'float', state: SAMPLE, layout, side, top, canPanel: true, viewport });
+}
+
+/** วางกล่องติดขอบ แบบพับหรือกาง */
+function dockAt(box, edge, along, folded) {
+  box.lifted = false;
+  delete box.dock.dataset.lifted;
+  delete box.dock.dataset.liftfold;
+  box.ghost.hide();
+  box.startGhost.hide();
+  box.side = edge;
+  box.top = along;
+  box.paintHead();
+  box.dock.hidden = false;
+  box.visible = true;
+  box.measure(false);
+  box.goal = folded ? 0 : 1;
+  box.apply(box.goal);
+  box.thumbPlace();
+}
+
+/** ภาพกำลังลาก: กล่องเริ่มที่ from แล้วถูกหยิบมาอยู่ที่ fx fy · ปล่อยตอนนี้จะไปติดขอบ to */
+function liftAt(box, { from, fromAlong, folded, fx, fy, gx, gy, tilt, to, toAlong }) {
+  dockAt(box, from, fromAlong, folded);
+  box.ghostAt(from, fromAlong, folded, box.startGhost);
+  box.lift(folded, gx, gy);
+  box.tilt = tilt;
+  box.floatAt(fx, fy);
+  box.ghostAt(to, toAlong, folded);
+}
+
+const CURSOR = '<svg class="cursor" viewBox="0 0 22 26" aria-hidden="true"><path d="M2 1.5v19.2l4.9-4.6 3.4 7.6 3.3-1.5-3.3-7.4h6.8z" fill="#111" stroke="#fff" stroke-width="1.4" stroke-linejoin="round"/></svg>';
+
+/** เส้นทางลาก (เส้นประมีหัวลูกศร) กับเมาส์ ตัวเลขกำกับ */
+function overlay(ov, { from, to, bend = 60, calls = [] }) {
+  const mx = (from[0] + to[0]) / 2, my = (from[1] + to[1]) / 2 + bend;
+  const id = 'ah' + Math.random().toString(36).slice(2, 7);
+  ov.innerHTML = `<svg width="1" height="1" aria-hidden="true">
+      <defs><marker id="${id}" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#0f766e"/></marker></defs>
+      <path d="M${from[0]} ${from[1]} Q${mx} ${my} ${to[0]} ${to[1]}" fill="none" stroke="#0f766e" stroke-width="2.5" stroke-dasharray="8 7" stroke-linecap="round" marker-end="url(#${id})" opacity=".85"/>
+    </svg>${CURSOR}`
+    + calls.map((c) => `<div class="call" style="left:${px(c.x)};top:${px(c.y)}"><b>${c.n}</b><span>${c.t}</span></div>`).join('');
+  const cur = ov.querySelector('.cursor');
+  cur.style.left = px(to[0] - 2);
+  cur.style.top = px(to[1] - 1.5);
+}
+
+/* ══════════ ภาพแรก ขนาดจริง ลากจากขอบขวาไปขอบซ้าย ══════════ */
+
+const scrA = document.getElementById('scrA');
+const A = paperless(scrA);
+const boxA = mount(A.host, { viewport: () => ({ w: scrA.clientWidth, h: 577, left: 0, top: 0 }) });
+boxA.scene = () => {
+  const W = scrA.clientWidth;
+  const gx = 150, gy = 19, fx = Math.round(W * 0.3), fy = 12;
+  liftAt(boxA, { from: 'right', fromAlong: 96, folded: false, fx, fy, gx, gy, tilt: -1.8, to: 'left', toAlong: fy });
+  const s = boxA.layoutAt(1, boxA.calcGeo('right', 96, boxA.geo.natH)).panel;
+  overlay(A.ov, {
+    from: [s.x + gx, s.y + gy], to: [fx + gx, fy + gy], bend: 70,
+    calls: [
+      { n: 1, t: 'เริ่มจากตรงนี้ กดค้างที่หัวกล่อง', x: s.x + 24, y: 250 },
+      { n: 2, t: 'กล่องหลุดจากขอบ ลอยตามมือไปทุกจุด', x: fx + 340, y: 200 },
+      { n: 3, t: 'ปล่อยตอนนี้ กล่องไหลมาติดตรงเส้นประ', x: 60, y: 300 },
+    ],
+  });
+};
+
+/* ══════════ ภาพชุดล่าง ย่อครึ่งหนึ่ง ══════════ */
+
+const gridB = document.getElementById('gridB');
+const SHOTS = [
+  { t: 'ลากจนเมาส์ชนขอบบน', s: 'เส้นประย้ายไปอยู่ที่ขอบบน', scene(box, ov) {
+    const gx = 150, gy = 19, fx = 560, fy = -14;
+    liftAt(box, { from: 'right', fromAlong: 96, folded: false, fx, fy, gx, gy, tilt: -1.2, to: 'top', toAlong: fx });
+    const s = box.layoutAt(1, box.calcGeo('right', 96, box.geo.natH)).panel;
+    overlay(ov, { from: [s.x + gx, s.y + gy], to: [fx + gx, fy + gy], bend: 40 });
+  } },
+  { t: 'ปล่อยแล้ว ติดขอบบน', s: 'กล่องห้อยลงจากลำต้นที่ขอบบน', scene(box) { dockAt(box, 'top', 560, false); } },
+  { t: 'ติดขอบบน ตอนพับ', s: 'แถบแนวนอนหนา 44 จุด', scene(box) { dockAt(box, 'top', 560, true); } },
+  { t: 'ติดขอบล่าง ตอนพับ', s: 'ลากชนขอบล่างแล้วปล่อย', scene(box) { dockAt(box, 'bottom', 860, true); } },
+  { t: 'ติดขอบล่าง ตอนกาง', s: 'แผงกว้าง ตั้งขึ้นจากขอบล่าง', layout: 'wide', scene(box) { dockAt(box, 'bottom', 380, false); } },
+  { t: 'ลากแถบตอนพับก็ได้', s: 'แถบหลุดจากขอบตามมือ ปล่อยแล้วติดขอบใหม่', scene(box, ov) {
+    const gx = 26, gy = 44, fx = 640, fy = 240;
+    liftAt(box, { from: 'right', fromAlong: 200, folded: true, fx, fy, gx, gy, tilt: -2, to: 'left', toAlong: fy });
+    const s = box.layoutAt(0, box.calcGeo('right', 200, box.geo.natH)).base;
+    overlay(ov, { from: [s.x + gx, s.y + gy], to: [fx + gx, fy + gy], bend: -50 });
+  } },
+];
+const shots = SHOTS.map((sh) => {
+  const fig = document.createElement('figure');
+  fig.className = 'shot';
+  fig.innerHTML = `<figcaption>${sh.t} <span>${sh.s}</span></figcaption><div class="fw"><div class="scr" inert></div></div>`;
+  gridB.appendChild(fig);
+  const scr = fig.querySelector('.scr');
+  const P = paperless(scr);
+  const box = mount(P.host, { layout: sh.layout, viewport: () => ({ w: 1366, h: 577, left: 0, top: 0 }) });
+  box.scene = () => sh.scene(box, P.ov);
+  return { fig, scr, box };
+});
+
+function fitShots() {
+  for (const s of shots) {
+    const w = s.fig.clientWidth, k = w / 1366;
+    s.scr.style.transform = `scale(${k})`;
+    s.fig.querySelector('.fw').style.height = px(577 * k);
+  }
+}
+
+/* ══════════ กรอบสุดท้าย ลองลากของจริงได้ ══════════ */
+
+const scrLive = document.getElementById('scrLive');
+const live = mount(paperless(scrLive).host, {
+  side: 'right', top: 96,
+  viewport: () => { const r = scrLive.getBoundingClientRect(); return { w: scrLive.clientWidth, h: 577, left: r.left, top: r.top }; },
+});
+
+function renderAll() {
+  fitShots();
+  boxA.scene();
+  for (const s of shots) s.box.scene();
+}
+await document.fonts.ready;
+renderAll();
+live.show();
+window.addEventListener('resize', renderAll);
+document.fonts.addEventListener('loadingdone', renderAll);
+})();
+</script>
+</body>
+</html>

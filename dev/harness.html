@@ -80,7 +80,8 @@
 
   // ตัวแทน background.js
   window.__crclBridge = {
-    shadowMode: 'open',
+    // ?closed=1 ซ่อนกล่องแบบปิดเหมือนส่วนขยายจริง (สคริปต์ทดสอบยังเข้าถึงได้ทาง __crclApp.box.o.root)
+    shadowMode: q.get('closed') === '1' ? 'closed' : 'open',
     alive: () => true,
     send: async (msg) => {
       log.push(JSON.parse(JSON.stringify(msg)));
