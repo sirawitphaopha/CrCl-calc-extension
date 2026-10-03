@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แผงข้างหลายความกว้าง</title>
+<!-- หน้าทดสอบตอนพัฒนาเท่านั้น วาง dev/panel.html ไว้หลายความกว้าง สูง 577 จุดเท่าโครมของพี่กัน -->
+<style>
+  body{margin:0;padding:16px;background:#e9eeec;font:14px/1.5 Tahoma,sans-serif;color:#334}
+  .row{display:flex;gap:16px;align-items:flex-start;overflow-x:auto}
+  figure{margin:0}
+  figcaption{margin-bottom:6px;font-weight:700}
+  iframe{display:block;height:577px;border:1px solid #b8c4ce;background:#fff}
+</style>
+</head>
+<body>
+<div class="row" id="row"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  const state = q.get('state') || 'normal';
+  for (const w of (q.get('w') || '320,400,619,620,700').split(',').map(Number)) {
+    const f = document.createElement('figure');
+    f.innerHTML = `<figcaption>กว้าง ${w} จุด</figcaption><iframe title="แผงข้างกว้าง ${w} จุด" src="/dev/panel.html?state=${state}" style="width:${w}px"></iframe>`;
+    document.getElementById('row').appendChild(f);
+  }
+</script>
+</body>
+</html>

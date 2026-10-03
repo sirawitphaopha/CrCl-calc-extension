@@ -1,0 +1,194 @@
+/* สไตล์ของกล่องคำนวณ CrCl ทั้งหมด ใช้ใน Shadow DOM ทั้งกล่องลอยบนหน้าเว็บและในแผงข้างของ Chrome
+ *
+ * ยกจากมอคอัปที่พี่กันเคาะแล้ว
+ * - docs/mockups/crcl-box-narrow-wide-2026-10-02.html  ตัวกล่อง แผงแคบ 320 กับแผงกว้าง 620
+ * - docs/mockups/crcl-box-tree-2026-10-02.html         ลำต้นกับโค้งเว้า (รอยต่อแบบต้นไม้ รวมแถว 3+4)
+ *
+ * - สีทุกสีอยู่ในไฟล์นี้ ไม่ฝังในแท็ก เผื่อหน้าเว็บตั้งกติกาความปลอดภัย (CSP) ที่บล็อก style ในแท็ก
+ * - ตำแหน่งและขนาดที่เปลี่ยนตามจอ box.js ส่งมาเป็นตัวแปร --bt --bw --bh --pt --ph และอื่น ๆ
+ * - ฟอนต์ประกาศที่ระดับหน้าเว็บด้วยชื่อเฉพาะของส่วนขยาย (content/fonts.js) เพราะ @font-face ใน Shadow DOM ใช้ไม่ได้
+ */
+:host{
+  --font-sarabun:"CrClX Sarabun","Sarabun","Noto Sans Thai",Tahoma;
+  --font-mono:"CrClX Roboto Mono","Roboto Mono";
+  --font-en:var(--font-mono);
+  --ink:#1f2d2a; --ink-2:#465753; --ink-3:#687874; --ink-4:#9aa8a4;
+  --line:#d3e0dc; --line-2:#e5ecea; --field-line:#c3d5d0;
+  --surface:#fff; --surface-2:#f5f9f8;
+  --accent:#0f766e; --accent-ink:#0b5c55; --accent-soft:#e4f3ef; --accent-soft-2:#cde9e1; --accent-line:#93cfc2;
+  --warn-ink:#b45309; --warn-bg:#fff7ec;
+  --danger-ink:#b42318; --danger-bg:#fef2f1; --danger-line:#f3b2aa;
+  --brick:#c2543c; --brick-bg:#fdf1ed; --brick-line:rgba(194,84,60,.32);
+  --r:12px;
+}
+*,*::before,*::after{box-sizing:border-box}
+
+/* ══════════ ลำต้นกับกล่อง (กล่องลอยบนหน้าเว็บ) ══════════
+   --p จังหวะการกาง 0 = พับเหลือแถบ 1 = กางเต็ม
+   --bt --bw --bh ตำแหน่งบน ความกว้าง ความสูงของแถบฐานตอนนั้น · --pt --ph ตำแหน่งบนกับความสูงของกล่อง */
+.dock{position:fixed;top:0;bottom:0;right:0;pointer-events:none;color:var(--ink);
+  font-family:var(--font-en),var(--font-sarabun),sans-serif;font-size:13px;line-height:1.45;text-align:left;
+  filter:drop-shadow(0 0 .7px rgba(16,52,45,.55)) drop-shadow(0 10px 22px rgba(16,52,45,.17))}
+.dock[data-side="left"]{right:auto;left:0}
+.dock[hidden]{display:none}
+.dock .base,.dock .cx{pointer-events:auto}
+.dock[data-open="false"] .cx{pointer-events:none}
+.dock[data-folded="true"] .cx{visibility:hidden}
+
+.base{position:absolute;top:var(--bt);z-index:2;display:flex;flex-direction:column;align-items:center;gap:3px;width:var(--bw);height:var(--bh);margin:0;padding:10px 0 9px;overflow:hidden;border:0;background-color:var(--accent-soft);color:var(--accent-ink);cursor:pointer;font-family:var(--font-en),var(--font-sarabun),sans-serif;touch-action:none;transition:background-color .15s ease}
+.dock[data-side="right"] .base{right:0;border-radius:var(--br) 0 0 var(--br)}
+.dock[data-side="left"] .base{left:0;border-radius:0 var(--br) var(--br) 0}
+.dock[data-open="true"] .base{transition:none}
+.base:hover{background-color:var(--accent-soft-2)}
+.base:focus-visible{outline:2px solid var(--accent);outline-offset:-2px}
+.base.is-drag{cursor:grabbing}
+.base>*{flex:none;opacity:var(--bo)}
+.base .k{font-size:11px;font-weight:700;line-height:1.2}
+.base .v{color:var(--ink);font-size:13.5px;font-weight:700;line-height:1.2}
+.base .u{color:var(--ink-3);font-size:9.5px;line-height:1.1}
+
+/* โค้งเว้าระหว่างลำต้นกับขอบกล่อง ขึ้นเฉพาะด้านที่กล่องยื่นเกินลำต้น (กฎข้อ 5 ของรอยต่อแบบต้นไม้) */
+.fillet{--fc:var(--accent-soft);position:absolute;display:none;width:var(--r);height:var(--r);pointer-events:none;opacity:var(--fo)}
+.base:hover~.fillet{--fc:var(--accent-soft-2)}
+.dock[data-up="true"] .fillet.up,.dock[data-down="true"] .fillet.down{display:block}
+.fillet.up{top:calc(var(--bt) - var(--r))}
+.fillet.down{top:calc(var(--bt) + var(--bh))}
+.dock[data-side="right"] .fillet{right:calc(var(--bw) - var(--r))}
+.dock[data-side="left"] .fillet{left:calc(var(--bw) - var(--r))}
+.dock[data-side="right"] .fillet.up{background:radial-gradient(circle at 100% 0,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
+.dock[data-side="right"] .fillet.down{background:radial-gradient(circle at 100% 100%,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
+.dock[data-side="left"] .fillet.up{background:radial-gradient(circle at 0 0,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
+.dock[data-side="left"] .fillet.down{background:radial-gradient(circle at 0 100%,transparent calc(var(--r) - .5px),var(--fc) var(--r))}
+
+/* กล่องห้อยจากลำต้น ค่อย ๆ ออกจากจุดที่ติดลำต้น มุมฝั่งที่ชิดลำต้นเป็นเหลี่ยมเมื่อลำต้นชิดขอบกล่องพอดี */
+.dock .cx{position:absolute;top:var(--pt);height:var(--ph);border-radius:var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl)}
+.dock[data-side="right"] .cx{right:var(--bw);clip-path:inset(var(--ct) 0 var(--cb) var(--cs) round var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl))}
+.dock[data-side="left"] .cx{left:var(--bw);clip-path:inset(var(--ct) var(--cs) var(--cb) 0 round var(--c-tl) var(--c-tr) var(--c-br) var(--c-bl))}
+
+/* ══════════ ตัวกล่อง ══════════ */
+.cx{display:flex;flex-direction:column;overflow:hidden;border:0;background:var(--surface);color:var(--ink);font-family:var(--font-en),var(--font-sarabun),sans-serif;font-size:13px;line-height:1.45;text-align:left}
+.cx.narrow{width:320px}
+.cx.wide{width:620px}
+.cx-head{flex:none;display:flex;align-items:center;gap:4px;height:38px;padding:0 6px 0 10px;background:var(--accent-soft);border-bottom:1px solid var(--line);cursor:grab;user-select:none;touch-action:none}
+.cx-head.is-drag{cursor:grabbing}
+.cx-grip{display:grid;place-items:center;width:14px;margin-right:4px;color:var(--accent);opacity:.65}
+.cx-title{flex:1;min-width:0;margin:0;color:var(--accent-ink);font:700 14.5px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-ib{flex:none;display:grid;place-items:center;width:30px;height:30px;margin:0;padding:0;border:0;border-radius:8px;background-color:transparent;color:var(--accent-ink);cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.cx-ib[hidden]{display:none}
+.cx-ib:hover{background-color:var(--accent-soft-2);color:var(--accent)}
+.cx-ib:focus-visible,.cx-unit:focus-visible,.cx-seg button:focus-visible,.cx-clear:focus-visible,.cx-barbtn:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+/* ปุ่มเพศกับปุ่มหน่วยอยู่ในกรอบที่ตัดขอบ (overflow hidden) วงโฟกัสต้องวาดด้านใน ไม่งั้นโดนตัดหายจนกดแป้น Tab แล้วมองไม่เห็นว่าอยู่ปุ่มไหน */
+.cx-unit:focus-visible,.cx-seg button:focus-visible{outline-offset:-2px}
+.cx-body{position:relative;flex:1 1 auto;min-height:0;overflow-y:auto;padding:10px 12px 10px;scrollbar-width:none}
+.cx-body::-webkit-scrollbar{width:0;height:0}
+/* กันการเลื่อนไหลไปหน้าเว็บข้างหลัง เฉพาะตอนกล่องมีของให้เลื่อนจริง (สกิล web-craft หัวข้อกล่องที่เลื่อนได้) */
+.cx-body.is-scroll{overscroll-behavior:contain}
+
+/* แถบเลื่อนลอยในกล่อง วาดเองแทนของเบราว์เซอร์ (สกิล web-craft ข้อ 6.23) */
+.cx-thumb{position:absolute;right:2px;top:0;z-index:3;width:7px;height:24px;border-radius:4px;background-color:#c3dad4;opacity:0;pointer-events:none;will-change:top,height,opacity}
+.cx-thumb:hover,.cx-thumb.is-drag{background-color:#a7c9bf}
+
+/* แถบบอกวิธีเปิดแผงข้าง (ขึ้นเฉพาะตอนโครมไม่ยอมให้เปิดจากปุ่มในกล่อง) */
+.cx-bar{flex:none;display:flex;align-items:flex-start;gap:8px;padding:7px 8px 7px 12px;border-bottom:1px solid #efd18d;background:#fff8e9;color:#7a5106;font-size:12px;line-height:1.45}
+.cx-bar[hidden]{display:none}
+.cx-bar svg{flex:none;margin-top:2px}
+.cx-bar span{flex:1;min-width:0}
+.cx-barbtn{flex:none;height:26px;margin:0;padding:0 10px;border:1px solid rgba(150,101,15,.35);border-radius:7px;background-color:#fff;color:#7a5106;font:600 12px/1 var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+.cx-barbtn:hover{background-color:#f6e7c4;border:1px solid rgba(150,101,15,.55)}
+
+/* ช่องกรอก */
+.cx-inputs{display:grid;gap:6px;align-content:start}
+.cx-row{display:grid;grid-template-columns:76px minmax(0,1fr);align-items:start;gap:8px}
+.cx-lab{display:flex;align-items:center;height:32px;color:var(--ink-2);font:600 13px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-ctl{min-width:0}
+.cx-field{display:flex;height:32px;border:1px solid var(--field-line);border-radius:8px;background-color:#fff;overflow:hidden;transition:border-color .15s ease,box-shadow .15s ease}
+.cx-field:hover{border-color:var(--accent-line)}
+.cx-field:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px rgba(15,118,110,.14)}
+.cx-field.is-warn{border-color:#eda24c;background-color:var(--warn-bg)}
+.cx-field.is-err{border-color:#e5484d;background-color:var(--danger-bg)}
+.cx-in{flex:1 1 auto;min-width:0;height:100%;margin:0;padding:0 10px;border:0;outline:0;background:transparent;color:var(--ink);font:600 15px/1 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
+.cx-in::placeholder{color:var(--ink-4);font-size:13px;font-weight:400;opacity:1}
+/* ปุ่มหน่วยกว้างเท่ากันทุกปุ่ม เท่าป้ายที่ยาวที่สุดคือ μmol/L (พี่กันสั่ง "kg ต้องยาวเท่า mg/dl") */
+.cx-unit{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;min-width:77px;margin:0;padding:0 8px;border:0;border-left:1px solid var(--line-2);background-color:var(--surface-2);color:var(--ink-2);font:600 12px/1 var(--font-en),var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.cx-unit:hover{background-color:var(--accent-soft);color:var(--accent-ink)}
+.cx-seg{display:flex;height:32px;border:1px solid var(--field-line);border-radius:8px;background:#fff;overflow:hidden}
+.cx-seg.is-warn{border-color:#eda24c}
+.cx-seg button{flex:1;margin:0;padding:0;border:0;background-color:#fff;color:var(--ink-3);font:600 13.5px/1 var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+.cx-seg button+button{border-left:1px solid var(--field-line)}
+.cx-seg button:hover{background-color:var(--accent-soft);color:var(--accent-ink)}
+.cx-seg button[aria-pressed="true"]{background-color:var(--accent-soft-2);color:var(--accent-ink);font-weight:700}
+.cx-seg button[aria-pressed="true"]:hover{background-color:#bde0d6}
+.cx-msg{display:flex;align-items:flex-start;gap:5px;margin-top:3px;color:var(--ink-3);font-size:12px;line-height:1.45}
+.cx-msg[hidden]{display:none}
+.cx-msg svg{flex:none;margin-top:2px}
+.cx-msg.err{color:var(--danger-ink)}
+.cx-msg.warn{color:var(--warn-ink)}
+.cx-msg.hi{color:#855a00}
+
+/* ผลลัพธ์ */
+.cx-sec{margin-top:10px;padding-top:8px;border-top:1px solid var(--line-2)}
+.cx-sec-h{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.cx-sec-t{margin:0;color:var(--ink);font:700 11.5px/1.4 var(--font-en),var(--font-sarabun),sans-serif;letter-spacing:-.2px}
+.cx-tag{flex:none;padding:1px 8px;border-radius:999px;font:600 11px/1.45 var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-tag.use{background:var(--accent-soft);color:var(--accent-ink)}
+.cx-tag.info{background:#eef1f3;color:var(--ink-3)}
+.cx-big{display:flex;align-items:baseline;gap:6px;margin-top:4px}
+.cx-big b{color:var(--ink);font:700 28px/1.05 var(--font-en),sans-serif;letter-spacing:-.5px}
+.cx-big span{color:var(--ink-3);font:500 13px/1 var(--font-en),sans-serif}
+.cx-big em{margin-left:auto;color:var(--ink-3);font:500 11px/1 var(--font-en),var(--font-sarabun),sans-serif;font-style:normal}
+.cx-big .cx-none{color:var(--ink-4);font:600 15px/1.4 var(--font-sarabun),sans-serif}
+.cx-hint{margin:3px 0 0;color:var(--ink-3);font-size:12px}
+.cx-note{margin:4px 0 0;color:var(--ink-3);font-size:11px;line-height:1.45}
+.cx-alert{display:flex;align-items:flex-start;gap:6px;margin-top:6px;padding:7px 10px;border-radius:8px;font-size:12.5px}
+.cx-alert svg{flex:none;margin-top:2px}
+.cx-alert.err{border:1px solid var(--danger-line);background:var(--danger-bg);color:var(--danger-ink)}
+.cx-basis{margin-top:6px;padding:5px 8px;border:1px solid;border-radius:8px;font-size:12.5px;line-height:1.45}
+.cx-basis-main{font-family:var(--font-en),var(--font-sarabun),sans-serif;font-weight:700}
+.cx-basis-why{font-size:11.5px;opacity:.88}
+.cx-basis.normal{background:#edf8f2;border-color:#bfe4cf;color:#1b6141}
+.cx-basis.under,.cx-basis.noht{background:#fff8e9;border-color:#efd18d;color:#7a5106}
+.cx-basis.short{background:#fff3e8;border-color:#f4c493;color:#9a4510}
+.cx-basis.obese.o1{background:#fff3f2;border-color:#f6c3bc;color:#b4382a}
+.cx-basis.obese.o2{background:#fff0ee;border-color:#f0aaa0;color:#a32b1d}
+.cx-basis.obese.o3{background:#feecea;border-color:#e88f84;color:#8f2214}
+.cx-warnline{display:flex;align-items:flex-start;gap:5px;margin-top:3px;color:var(--warn-ink);font-size:12px}
+.cx-warnline svg{flex:none;margin-top:2px}
+.cx-bw{width:100%;margin-top:6px;border-collapse:collapse;table-layout:fixed;font-size:12px}
+.cx-bw th,.cx-bw td{padding:3px 7px;border-bottom:1px solid var(--line-2);white-space:nowrap}
+.cx-bw thead th{border-bottom:1px solid var(--line);color:var(--ink-3);font:600 11px/1.3 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
+.cx-bw thead th:nth-child(1){width:36%}
+.cx-bw thead th:nth-child(2){width:26%}
+.cx-bw thead th:nth-child(3){width:38%}
+.cx-bw tbody th{color:var(--ink-2);font:600 12px/1.3 var(--font-en),sans-serif;text-align:left}
+.cx-bw td{color:var(--ink-2);font:500 12.5px/1.3 var(--font-en),sans-serif;text-align:right}
+.cx-bw td.cx-na{color:var(--ink-4);font-family:var(--font-en),var(--font-sarabun),sans-serif;font-weight:500;text-align:center;white-space:normal}
+.cx-bw tr.on th,.cx-bw tr.on td{background:var(--accent-soft);color:var(--ink);font-weight:700}
+.cx-bw tr.on th{box-shadow:inset 3px 0 0 var(--accent)}
+.cx-kv{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0 10px;margin-top:3px}
+.cx-val{color:var(--ink);font:700 17px/1.25 var(--font-en),sans-serif}
+.cx-val small{margin-left:4px;color:var(--ink-3);font:500 11.5px/1 var(--font-en),sans-serif}
+/* ชื่อระดับไปทั้งก้อน ไม่ฉีกกลางวลี เช่น Overweight (น้ำหนักเกิน) ในแผงกว้าง (พี่กันเลือก 3 ต.ค. 2569) */
+.cx-cls{font:700 12.5px/1.35 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+/* สีระยะ CKD กับระดับ BMI ตาม TB calc (getCKDStage · getBmiClass) */
+.ckd-1{color:#16a34a}.ckd-2{color:#65a30d}.ckd-3a{color:#d97706}.ckd-3b{color:#ea580c}.ckd-4{color:#dc2626}.ckd-5{color:#991b1b}
+.bmi-under{color:#d97706}.bmi-normal{color:#16a34a}.bmi-over{color:#f97316}.bmi-ob1{color:#f87171}.bmi-ob2{color:#ef4444}.bmi-ob3{color:#dc2626}
+.cx-meta{display:flex;flex-wrap:wrap;align-items:center;gap:2px 8px;margin-top:3px;color:var(--ink-3);font-size:11px;line-height:1.45}
+.cx-foot{flex:none;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:6px 8px 6px 12px;border-top:1px solid var(--line);background:var(--surface-2)}
+.cx-foot-note{color:var(--ink-3);font-size:11.5px;line-height:1.35}
+.cx-clear{flex:none;display:inline-flex;align-items:center;gap:6px;height:30px;margin:0;padding:0 12px;border:1px solid var(--brick-line);border-radius:8px;background-color:#fff;color:var(--brick);font:600 13px/1 var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,border-color .15s ease}
+.cx-clear:hover{background-color:var(--brick-bg);border:1px solid rgba(194,84,60,.55)}
+.sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+
+/* แผงกว้าง ช่องกรอกซ้าย ผลขวา */
+.wide .cx-body{display:grid;grid-template-columns:262px minmax(0,1fr);gap:0 16px;align-items:start}
+.wide .cx-inputs{align-self:stretch;padding-right:16px;border-right:1px solid var(--line-2)}
+.wide .cx-results>.cx-sec:first-child{margin-top:0;padding-top:0;border-top:0}
+.wide .cx-pair{display:grid;grid-template-columns:1fr 1fr;gap:0 14px}
+
+/* ══════════ ในแผงข้างของ Chrome ══════════ เต็มแผง ไม่มีลำต้น ไม่มีการลาก */
+.pane{position:fixed;inset:0;display:flex}
+.pane .cx{position:relative;flex:1;width:auto;min-width:0;height:100%}
+.pane .cx-head{cursor:default}
+
+/* ผู้ใช้ตั้งลดการเคลื่อนไหวไว้ ทุกอย่างไปภาพสุดท้ายทันที (box.js ก็ข้ามจังหวะพับกางให้ด้วย) */
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{transition:none!important;animation:none!important}}

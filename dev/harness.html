@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>หน้าจำลอง paperless สำหรับทดสอบกล่อง CrCl</title>
+<!--
+  หน้าทดสอบตอนพัฒนาเท่านั้น (ไม่อยู่ในส่วนขยาย) เปิดผ่าน dev/serve.py ที่ http://127.0.0.1:3311/dev/harness.html
+  - โหลดไฟล์ชุดเดียวกับที่ส่วนขยายฉีดลงหน้าเว็บจริง (calc.js render.js box.js main.js) กับ styles/box.css
+  - __crclBridge ทำหน้าที่แทน background.js เก็บค่าไว้ในหน้านี้ ไม่แตะ chrome.storage ไม่ส่งอะไรออกนอกเครื่อง
+  - Shadow DOM แบบเปิดเฉพาะหน้านี้ จะได้วัดขนาดจริงในกล่องได้ (ส่วนขยายจริงใช้แบบปิด)
+  - ตั้งสภาพเริ่มด้วยที่อยู่หน้า เช่น ?state=normal&layout=wide&side=left&top=300&folded=1&open=0&intent=open
+  - ข้อมูลทุกกรณีเป็นค่าตัวอย่างจากมอคอัป ไม่ใช่ผู้ป่วยจริง
+-->
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:#f3f5f7;color:#334;font:14px/1.6 Tahoma,sans-serif}
+  .pl-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:14px;height:46px;padding:0 16px;background:#e3e8ec;border-bottom:1px solid #d4dbe1}
+  .pl-top b{color:#4b5a66}
+  .pl-top button{margin-left:auto;height:30px;padding:0 12px;border:1px solid #b8c4ce;border-radius:8px;background-color:#fff;color:#334;font:13px/1 Tahoma,sans-serif;cursor:pointer}
+  .pl-top button:hover{background-color:#eef2f5}
+  .pl-wrap{display:flex}
+  .pl-side{position:sticky;top:46px;flex:none;width:230px;height:calc(100vh - 46px);padding:14px 12px;background:#eceff2;border-right:1px solid #d9dfe5}
+  .pl-side i{display:block;height:30px;margin-bottom:8px;border-radius:5px;background:#e0e5ea}
+  .pl-main{flex:1;min-width:0;padding:18px 26px 40px}
+  .pl-pt{display:flex;align-items:center;gap:14px;height:64px;margin-bottom:14px;padding:0 16px;border-radius:10px;background:#e6eaee}
+  .pl-sheet{padding:24px 28px;border:1px solid #e0e5ea;border-radius:6px;background:#fff}
+  .pl-sheet p{margin:0 0 12px;color:#8a96a0}
+</style>
+</head>
+<body>
+<div class="pl-top"><b>paperless จำลอง</b><span>หน้าทดสอบกล่องคำนวณ CrCl</span><button type="button" id="icon">จำลองการกดไอคอนส่วนขยาย</button></div>
+<div class="pl-wrap">
+  <nav class="pl-side" aria-label="เมนูจำลอง"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></nav>
+  <main class="pl-main">
+    <div class="pl-pt">ผู้ป่วยจำลอง ไม่ใช่ข้อมูลจริง</div>
+    <div class="pl-sheet" id="sheet"></div>
+  </main>
+</div>
+
+<script src="/extension/content/fonts.js"></script>
+<script>
+(() => {
+  'use strict';
+  // ฟอนต์ของกล่อง ประกาศที่ระดับหน้าเว็บเหมือนที่ background.js ฉีดให้หน้าเว็บจริง
+  const st = document.createElement('style');
+  st.textContent = CrCl.fontCSS((p) => '/extension/' + p) + '\n' + CrCl.printCSS;
+  document.head.appendChild(st);
+
+  // เนื้อหายาวพอให้หน้าเลื่อนได้ จะได้ตรวจว่าเลื่อนในกล่องแล้วหน้าหลังไม่ขยับ
+  const sheet = document.getElementById('sheet');
+  for (let i = 1; i <= 60; i++) {
+    const p = document.createElement('p');
+    p.textContent = `บรรทัดที่ ${i} ข้อความจำลองของหน้า paperless สำหรับดูว่ากล่องลอยทับหน้าเว็บแล้วหน้าตาเป็นอย่างไร`;
+    sheet.appendChild(p);
+  }
+
+  // ค่าตัวอย่างจากมอคอัป docs/mockups/crcl-box-narrow-wide-2026-10-02.html
+  const SAMPLE = {
+    empty:  {},
+    normal: { sex: 'male',   age: '65', w: '70',  h: '170',  scr: '1.2' },
+    under:  { sex: 'female', age: '78', w: '41',  h: '158',  scr: '0.8' },
+    obese:  { sex: 'male',   age: '55', w: '95',  h: '165',  scr: '1.1' },
+    short:  { sex: 'female', age: '72', w: '52',  h: '148',  scr: '1.0' },
+    noht:   { sex: 'male',   age: '60', w: '58',  h: '',     scr: '1.1' },
+    multi:  { sex: 'male',   age: '95', w: '50',  h: '160',  scr: '1.6' },
+    nosex:  { sex: '',       age: '45', w: '60',  h: '165',  scr: '0.9' },
+    error:  { sex: 'female', age: '50', w: '60',  h: '160',  scr: '45' },
+    units:  { sex: 'male',   age: '65', w: '154', h: '66.9', scr: '106', wu: 'lb', hu: 'inch', su: 'umol' },
+  };
+  const q = new URLSearchParams(location.search);
+  const store = {
+    state: SAMPLE[q.get('state')] || null,
+    ui: { open: q.get('open') !== '0', folded: q.get('folded') === '1' },
+    prefs: { layout: q.get('layout') || 'narrow', side: q.get('side') || 'right', top: q.has('top') ? Number(q.get('top')) : 96 },
+  };
+  const log = (window.__crclLog = []);
+  let deliver = null;
+
+  // ตัวแทน background.js
+  window.__crclBridge = {
+    shadowMode: 'open',
+    alive: () => true,
+    send: async (msg) => {
+      log.push(JSON.parse(JSON.stringify(msg)));
+      if (msg.type === 'load') {
+        const css = await (await fetch('/extension/styles/box.css', { cache: 'no-store' })).text();
+        return { state: store.state, ui: store.ui, prefs: store.prefs, css, canPanel: q.get('panel') !== '0' };
+      }
+      if (msg.type === 'save') { store.state = msg.state; return { ok: true }; }
+      if (msg.type === 'saveUi') { store.ui = msg.ui; return { ok: true }; }
+      if (msg.type === 'prefs') { store.prefs = msg.prefs; return { ok: true }; }
+      // หน้าทดสอบเปิดแผงข้างไม่ได้ จึงได้เห็นแถบบอกวิธีเปิดแผงข้าง
+      if (msg.type === 'toPanel') return { ok: false };
+      return { ok: true };
+    },
+    listen: (fn) => { deliver = fn; },
+  };
+  window.__crclStore = store;
+  window.__crclSend = (msg) => deliver && deliver(msg);
+  window.__crclIntent = q.get('intent') || 'restore';
+  document.getElementById('icon').addEventListener('click', () => window.__crclSend({ type: 'icon' }));
+})();
+</script>
+<script src="/extension/content/calc.js"></script>
+<script src="/extension/content/render.js"></script>
+<script src="/extension/content/box.js"></script>
+<script src="/extension/content/main.js"></script>
+</body>
+</html>

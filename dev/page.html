@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>หน้าเว็บทดสอบส่วนขยายคำนวณ CrCl</title>
+<!--
+  หน้าทดสอบตอนพัฒนาเท่านั้น ใช้ทดสอบส่วนขยายตัวจริงหลังลงด้วย Load unpacked
+  หน้านี้ไม่มีโค้ดของกล่องเลย กล่องที่เห็นมาจากส่วนขยายฉีดลงมาเอง (ต่างจาก dev/harness.html)
+  มีลิงก์ไปหน้าที่สองในแท็บเดิม ไว้ดูว่ากล่องตามไปเองพร้อมค่าเดิมไหม
+-->
+<style>
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{background:#f3f5f7;color:#334;font:14px/1.6 Tahoma,sans-serif}
+  .pl-top{position:sticky;top:0;z-index:5;display:flex;align-items:center;gap:16px;height:46px;padding:0 16px;background:#e3e8ec;border-bottom:1px solid #d4dbe1}
+  .pl-top a{color:#0b5c55;font-weight:700}
+  .pl-wrap{display:flex}
+  .pl-side{position:sticky;top:46px;flex:none;width:230px;height:calc(100vh - 46px);padding:14px 12px;background:#eceff2;border-right:1px solid #d9dfe5}
+  .pl-side i{display:block;height:30px;margin-bottom:8px;border-radius:5px;background:#e0e5ea}
+  .pl-main{flex:1;min-width:0;padding:18px 26px 40px}
+  .pl-pt{display:flex;align-items:center;gap:14px;height:64px;margin-bottom:14px;padding:0 16px;border-radius:10px;background:#e6eaee}
+  .pl-sheet{padding:24px 28px;border:1px solid #e0e5ea;border-radius:6px;background:#fff}
+  .pl-sheet p{margin:0 0 12px;color:#8a96a0}
+</style>
+</head>
+<body>
+<div class="pl-top"><b id="name">หน้าทดสอบ หน้าที่ 1</b><a id="next" href="page.html?p=2">ไปหน้าที่ 2 ในแท็บเดิม</a></div>
+<div class="pl-wrap">
+  <nav class="pl-side" aria-label="เมนูจำลอง"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></nav>
+  <main class="pl-main">
+    <div class="pl-pt">ผู้ป่วยจำลอง ไม่ใช่ข้อมูลจริง</div>
+    <div class="pl-sheet" id="sheet"></div>
+  </main>
+</div>
+<script>
+  const p = new URLSearchParams(location.search).get('p') === '2' ? 2 : 1;
+  document.getElementById('name').textContent = `หน้าทดสอบ หน้าที่ ${p}`;
+  const next = document.getElementById('next');
+  next.href = `page.html?p=${p === 1 ? 2 : 1}`;
+  next.textContent = `ไปหน้าที่ ${p === 1 ? 2 : 1} ในแท็บเดิม`;
+  const sheet = document.getElementById('sheet');
+  for (let i = 1; i <= 60; i++) {
+    const el = document.createElement('p');
+    el.textContent = `บรรทัดที่ ${i} ของหน้าที่ ${p} ข้อความจำลองของหน้า paperless`;
+    sheet.appendChild(el);
+  }
+</script>
+</body>
+</html>

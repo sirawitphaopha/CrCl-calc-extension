@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แผงข้างจำลองของกล่อง CrCl</title>
+<!--
+  หน้าทดสอบตอนพัฒนาเท่านั้น ใช้แทน extension/sidepanel.html ที่ต้องเปิดในแผงข้างของ Chrome
+  ตัวกล่อง สูตร และสไตล์ชุดเดียวกับแผงข้างจริง แต่ไม่ใช้ chrome.* (ค่าเก็บไว้ในหน้านี้เท่านั้น)
+  ?state=normal เลือกค่าตัวอย่าง · dev/panel-widths.html วางหน้านี้หลายความกว้างให้เทียบ
+-->
+<style>html,body{height:100%;margin:0;background:#fff}</style>
+</head>
+<body>
+<script src="/extension/content/fonts.js"></script>
+<script src="/extension/content/calc.js"></script>
+<script src="/extension/content/render.js"></script>
+<script src="/extension/content/box.js"></script>
+<script>
+(async () => {
+  'use strict';
+  const SAMPLE = {
+    normal: { sex: 'male', age: '65', w: '70', h: '170', scr: '1.2' },
+    under: { sex: 'female', age: '78', w: '41', h: '158', scr: '0.8' },
+    error: { sex: 'female', age: '50', w: '60', h: '160', scr: '45' },
+  };
+  const q = new URLSearchParams(location.search);
+  const fonts = document.createElement('style');
+  fonts.textContent = CrCl.fontCSS((p) => '/extension/' + p);
+  document.head.appendChild(fonts);
+  const host = document.createElement('crcl-ext-root');
+  document.body.appendChild(host);
+  const root = host.attachShadow({ mode: 'open' });
+  const sheet = new CSSStyleSheet();
+  sheet.replaceSync(await (await fetch('/extension/styles/box.css', { cache: 'no-store' })).text());
+  root.adoptedStyleSheets = [sheet];
+  window.__box = new CrCl.Box({
+    root,
+    mode: 'panel',
+    canPanel: true,
+    state: SAMPLE[q.get('state')] || null,
+    onMode: () => window.__box.showBar('หน้านี้เป็นหน้าของ Chrome เองหรือ Chrome Web Store กล่องลอยใช้ไม่ได้ เปิดหน้าเว็บที่จะใช้ก่อน แล้วกดปุ่มนี้อีกครั้ง', 'ปิดข้อความ'),
+  });
+})();
+</script>
+</body>
+</html>

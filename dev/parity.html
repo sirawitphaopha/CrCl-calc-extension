@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>เทียบสูตรกล่อง CrCl กับ TB calc</title>
+<!--
+  หน้าทดสอบตอนพัฒนาเท่านั้น (ไม่อยู่ในส่วนขยาย) เปิดผ่าน dev/serve.py ที่ http://127.0.0.1:3311/dev/parity.html
+  - โหลดสูตรของกล่อง extension/content/calc.js
+  - เปิด TB calc จาก /tb/ ในกรอบซ่อน แล้วให้ TB calc คิดเองทีละกรณีด้วยฟังก์ชัน calculate() ของมันจริง
+  - เทียบผลทีละช่องเป็นตาราง · ช่องที่ต่างโดยตั้งใจ (เคาะในมอคอัป) แยกออกมาไม่นับเป็นผิด
+  - ?mutate=1 ทำสูตรของกล่องพังชั่วคราวในหน้านี้ เพื่อพิสูจน์ว่าตัวเทียบฟ้องได้จริง (สกิล testing-proof ข้อ 4.6)
+  🔴 dev/serve.py ส่งไฟล์เปล่าแทน /tb/analytics.js เพื่อไม่ให้การทดสอบเขียนสถิติลงฐานจริงของ TB calc
+-->
+<style>
+  body{margin:0;padding:18px 20px 40px;font:14px/1.55 "Sarabun","Noto Sans Thai",Tahoma,sans-serif;color:#1f2d2a;background:#f4f7f6}
+  h1{margin:0 0 4px;font-size:21px}
+  .sub{margin:0 0 14px;color:#566}
+  .sum{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 16px}
+  .sum div{padding:8px 14px;border:1px solid #d3e0dc;border-radius:10px;background:#fff}
+  .sum b{font-size:20px}
+  .ok b{color:#1b6141}.bad b{color:#b42318}.int b{color:#9a6200}
+  table{width:100%;border-collapse:collapse;background:#fff;font-size:13px}
+  th,td{padding:4px 8px;border-bottom:1px solid #e5ecea;text-align:left;white-space:nowrap}
+  thead th{position:sticky;top:0;background:#e4f3ef}
+  tr.bad td{background:#fef2f1}
+  tr.int td{background:#fff8e9}
+  .mono{font-family:"Roboto Mono",monospace}
+  #tbframe{position:absolute;left:-12000px;top:0;width:1300px;height:900px;border:0}
+  #status{margin:0 0 12px;font-weight:600}
+</style>
+</head>
+<body>
+<h1>เทียบสูตรกล่อง CrCl กับ TB calc</h1>
+<p class="sub">ทุกกรณีให้ TB calc คิดเองด้วยฟังก์ชันจริงของมัน แล้วเทียบกับสูตรของกล่องทีละช่อง</p>
+<p id="status">กำลังโหลด TB calc</p>
+<div class="sum" id="sum"></div>
+<table>
+  <thead><tr><th>กรณี</th><th>ช่อง</th><th>กล่อง</th><th>TB calc</th><th>ผล</th></tr></thead>
+  <tbody id="rows"></tbody>
+</table>
+<iframe id="tbframe" src="/tb/index.html" title="TB calc สำหรับเทียบสูตร"></iframe>
+<script src="/extension/content/calc.js"></script>
+<script>
+(() => {
+'use strict';
+const C = window.CrCl.calc;
+const MUTATE = new URLSearchParams(location.search).get('mutate') === '1';
+const f1 = (v) => v.toFixed(1);
+
+/* ── กรณีทดสอบ ── */
+const cases = [];
+const add = (name, st) => cases.push({ name, st: Object.assign(C.emptyState(), st) });
+// ทุกทางของการเลือกน้ำหนัก ทั้งชายและหญิง
+add('ปกติ ชาย', { sex: 'male', age: '65', w: '70', h: '170', scr: '1.2' });
+add('ปกติ หญิง', { sex: 'female', age: '60', w: '55', h: '158', scr: '0.9' });
+add('น้ำหนักน้อย ชาย', { sex: 'male', age: '70', w: '45', h: '170', scr: '1.0' });
+add('น้ำหนักน้อย หญิง', { sex: 'female', age: '78', w: '41', h: '158', scr: '0.8' });
+add('อ้วน ชาย', { sex: 'male', age: '55', w: '95', h: '165', scr: '1.1' });
+add('อ้วน หญิง', { sex: 'female', age: '50', w: '90', h: '155', scr: '0.8' });
+add('อ้วนมาก BMI 35 ขึ้นไป', { sex: 'male', age: '48', w: '130', h: '170', scr: '1.0' });
+add('เตี้ยกว่า 152 หญิง', { sex: 'female', age: '72', w: '52', h: '148', scr: '1.0' });
+add('เตี้ยกว่า 152 ชาย', { sex: 'male', age: '80', w: '50', h: '150', scr: '1.3' });
+add('สูง 152 พอดี', { sex: 'female', age: '66', w: '50', h: '152', scr: '0.9' });
+add('ไม่กรอกส่วนสูง ชาย', { sex: 'male', age: '60', w: '58', h: '', scr: '1.1' });
+add('ไม่กรอกส่วนสูง หญิง', { sex: 'female', age: '45', w: '60', h: '', scr: '0.7' });
+add('ขอบ 1.2 เท่าของ IBW', { sex: 'male', age: '60', w: '79.12', h: '170', scr: '1.0' });
+// ยังกรอกไม่ครบ
+add('ยังไม่เลือกเพศ', { sex: '', age: '45', w: '60', h: '165', scr: '0.9' });
+add('ยังไม่กรอกอายุ', { sex: 'male', age: '', w: '60', h: '165', scr: '0.9' });
+add('ยังไม่กรอก BW', { sex: 'male', age: '45', w: '', h: '165', scr: '0.9' });
+add('ยังไม่กรอก Cr', { sex: 'male', age: '45', w: '60', h: '165', scr: '' });
+// ขอบเขตค่า
+for (const [n, k, v] of [['BW 20 ต่ำสุด', 'w', '20'], ['BW 19.9 ต่ำเกิน', 'w', '19.9'], ['BW 200 สูงสุด', 'w', '200'], ['BW 200.1 สูงเกิน', 'w', '200.1'],
+  ['Height 100 ต่ำสุด', 'h', '100'], ['Height 99 ต่ำเกิน', 'h', '99'], ['Height 230 สูงสุด', 'h', '230'], ['Height 231 สูงเกิน', 'h', '231'],
+  ['อายุ 15 ต่ำสุด', 'age', '15'], ['อายุ 14 ต่ำเกิน', 'age', '14'], ['อายุ 110 สูงสุด', 'age', '110'], ['อายุ 111 สูงเกิน', 'age', '111'],
+  ['อายุ 17 เตือน', 'age', '17'], ['อายุ 18', 'age', '18'], ['อายุ 92', 'age', '92'], ['อายุ 93 เตือน', 'age', '93'],
+  ['Cr 0.1 ต่ำสุด', 'scr', '0.1'], ['Cr 0.09 ต่ำเกิน', 'scr', '0.09'], ['Cr 30 สูงสุด', 'scr', '30'], ['Cr 30.5 สูงเกิน', 'scr', '30.5']]) {
+  add(n, Object.assign({ sex: 'male', age: '60', w: '65', h: '168', scr: '1.0' }, { [k]: v }));
+}
+// หน่วยอื่น
+add('หน่วย lb in μmol/L ชาย', { sex: 'male', age: '65', w: '154', h: '66.9', scr: '106', wu: 'lb', hu: 'inch', su: 'umol' });
+add('หน่วย lb in μmol/L หญิง', { sex: 'female', age: '60', w: '121', h: '62.2', scr: '71', wu: 'lb', hu: 'inch', su: 'umol' });
+add('lb 44 ต่ำสุด', { sex: 'male', age: '60', w: '44', h: '168', scr: '1.0', wu: 'lb' });
+add('lb 43 ต่ำเกิน', { sex: 'male', age: '60', w: '43', h: '168', scr: '1.0', wu: 'lb' });
+add('lb 441 สูงสุด', { sex: 'male', age: '60', w: '441', h: '168', scr: '1.0', wu: 'lb' });
+add('lb 442 สูงเกิน', { sex: 'male', age: '60', w: '442', h: '168', scr: '1.0', wu: 'lb' });
+add('in 40 ต่ำสุด', { sex: 'male', age: '60', w: '65', h: '40', scr: '1.0', hu: 'inch' });
+add('in 39 ต่ำเกิน', { sex: 'male', age: '60', w: '65', h: '39', scr: '1.0', hu: 'inch' });
+add('in 91 สูงสุด', { sex: 'male', age: '60', w: '65', h: '91', scr: '1.0', hu: 'inch' });
+add('in 92 สูงเกิน', { sex: 'male', age: '60', w: '65', h: '92', scr: '1.0', hu: 'inch' });
+add('μmol/L 9 ต่ำสุด', { sex: 'male', age: '60', w: '65', h: '168', scr: '9', su: 'umol' });
+add('μmol/L 8 ต่ำเกิน', { sex: 'male', age: '60', w: '65', h: '168', scr: '8', su: 'umol' });
+add('μmol/L 2652 สูงสุด', { sex: 'male', age: '60', w: '65', h: '168', scr: '2652', su: 'umol' });
+add('μmol/L 2653 สูงเกิน', { sex: 'male', age: '60', w: '65', h: '168', scr: '2653', su: 'umol' });
+// ค่าอ้างอิง Cr
+for (const [sex, vals] of [['male', ['0.6', '0.7', '1.2', '1.3']], ['female', ['0.4', '0.5', '1.0', '1.1']], ['', ['0.6', '1.1']]]) {
+  for (const v of vals) add(`Cr ${v} ${sex || 'ยังไม่เลือกเพศ'}`, { sex, age: '50', w: '60', h: '165', scr: v });
+}
+// ขอบทุกระดับ BMI (สูง 160 cm)
+for (const w of ['47.104', '47.36', '58.624', '58.88', '63.744', '64', '76.544', '76.8', '89.344', '89.6']) {
+  add(`BMI ขอบ BW ${w}`, { sex: 'female', age: '50', w, h: '160', scr: '0.8' });
+}
+// ไล่ Cr ให้ครบทุกระยะ CKD ทั้งชายและหญิง
+for (const sex of ['male', 'female']) {
+  for (const s of ['0.5', '0.8', '1.0', '1.3', '1.6', '2.0', '2.6', '3.5', '5', '8']) {
+    add(`ระยะ CKD ${sex === 'male' ? 'ชาย' : 'หญิง'} Cr ${s}`, { sex, age: '58', w: '62', h: '163', scr: s });
+  }
+}
+
+/* ── ให้ TB calc คิดเองด้วยฟังก์ชันจริง ── */
+function runTB(win, st) {
+  const d = win.document;
+  // ตั้งหน่วยให้ตรงก่อน ด้วยปุ่มสลับหน่วยของ TB calc เอง (ตัวแปรหน่วยเป็นของภายใน เข้าถึงตรงไม่ได้ จึงจำเองว่าสลับไปถึงไหน)
+  for (const [key, fn] of [['wu', 'toggleWeightUnit'], ['hu', 'toggleHeightUnit'], ['su', 'toggleScrUnit']]) {
+    if (win.__parityUnits[key] !== st[key]) { win[fn](); win.__parityUnits[key] = st[key]; }
+  }
+  d.getElementById('gender').value = st.sex;
+  d.getElementById('age').value = st.age;
+  d.getElementById('weight').value = st.w;
+  d.getElementById('height').value = st.h;
+  d.getElementById('scr').value = st.scr;
+  win.calculate();
+  const txt = (id) => (d.getElementById(id) ? d.getElementById(id).textContent.trim() : '');
+  const numOf = (s) => { const m = String(s).match(/-?\d+(?:\.\d+)?/); return m ? m[0] : 'ไม่มี'; };
+  const picked = ['boxABW', 'boxIBW', 'boxAdjBW'].find((id) => (d.getElementById(id).className || '').includes('border-emerald-500'));
+  const crclTxt = txt('crclNumber');
+  const egfrTxt = txt('egfrValue');
+  const bmiTxt = txt('bmiValue');
+  const refCls = d.getElementById('scrRefWarning').className;
+  const ageNote = d.getElementById('ageRangeNote');
+  return {
+    crcl: crclTxt === '---' ? 'ผิดขอบเขต' : /^\d+(\.\d+)?$/.test(crclTxt) ? crclTxt : 'ไม่มี',
+    pick: picked ? { boxABW: 'A', boxIBW: 'I', boxAdjBW: 'J' }[picked] : 'ไม่มี',
+    cA: numOf(txt('crclABW')), cI: /N\/A/.test(txt('crclIBW')) ? 'N/A' : numOf(txt('crclIBW')), cJ: /N\/A/.test(txt('crclAdjBW')) ? 'N/A' : numOf(txt('crclAdjBW')),
+    ibw: txt('txtIBW') === 'N/A' ? 'N/A' : numOf(txt('txtIBW')), adj: txt('txtAdjBW') === 'N/A' ? 'N/A' : numOf(txt('txtAdjBW')),
+    egfr: /^\d/.test(egfrTxt) ? egfrTxt : 'ไม่มี',
+    stage: (txt('egfrStage').match(/Stage [0-9ab]+(?: \(ESRD\))?/) || ['ไม่มี'])[0],
+    bmi: /^\d/.test(bmiTxt) ? numOf(bmiTxt) : 'ไม่มี',
+    bmiCls: /^\d/.test(bmiTxt) ? txt('bmiClass') : 'ไม่มี',
+    crRef: /orange/.test(refCls) ? 'low' : /yellow/.test(refCls) ? 'high' : 'ไม่เตือน',
+    // TB calc ทาสีส้ม #f97316 ลงป้าย "เฉพาะอายุ 18–92 ปี" ตรง ๆ ตอนอายุนอกช่วง
+    ageWarn: ageNote ? (ageNote.style.color === 'rgb(249, 115, 22)' ? 'เตือน' : 'ไม่เตือน') : 'ไม่มีช่อง',
+  };
+}
+
+/* ── ผลของกล่อง ── */
+function runBox(st) {
+  const r = C.compute(st);
+  if (MUTATE && r.crcl && r.crcl.value != null) r.crcl.value *= 1.02;   // ทำพังชั่วคราวเพื่อพิสูจน์ว่าตัวเทียบฟ้อง
+  const c = r.crcl;
+  const has = c.state === 'full' || c.state === 'noheight';
+  return {
+    r,
+    crcl: c.state === 'error' ? 'ผิดขอบเขต' : has ? f1(c.value) : 'ไม่มี',
+    pick: has ? c.pick : 'ไม่มี',
+    cA: has ? f1(c.cA) : 'ไม่มี',
+    cI: c.state === 'full' ? (c.short ? 'N/A' : f1(c.cI)) : 'ไม่มี',
+    cJ: c.state === 'full' ? (c.short ? 'N/A' : f1(c.cJ)) : 'ไม่มี',
+    ibw: c.state === 'full' ? (c.short ? 'N/A' : f1(c.ibw)) : 'ไม่มี',
+    adj: c.state === 'full' ? (c.short ? 'N/A' : f1(c.adj)) : 'ไม่มี',
+    egfr: r.egfr.v != null ? f1(r.egfr.v) : 'ไม่มี',
+    stage: r.egfr.v != null ? r.egfr.stage.label : 'ไม่มี',
+    bmi: r.bmi.v != null ? f1(r.bmi.v) : 'ไม่มี',
+    bmiCls: r.bmi.v != null ? r.bmi.cls.label : 'ไม่มี',
+    crRef: r.crRef === 'low' ? 'low' : r.crRef === 'high' ? 'high' : 'ไม่เตือน',
+    ageWarn: r.ageWarn ? 'เตือน' : 'ไม่เตือน',
+  };
+}
+
+/* ── ช่องที่ต่างโดยตั้งใจ (เคาะในมอคอัป) ── */
+function intended(field, box, tb) {
+  const r = box.r;
+  // ค่าเกินขอบเขต ไม่เอาไปคิด eGFR และ BMI (TB calc ยังคิดให้)
+  if ((field === 'egfr' || field === 'stage') && (r.err.scr || r.err.age) && box[field] === 'ไม่มี') return 'ค่าเกินขอบเขต กล่องไม่คิด eGFR';
+  if ((field === 'bmi' || field === 'bmiCls') && (r.err.w || r.err.h) && box[field] === 'ไม่มี') return 'ค่าเกินขอบเขต กล่องไม่คิด BMI';
+  // ยังไม่เลือกเพศ ยังไม่เตือนค่า Cr (TB calc ใช้ช่วงของผู้หญิงเตือนไปก่อน)
+  if (field === 'crRef' && !r.err.scr && r.crRef === 'neutral' && tb !== 'ไม่เตือน') return 'ยังไม่เลือกเพศ กล่องยังไม่เตือน';
+  // Cr เกินขอบเขต กล่องขึ้นข้อผิดของช่อง Cr แทนคำเตือนค่าอ้างอิง (ตามมอคอัป)
+  if (field === 'crRef' && r.err.scr && tb !== 'ไม่เตือน') return 'Cr เกินขอบเขต กล่องขึ้นข้อผิดแทน';
+  // อายุเกินขอบเขต กล่องขึ้นข้อผิดแทนคำเตือนสีส้ม
+  if (field === 'ageWarn' && r.err.age && tb === 'เตือน') return 'อายุเกินขอบเขต กล่องขึ้นข้อผิดแทน';
+  return '';
+}
+
+const FIELDS = [['crcl', 'CrCl ที่ใช้'], ['pick', 'น้ำหนักที่เลือก'], ['cA', 'CrCl Actual'], ['cI', 'CrCl Ideal'], ['cJ', 'CrCl Adjusted'],
+  ['ibw', 'IBW'], ['adj', 'Adjusted BW'], ['egfr', 'eGFR'], ['stage', 'ระยะ CKD'], ['bmi', 'BMI'], ['bmiCls', 'ระดับ BMI'],
+  ['crRef', 'ค่าอ้างอิง Cr'], ['ageWarn', 'เตือนอายุ']];
+
+function render(results) {
+  const tb = document.getElementById('rows');
+  let ok = 0, bad = 0, intd = 0;
+  const rowsBad = [], rowsAll = [];
+  for (const res of results) {
+    for (const [f, label] of FIELDS) {
+      const a = res.box[f], b = res.tb[f];
+      let cls, verdict;
+      if (a === b) { cls = ''; verdict = 'ตรง'; ok++; }
+      else {
+        const why = intended(f, res.box, b);
+        if (why) { cls = 'int'; verdict = 'ต่างโดยตั้งใจ ' + why; intd++; }
+        else { cls = 'bad'; verdict = 'ไม่ตรง'; bad++; }
+      }
+      const tr = `<tr class="${cls}"><td>${res.name}</td><td>${label}</td><td class="mono">${a}</td><td class="mono">${b}</td><td>${verdict}</td></tr>`;
+      (cls === 'bad' ? rowsBad : rowsAll).push(tr);
+    }
+  }
+  tb.innerHTML = rowsBad.join('') + rowsAll.join('');
+  document.getElementById('sum').innerHTML =
+    `<div>กรณี <b>${results.length}</b></div><div class="ok">ตรง <b>${ok}</b></div><div class="bad">ไม่ตรง <b>${bad}</b></div><div class="int">ต่างโดยตั้งใจ <b>${intd}</b></div>`;
+  document.getElementById('status').textContent = (MUTATE ? 'โหมดทำสูตรพังชั่วคราว · ' : '') + (bad === 0 ? 'เทียบเสร็จ ไม่มีช่องที่ไม่ตรง' : `เทียบเสร็จ มีช่องที่ไม่ตรง ${bad} ช่อง`);
+  window.__parity = { cases: results.length, ok, bad, intended: intd, mutate: MUTATE };
+}
+
+/** คำขอที่วิ่งไปฐานสถิติของ TB calc ทั้งหน้านี้และในกรอบ · ต้องเป็นศูนย์เสมอ */
+function supabaseHits(win) {
+  const list = (w) => { try { return w.performance.getEntriesByType('resource').map((r) => r.name); } catch (_) { return []; } };
+  return list(window).concat(list(win)).filter((u) => /supabase\.co/i.test(u));
+}
+
+document.getElementById('tbframe').addEventListener('load', () => {
+  const win = document.getElementById('tbframe').contentWindow;
+  try {
+    // dev/serve.py ส่งไฟล์เปล่าแทน analytics.js ของ TB calc · ปุ่มสลับหน่วยกับ calculate() ของ TB calc
+    // เรียกฟังก์ชันเก็บสถิติตรง ๆ จึงใส่ตัวเปล่าชื่อเดียวกันไว้ในกรอบ ให้ TB calc คิดจนจบโดยไม่ส่งอะไรออกไป
+    for (const name of ['trackEvent', 'scheduleTrackCalculation', 'scheduleFdcReverseTracking', 'updateStats']) {
+      if (typeof win[name] !== 'function') win[name] = function () {};
+    }
+    win.__parityUnits = { wu: 'kg', hu: 'cm', su: 'mgdl' };
+    const results = cases.map((c) => ({ name: c.name, box: runBox(c.st), tb: runTB(win, c.st) }));
+    render(results);
+    const hits = supabaseHits(win);
+    window.__parity.supabase = hits.length;
+    document.getElementById('sum').insertAdjacentHTML('beforeend',
+      `<div class="${hits.length ? 'bad' : 'ok'}">คำขอไป supabase.co <b>${hits.length}</b></div>`);
+  } catch (e) {
+    document.getElementById('status').textContent = 'เทียบไม่สำเร็จ ' + e.message;
+    window.__parity = { error: String(e && e.stack || e) };
+  }
+});
+})();
+</script>
+</body>
+</html>

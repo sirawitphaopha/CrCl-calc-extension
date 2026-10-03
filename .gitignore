@@ -8,6 +8,9 @@
 *.crx
 *.zip
 
+# ภาพหน้าจอที่ถ่ายตอนทดสอบ (dev/serve.py เขียนลงที่นี่)
+dev/shots/
+
 # เครื่องมือและระบบ
 .DS_Store
 Thumbs.db
