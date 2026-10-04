@@ -6,7 +6,7 @@
  *
  * ส่วนที่ต่างจาก TB calc โดยตั้งใจ (เคาะในมอคอัป)
  * - ไม่มีเกณฑ์ CrCl ต่ำกว่า 30 เพราะเป็นเกณฑ์ของยาวัณโรค
- * - ยังไม่เลือกเพศ ยังไม่เตือนว่า sCr สูงหรือต่ำ
+ * - ยังไม่เลือกเพศ ยังไม่เตือนว่า Cr สูงหรือต่ำ
  * - ค่าที่เกินขอบเขต ไม่เอาไปคิด eGFR และ BMI
  *
  * ใช้ร่วมกันสองที่ คือกล่องลอย (สคริปต์ที่ฉีดลงหน้าเว็บ) กับแผงข้าง (sidepanel.html)
@@ -25,23 +25,21 @@
   const UNIT_TXT = { kg: 'kg', lb: 'lb', cm: 'cm', inch: 'in', mgdl: 'mg/dL', umol: 'μmol/L' };
   const FIELD_OF = { wu: 'w', hu: 'h', su: 'scr' };
   const UNIT_OF = { w: 'wu', h: 'hu', scr: 'su' };
-  // ตัวเลขตัวอย่างกว้างเท่ากัน 3 ตัวอักษร คำว่า "เช่น" ตรงแนวกันทุกช่องตอนชิดขวา (พี่กันสั่ง "เห็นคำว่า เช่น ไหม เอาให้มันตรงกัน" 4 ต.ค. 2569)
-  // ตัวเลข 2 หลักเติมช่องว่างไม่ตัดบรรทัด ( ) ข้างหน้าหนึ่งตัว ฟอนต์ตัวเลขเป็นแบบกว้างเท่ากันทุกตัว
   const PH = {
-    age: 'เช่น  45',
-    w: { kg: 'เช่น  60', lb: 'เช่น 132' },
-    h: { cm: 'เช่น 165', inch: 'เช่น  65' },
-    scr: { mgdl: 'เช่น 1.0', umol: 'เช่น  88' },
+    age: 'เช่น 45',
+    w: { kg: 'เช่น 60', lb: 'เช่น 132' },
+    h: { cm: 'เช่น 165', inch: 'เช่น 65' },
+    scr: { mgdl: 'เช่น 1.0', umol: 'เช่น 88' },
   };
   // ข้อความตาม lang.js ของ TB calc
   const ERR = {
     w: { kg: ['น้ำหนักต่ำเกินไป (ต่ำสุด 20 kg)', 'น้ำหนักสูงเกินไป (สูงสุด 200 kg)'], lb: ['น้ำหนักต่ำเกินไป (ต่ำสุด 44 lb)', 'น้ำหนักสูงเกินไป (สูงสุด 441 lb)'] },
     h: { cm: ['ส่วนสูงต่ำเกินไป (ต่ำสุด 100 cm)', 'ส่วนสูงสูงเกินไป (สูงสุด 230 cm)'], inch: ['ส่วนสูงต่ำเกินไป (ต่ำสุด 40 in)', 'ส่วนสูงสูงเกินไป (สูงสุด 91 in)'] },
     age: ['อายุต่ำเกินไป (ต่ำสุด 15 ปี)', 'อายุสูงเกินไป (สูงสุด 110 ปี)'],
-    scr: { mgdl: ['ค่า sCr ต่ำเกินไป (ต่ำสุด 0.1 mg/dL)', 'ค่า sCr สูงเกินไป (สูงสุด 30 mg/dL)'], umol: ['ค่า sCr ต่ำเกินไป (ต่ำสุด 9 μmol/L)', 'ค่า sCr สูงเกินไป (สูงสุด 2652 μmol/L)'] },
+    scr: { mgdl: ['ค่า Cr ต่ำเกินไป (ต่ำสุด 0.1 mg/dL)', 'ค่า Cr สูงเกินไป (สูงสุด 30 mg/dL)'], umol: ['ค่า Cr ต่ำเกินไป (ต่ำสุด 9 μmol/L)', 'ค่า Cr สูงเกินไป (สูงสุด 2652 μmol/L)'] },
   };
 
-  /** CrCl สูตร Cockcroft-Gault · ตัวนี้ใช้ปรับขนาดยา · ไม่ปัดค่า sCr · ผู้หญิงคูณ 0.85 */
+  /** CrCl สูตร Cockcroft-Gault · ตัวนี้ใช้ปรับขนาดยา · ไม่ปัดค่า Cr · ผู้หญิงคูณ 0.85 */
   function calcCrCl(bw, age, scr, sex) {
     const v = ((140 - age) * bw) / (72 * scr);
     return sex === 'female' ? v * 0.85 : v;
@@ -119,7 +117,7 @@
     r.ageWarn = Number.isFinite(age) && !r.err.age && (age < 18 || age > 92);
     r.sexWarn = !sex && (Number.isFinite(sRaw) || Number.isFinite(hRaw) || Number.isFinite(age));
 
-    // ค่าอ้างอิง sCr ตาม TB calc (ชาย 0.7 ถึง 1.2 · หญิง 0.5 ถึง 1.0 mg/dL) ยังไม่เลือกเพศ = ยังไม่เตือน
+    // ค่าอ้างอิง Cr ตาม TB calc (ชาย 0.7 ถึง 1.2 · หญิง 0.5 ถึง 1.0 mg/dL) ยังไม่เลือกเพศ = ยังไม่เตือน
     r.crRef = 'neutral';
     if (Number.isFinite(sRaw) && !r.err.scr && sex) {
       const ref = sex === 'male' ? [0.7, 1.2] : [0.5, 1.0];
@@ -153,12 +151,11 @@
       const cA = calcCrCl(w, age, scr, sex);
       r.crcl = { state: 'noheight', w, cA, pick: 'A', value: cA };
     } else {
-      // เรียงตามลำดับช่องกรอก เพศ อายุ sCr BW (พี่กันสั่งเรียงช่อง sCr ก่อน BW แล้วสั่งแก้ข้อความนี้ให้ตรง 4 ต.ค. 2569)
       const miss = [];
-      if (!sex) miss.push('Sex');
-      if (!Number.isFinite(age)) miss.push('Age');
-      if (!Number.isFinite(scr)) miss.push('sCr');
-      if (!(w > 0)) miss.push('Weight');
+      if (!sex) miss.push('เพศกำเนิด');
+      if (!Number.isFinite(age)) miss.push('อายุ');
+      if (!(w > 0)) miss.push('BW');
+      if (!Number.isFinite(scr)) miss.push('Cr');
       r.crcl = { state: 'incomplete', missing: miss };
     }
 

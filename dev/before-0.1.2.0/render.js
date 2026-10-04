@@ -41,7 +41,7 @@
     x: sv(13, '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>', 2.6),
     alert: sv(15, '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.3v.2"/>'),
     alertSm: sv(13, '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.3v.2"/>', 2.4),
-    swapSm: sv(12, '<path d="M4 9h16"/><path d="M15 4l5 5"/><path d="M20 15H4"/><path d="M9 20l-5-5"/>', 2.4),
+    swapSm: sv(12, '<path d="M4 8h14"/><path d="M14 4l4 4-4 4"/><path d="M20 16H6"/><path d="M10 12l-4 4 4 4"/>', 2.4),
     calc: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="2.5" width="16" height="19" rx="3.2" fill="currentColor"/><rect x="7" y="5.5" width="10" height="4.2" rx="1.2" fill="#fff"/><g fill="#fff"><circle cx="8.6" cy="13.3" r="1.25"/><circle cx="12" cy="13.3" r="1.25"/><circle cx="15.4" cy="13.3" r="1.25"/><circle cx="8.6" cy="17.3" r="1.25"/><circle cx="12" cy="17.3" r="1.25"/><circle cx="15.4" cy="17.3" r="1.25"/></g></svg>',
   };
 
@@ -112,9 +112,9 @@
       const s = r.egfr.stage;
       b = `<div class="cx-kv"><span class="cx-val">${f1(r.egfr.v)}<small>mL/min/1.73m²</small></span><span class="cx-cls ${s.cls}">CKD ${s.label}</span></div>`;
     } else if (r.egfr.state === 'error') {
-      b = '<p class="cx-hint">คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต</p>';
+      b = '<p class="cx-hint">คำนวณไม่ได้ เพราะค่า Cr หรืออายุเกินขอบเขต</p>';
     } else {
-      b = '<p class="cx-hint">กรุณากรอก Sex Age และ sCr</p>';
+      b = '<p class="cx-hint">กรุณากรอก เพศกำเนิด อายุ และ Cr</p>';
     }
     return `<div class="cx-sec cx-egfr"><h3 class="cx-sec-t">eGFR</h3>${b}<div class="cx-meta"><span>สูตร CKD-EPI 2021</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>`;
   }
@@ -127,7 +127,7 @@
     } else if (r.bmi.state === 'error') {
       b = '<p class="cx-hint">คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต</p>';
     } else {
-      b = '<p class="cx-hint">กรุณากรอก Weight และ Height</p>';
+      b = '<p class="cx-hint">กรุณากรอก BW และ Height</p>';
     }
     return `<div class="cx-sec cx-bmi"><h3 class="cx-sec-t">BMI</h3>${b}<div class="cx-meta"><span>เกณฑ์ WHO Asia-Pacific</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>`;
   }
@@ -137,19 +137,13 @@
     return crclHTML(r) + (layout === 'wide' ? `<div class="cx-pair">${pair}</div>` : pair);
   }
 
-  /** ข้อความใต้ช่อง sCr */
+  /** ข้อความใต้ช่อง Cr */
   function crRefMsg(r, sex) {
     const refTxt = sex === 'male' ? 'ชาย 0.7–1.2 mg/dL' : 'หญิง 0.5–1.0 mg/dL';
-    if (r.crRef === 'low') return ['warn', `sCr ต่ำกว่าค่าอ้างอิง (${refTxt}) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง`];
-    if (r.crRef === 'high') return ['hi', `sCr สูงกว่าค่าอ้างอิง (${refTxt}) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด`];
-    // เลือกเพศแล้ว sCr อยู่ในเกณฑ์ ข้อความเดียวกับตอนยังไม่เลือกเพศ เพศที่เลือกตัวเข้ม อีกเพศจาง (box.css .cx-ref)
-    // พี่กันเลือกจากตัวเลือกใต้ภาพที่ 2 ในหน้าเกลาคำ "เอาอันนี้ละกัน ที่จะจางเข้ม" 4 ต.ค. 2569 · ข้อความตายตัว ไม่มีค่าจากผู้ใช้ปน
-    if (r.crRef === 'ok') {
-      const male = sex === 'male';
-      return ['mute', `<span class="cx-ref${male ? ' on' : ''}">ชาย 0.7–1.2</span> <span class="cx-ref${male ? '' : ' on'}">หญิง 0.5–1.0</span> mg/dL`];
-    }
-    // ยังไม่เลือกเพศ ให้อยู่บรรทัดเดียวในช่อง 212 จุด (พี่กันสั่ง "เกลาให้เหลือ 1 บรรทัด" 4 ต.ค. 2569) · อยู่ใต้ช่อง sCr จึงไม่ต้องมีคำว่าค่าอ้างอิง sCr · หน่วยต้องมี เพราะช่อง sCr สลับเป็น μmol/L ได้
-    return ['mute', 'ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL'];
+    if (r.crRef === 'low') return ['warn', `Cr ต่ำกว่าค่าอ้างอิง (${refTxt}) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง`];
+    if (r.crRef === 'high') return ['hi', `Cr สูงกว่าค่าอ้างอิง (${refTxt}) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด`];
+    if (r.crRef === 'ok') return ['mute', `ค่าอ้างอิง Cr ${refTxt}`];
+    return ['mute', 'ค่าอ้างอิง Cr ชาย 0.7–1.2 และหญิง 0.5–1.0 mg/dL'];
   }
 
   CrCl.render = { ICON, f1, joinThai, warnLine, basisHTML, tableHTML, crclHTML, egfrHTML, bmiHTML, resultsHTML, crRefMsg };

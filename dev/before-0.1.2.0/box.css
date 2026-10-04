@@ -148,21 +148,10 @@
 .cx-field.is-warn{border-color:#eda24c;background-color:var(--warn-bg)}
 .cx-field.is-err{border-color:#e5484d;background-color:var(--danger-bg)}
 .cx-in{flex:1 1 auto;min-width:0;height:100%;margin:0;padding:0 10px;border:0;outline:0;background:transparent;color:var(--ink);font:600 15px/1 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
-/* ข้อความตัวอย่าง คำว่า เช่น เริ่มตรงกับคำว่า ชาย ในปุ่มเพศด้านบน (ช่องกับปุ่มเพศกว้างเท่ากัน ชายอยู่กลางครึ่งซ้าย = 25% ลบครึ่งความกว้างคำว่าชาย 11.6)
-   ตัวเลขตัวอย่างกว้างเท่ากันทุกช่อง (calc.js PH) จึงจบตรงกันด้วย · พิมพ์ค่าแล้วกลับไปชิดขวาเหมือนเดิม */
-.cx-in:placeholder-shown{text-align:left;padding-left:calc(25% - 11.6px)}
 .cx-in::placeholder{color:var(--ink-4);font-size:13px;font-weight:400;opacity:1}
-/* ช่องอายุมีกล่องหน่วย "ปี" กดไม่ได้ ทุกช่องกว้างเท่ากัน คำว่า "เช่น" จึงตรงแนวกันทุกช่อง (พี่กันสั่ง "เห็นคำว่า เช่น ไหม เอาให้มันตรงกัน" แล้วเลือก "ชอบอันนี้" 4 ต.ค. 2569) */
-/* กล่อง ปี ไม่มีลูกศร เว้นขวาเท่าลูกศร 12 กับช่องห่าง 4 ตัวหนังสือจึงอยู่กึ่งกลางแนวเดียวกับตัวหน่วยในปุ่มที่มีลูกศร */
-.cx-unit.fixed{padding-right:24px;cursor:default}
-.cx-unit.fixed:hover{background-color:var(--surface-2);color:var(--ink-2)}
 /* ปุ่มหน่วยกว้างเท่ากันทุกปุ่ม เท่าป้ายที่ยาวที่สุดคือ μmol/L (พี่กันสั่ง "kg ต้องยาวเท่า mg/dl") */
 .cx-unit{flex:none;display:flex;align-items:center;justify-content:center;gap:4px;min-width:77px;margin:0;padding:0 8px;border:0;border-left:1px solid var(--line-2);background-color:var(--surface-2);color:var(--ink-2);font:600 12px/1 var(--font-en),var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,color .15s ease}
 .cx-unit:hover{background-color:var(--accent-soft);color:var(--accent-ink)}
-/* ปุ่มสลับหน่วย ลูกศรชิดขวาของปุ่ม ตรงกันทุกแถว ตัวหน่วยอยู่กึ่งกลางที่ว่างทางซ้ายของลูกศร · ลูกศรสีเขียวน้ำทะเล บอกว่ากดได้ */
-.cx-unit[data-unit]>span{flex:1 1 auto;text-align:center}
-.cx-unit[data-unit] svg{color:var(--accent)}
-.cx-unit[data-unit]:hover svg{color:inherit}
 .cx-seg{display:flex;height:32px;border:1px solid var(--field-line);border-radius:8px;background:#fff;overflow:hidden}
 .cx-seg.is-warn{border-color:#eda24c}
 .cx-seg button{flex:1;margin:0;padding:0;border:0;background-color:#fff;color:var(--ink-3);font:600 13.5px/1 var(--font-sarabun),sans-serif;cursor:pointer;transition:background-color .15s ease,color .15s ease}
@@ -176,9 +165,6 @@
 .cx-msg.err{color:var(--danger-ink)}
 .cx-msg.warn{color:var(--warn-ink)}
 .cx-msg.hi{color:#855a00}
-/* ค่าอ้างอิง sCr ตอนเลือกเพศแล้ว เพศที่เลือกตัวเข้ม อีกเพศจาง (พี่กันเลือก 4 ต.ค. 2569) */
-.cx-msg .cx-ref{color:#b3bfbb}
-.cx-msg .cx-ref.on{color:var(--ink-2);font-weight:700}
 
 /* ผลลัพธ์ */
 .cx-sec{margin-top:10px;padding-top:8px;border-top:1px solid var(--line-2)}

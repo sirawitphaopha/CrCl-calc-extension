@@ -51,9 +51,7 @@
   // แถบเลื่อนลอย (สกิล web-craft ข้อ 6.23)
   const THUMB_MIN = 24, THUMB_NEAR = 16, THUMB_WAIT = 400, THUMB_FADE = 1300;
 
-  // อายุมีกล่องหน่วย "ปี" ทางขวาเหมือนช่องอื่น ป้ายจึงไม่ต้องมี (ปี) (พี่กันเลือกจากตัวเลือกใต้ภาพที่ 1 ในหน้าเกลาคำ "ชอบอันนี้เเฮะ" 4 ต.ค. 2569)
-  // ป้ายภาษาอังกฤษทั้งคอลัมน์ sCr Weight แทน Cr BW (พี่กันสั่ง "แก้ ให้หมด" 4 ต.ค. 2569) · sCr ตัว s เล็กทั้งระบบ (พี่กันสั่ง "เป็น sCr ตัวเอาตัวเล็ก แก้ให้หมดทั้งระบบ")
-  const LABEL = { age: 'Age', w: 'Weight', h: 'Height', scr: 'sCr' };
+  const LABEL = { age: 'อายุ (ปี)', w: 'BW', h: 'Height', scr: 'Cr' };
   const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v));
   const px = (v) => Math.round(v * 100) / 100 + 'px';
   let uid = 0;
@@ -85,11 +83,9 @@
       const id = `${this.id}-${k}`;
       const unitKey = C.UNIT_OF[k];
       const ph = unitKey ? C.PH[k][this.st[unitKey]] : C.PH[k];
-      // ช่องอายุไม่มีหน่วยให้สลับ ใช้กล่องหน่วย "ปี" ที่กดไม่ได้ ทุกช่องจึงกว้างเท่ากัน คำว่า "เช่น" ตรงแนวกัน
-      const unit = unitKey ? `<button type="button" class="cx-unit" data-unit="${unitKey}"></button>`
-        : `<span class="cx-unit fixed" id="${id}-unit">ปี</span>`;
+      const unit = unitKey ? `<button type="button" class="cx-unit" data-unit="${unitKey}"></button>` : '';
       const ref = k === 'scr' ? '<div class="cx-msg" data-msg="scrref" hidden></div>' : '';
-      return `<div class="cx-row" data-row="${k}"><label class="cx-lab" for="${id}">${LABEL[k]}</label><div class="cx-ctl"><div class="cx-field" data-f="${k}"><input id="${id}" class="cx-in" data-k="${k}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="${ph}"${unitKey ? '' : ` aria-describedby="${id}-unit"`}>${unit}</div><div class="cx-msg" data-msg="${k}" hidden></div>${ref}</div></div>`;
+      return `<div class="cx-row" data-row="${k}"><label class="cx-lab" for="${id}">${LABEL[k]}</label><div class="cx-ctl"><div class="cx-field" data-f="${k}"><input id="${id}" class="cx-in" data-k="${k}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="${ph}">${unit}</div><div class="cx-msg" data-msg="${k}" hidden></div>${ref}</div></div>`;
     }
 
     panelHTML() {
@@ -113,7 +109,7 @@
         <div class="cx-body">
           <div class="cx-inputs">
             <div class="cx-row" data-row="sex">
-              <span class="cx-lab" id="${sexId}">Sex</span>
+              <span class="cx-lab" id="${sexId}">เพศกำเนิด</span>
               <div class="cx-ctl">
                 <div class="cx-seg" role="group" aria-labelledby="${sexId}">
                   <button type="button" data-sex="male" aria-pressed="false">ชาย</button><button type="button" data-sex="female" aria-pressed="false">หญิง</button>
