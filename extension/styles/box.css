@@ -63,20 +63,29 @@
 .dock[data-side="top"] .cx-ib[data-act="fold"] svg{transform:rotate(-90deg)}
 .dock[data-side="bottom"] .cx-ib[data-act="fold"] svg{transform:rotate(90deg)}
 
-/* แผงเลือกขอบใต้ปุ่มเลือกขอบ เป็นรูปจอ กดขอบไหนกล่องไปติดขอบนั้น ขอบที่ติดอยู่ตอนนี้เป็นสีทึบ */
-.cx-pop{position:absolute;z-index:4;top:42px;left:var(--pop-x);width:148px;padding:10px 12px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 10px 26px rgba(16,52,45,.18)}
+/* แผงเลือกขอบใต้ปุ่มเลือกขอบ เป็นรูปจอ กดขอบไหนกล่องไปติดขอบนั้น ขอบที่ติดอยู่ตอนนี้เป็นสีทึบ
+   จอแบ่งเป็นสี่เหลี่ยมคางหมู 4 ชิ้นรอบช่องกลางเล็ก (พี่กันเลือกจากมอคอัป crcl-box-edge-pop-trap-2026-10-04.html "เอาอันนี้" 4 ต.ค. 2569)
+   - ทุกชิ้นวางเต็มจอ เว้นขอบใน 4 จุด แล้วตัดรูปทรงด้วย clip-path การกดก็ได้ตามรูปทรงที่ตัด
+   - ช่องกลางกว้างสูง 1 ใน 4 ของจอ รูปทรงเดียวกับจอ เส้นแบ่งจึงอยู่บนเส้นทแยงมุมจอ 4 ชิ้นพื้นที่เท่ากัน ชิ้นละ 23% ของจอ
+     (เดิมเป็นแถบหนา 24 จุดรอบจอ กลางจอว่าง พี่กันบอก "มันมีที่ว่างไว้ตรงกลางเยอะเเยะทำไม" และ "ซ้ายขวาเนื้อที่มันน้อยกว่า ทั้งๆที่เรามักจะเลือกซ้ายขวามากกว่า")
+   - เส้นแบ่งระหว่างชิ้นวาดด้วย svg สีเดียวกับพื้นจอ · เส้นขอบตอนใช้แป้นพิมพ์ (outline) โดน clip-path ตัดหาย จึงเปลี่ยนสีพื้นแทน */
+.cx-pop{position:absolute;z-index:4;top:42px;left:var(--pop-x);width:212px;padding:10px 12px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 10px 26px rgba(16,52,45,.18)}
 .cx-pop[hidden]{display:none}
 .cx-pop-t{margin:0 0 8px;color:var(--ink-2);font:600 12px/1.3 var(--font-sarabun),sans-serif}
-.cx-scr{position:relative;width:122px;height:76px;border:1.5px solid var(--field-line);border-radius:7px;background:var(--surface-2)}
-.cx-edge{position:absolute;margin:0;padding:0;border:0;border-radius:4px;background-color:#d9ebe6;cursor:pointer;transition:background-color .15s ease}
-.cx-edge[data-edge="top"]{left:22px;right:22px;top:4px;height:10px}
-.cx-edge[data-edge="bottom"]{left:22px;right:22px;bottom:4px;height:10px}
-.cx-edge[data-edge="left"]{top:18px;bottom:18px;left:4px;width:10px}
-.cx-edge[data-edge="right"]{top:18px;bottom:18px;right:4px;width:10px}
+.cx-scr{position:relative;width:186px;height:124px;border:1.5px solid var(--field-line);border-radius:9px;background:var(--surface-2)}
+/* ชี้แล้วเข้มทันที ไม่ค่อย ๆ เปลี่ยนสี (พี่กันลองของจริงแล้วบอก "มันเข้มช้าไปนิด เราอยากได้เข้มทันทีที่เมาส์โดนเลย" 4 ต.ค. 2569) */
+.cx-edge{position:absolute;inset:4px;margin:0;padding:0;border:0;border-radius:7px;background-color:#d9ebe6;cursor:pointer}
+.cx-edge[data-edge="top"]{clip-path:polygon(0 0,100% 0,62.5% 37.5%,37.5% 37.5%)}
+.cx-edge[data-edge="right"]{clip-path:polygon(100% 0,100% 100%,62.5% 62.5%,62.5% 37.5%)}
+.cx-edge[data-edge="bottom"]{clip-path:polygon(100% 100%,0 100%,37.5% 62.5%,62.5% 62.5%)}
+.cx-edge[data-edge="left"]{clip-path:polygon(0 100%,0 0,37.5% 37.5%,37.5% 62.5%)}
 .cx-edge:hover{background-color:#9fd3c6}
 .cx-edge[aria-current="true"]{background-color:var(--accent)}
 .cx-edge[aria-current="true"]:hover{background-color:var(--accent-ink)}
-.cx-edge:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.cx-edge:focus-visible{outline:none;background-color:#86c6b6}
+.cx-edge[aria-current="true"]:focus-visible{background-color:var(--accent-ink)}
+.cx-scr-gap{position:absolute;top:4px;left:4px;width:calc(100% - 8px);height:calc(100% - 8px);overflow:visible;pointer-events:none}
+.cx-scr-gap path{fill:none;stroke:var(--surface-2);stroke-width:3;stroke-linecap:round;vector-effect:non-scaling-stroke}
 
 /* ระหว่างลาก กล่องหลุดจากขอบ ลอยขึ้น เงาเข้มขึ้น ลำต้นกับโค้งเว้าจางหายไป (มอคอัปลากย้าย 3 ต.ค. 2569) */
 .dock[data-lifted="true"]{filter:drop-shadow(0 0 .7px rgba(16,52,45,.55)) drop-shadow(0 24px 40px rgba(16,52,45,.30))}
@@ -100,6 +109,11 @@
 .cx-head.is-drag{cursor:grabbing}
 .cx-grip{display:grid;place-items:center;width:14px;margin-right:4px;color:var(--accent);opacity:.65}
 .cx-title{flex:1;min-width:0;margin:0;color:var(--accent-ink);font:700 14.5px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:nowrap}
+/* ติดขอบซ้าย หัวกล่องกลับด้านแบบภาพสะท้อนของตอนติดขอบขวา ปุ่มปิด ปุ่มพับ ปุ่มเลือกขอบ อยู่ฝั่งขอบจอ ชื่อกล่องกับจุดจับลากอยู่ฝั่งกลางจอ
+   พี่กันเคาะจากมอคอัป crcl-box-head-mirror-2026-10-04.html "ใช่ เอาแแบบนี้" (4 ต.ค. 2569) · ขอบบนกับขอบล่างเรียงแบบเดิม */
+.dock[data-side="left"] .cx-head{flex-direction:row-reverse;padding:0 10px 0 6px}
+.dock[data-side="left"] .cx-grip{margin:0 0 0 4px}
+.dock[data-side="left"] .cx-title{text-align:right}
 .cx-ib{flex:none;display:grid;place-items:center;width:30px;height:30px;margin:0;padding:0;border:0;border-radius:8px;background-color:transparent;color:var(--accent-ink);cursor:pointer;transition:background-color .15s ease,color .15s ease}
 .cx-ib[hidden]{display:none}
 .cx-ib:hover{background-color:var(--accent-soft-2);color:var(--accent)}

@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>หัวกล่องซ้ายขวา</title>
+<!--
+  มอคอัปให้พี่กันดู 4 ต.ค. 2569 "ขอมอคอัปเพิ่ม เทียบซ้ายขวาให้เราเห้นภาพ"
+  ต่อจาก crcl-box-edge-pop-2026-10-04.html หัวข้อหัวกล่องตอนติดขอบซ้าย
+  ("พอมันอยู่ขอบซาย เราอยากให้เรียงเมนูบนเเบนเน้อกลับด้านด้วยน่ะ")
+
+  - จอขนาดจริงของพี่กัน สูง 577 กว้างเต็มหน้าต่าง · มีกล่องติดขอบซ้ายกับขอบขวาพร้อมกันในจอเดียว ให้เทียบกันตรง ๆ
+  - กล่องวาดด้วยกล่องตัวจริงของส่วนขยาย (extension/content/*.js · extension/styles/box.css) ลำต้น ความสูง ตำแหน่ง คิดแบบเดียวกับของจริง
+  - ส่วนที่มอคอัปเปลี่ยนเอง: หัวกล่องกลับด้านตอนติดขอบซ้าย (จอบน) ยังไม่อยู่ในส่วนขยาย
+  - ของจริงขึ้นได้ทีละกล่อง ในมอคอัปวางสองกล่องในจอเดียวเพื่อเทียบเท่านั้น
+  - หน้า paperless ในภาพเป็นหน้าจำลอง ข้อมูลในกล่องเป็นค่าตัวอย่าง ไม่ใช่ผู้ป่วยจริง
+  เปิดผ่าน http://127.0.0.1:3311/docs/mockups/crcl-box-head-mirror-2026-10-04.html (เซิร์ฟเวอร์ crcl-dev)
+-->
+<style>
+  *{box-sizing:border-box}
+  html{font-family:"CrClX Sarabun",Sarabun,"Noto Sans Thai",Tahoma,sans-serif}
+  body{margin:0;background:#e9eeec;color:#1f2d2a;font-size:15px;line-height:1.6}
+  .page{padding:20px 0 60px}
+  .pad{padding:0 16px}
+  h1{margin:0 0 4px;font-size:22px;line-height:1.35}
+  .lead{margin:0;color:#465753;font-size:14px}
+  section{margin-top:22px}
+  h2{margin:0 0 2px;font-size:19px;line-height:1.4}
+  .note{margin:0 0 10px;color:#465753;font-size:14px}
+  /* จอจำลองขนาดจริง สูง 577 · transform ทำให้กล่องวางตามจอนี้ ไม่ใช่ตามหน้าต่าง */
+  .screen{position:relative;width:100%;height:577px;overflow:hidden;background:#f3f5f7;box-shadow:0 0 0 1px #c5ced6;transform:translateZ(0)}
+  .screen>.host{position:absolute;inset:0;pointer-events:none}
+  .pl-top{position:absolute;left:0;right:0;top:0;height:46px;display:flex;align-items:center;gap:16px;padding:0 16px;background:#e3e8ec;border-bottom:1px solid #d3dade;color:#3d4a55;font:600 15px/1 Tahoma,sans-serif}
+  .pl-top span{color:#5b6873;font-weight:400}
+  .pl-side{position:absolute;left:0;top:46px;bottom:0;width:230px;padding:14px 12px;border-right:1px solid #d3dade}
+  .pl-side i{display:block;height:30px;margin-bottom:8px;border-radius:6px;background:#e3e8ec}
+  .pl-main{position:absolute;left:256px;right:26px;top:64px;bottom:0}
+  .pl-card{height:64px;margin-bottom:14px;padding:22px 16px;border-radius:10px;background:#e3e8ec;color:#3d4a55;font:14px/1.4 Tahoma,sans-serif}
+  .pl-lines{padding:18px 28px;border-radius:10px;background:#fff;box-shadow:0 0 0 1px #e1e6ea}
+  .pl-lines i{display:block;height:10px;margin:0 0 24px;border-radius:5px;background:#e6ebee}
+  .tag{display:inline-block;margin-right:8px;padding:1px 10px;border-radius:999px;background:#0f766e;color:#fff;font-size:13px;font-weight:700}
+  .tag.now{background:#7a8a86}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="pad">
+    <h1>หัวกล่องติดขอบซ้ายกับขอบขวา เทียบกันในจอเดียว</h1>
+    <p class="lead">จอขนาดจริงสูง 577 จุดเท่าหน้าเว็บใน Chrome ของพี่กัน · ของจริงขึ้นทีละกล่อง ภาพนี้วางสองกล่องพร้อมกันไว้เทียบเท่านั้น</p>
+  </div>
+
+  <section>
+    <div class="pad">
+      <h2><span class="tag">กลับด้าน</span>กล่องซ้ายเป็นภาพสะท้อนของกล่องขวา</h2>
+      <p class="note">ปุ่มปิด ปุ่มพับ ปุ่มเลือกขอบ อยู่ฝั่งขอบจอทั้งสองกล่อง · ชื่อกล่องกับจุดจับลากอยู่ฝั่งกลางจอ</p>
+    </div>
+    <div class="screen" id="mirror"></div>
+  </section>
+
+  <section>
+    <div class="pad">
+      <h2><span class="tag now">ตอนนี้</span>ทั้งสองกล่องเรียงปุ่มแบบเดียวกัน</h2>
+      <p class="note">กล่องซ้ายปุ่มอยู่ฝั่งกลางจอ ห่างจากขอบที่ติดอยู่</p>
+    </div>
+    <div class="screen" id="now"></div>
+  </section>
+</div>
+
+<script src="../../extension/content/fonts.js"></script>
+<script src="../../extension/content/calc.js"></script>
+<script src="../../extension/content/render.js"></script>
+<script src="../../extension/content/box.js"></script>
+<script>
+(async () => {
+'use strict';
+const CrCl = window.CrCl;
+const BASE = '../../extension/';
+
+const fst = document.createElement('style');
+fst.textContent = CrCl.fontCSS((p) => BASE + p);
+document.head.appendChild(fst);
+
+let boxCss = null;
+try { boxCss = await (await fetch(BASE + 'styles/box.css', { cache: 'no-store' })).text(); } catch (_) {}
+
+// หัวกล่องกลับด้านตอนติดขอบซ้าย (ชุดเดียวกับมอคอัปแผงเลือกขอบ)
+const MIRROR_CSS = `
+.dock[data-side="left"] .cx-head{flex-direction:row-reverse;padding:0 10px 0 6px}
+.dock[data-side="left"] .cx-grip{margin:0 0 0 4px}
+.dock[data-side="left"] .cx-title{text-align:right}
+`;
+
+async function styleRoot(root, extra) {
+  const ex = new CSSStyleSheet();
+  ex.replaceSync(extra || '');
+  if (boxCss !== null) {
+    const s = new CSSStyleSheet();
+    s.replaceSync(boxCss);
+    root.adoptedStyleSheets = [s, ex];
+    return;
+  }
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = BASE + 'styles/box.css';
+  const done = new Promise((r) => { link.onload = r; link.onerror = r; });
+  root.appendChild(link);
+  root.adoptedStyleSheets = [ex];
+  await done;
+}
+
+// หน้า paperless จำลอง ไว้เป็นพื้นหลังให้เห็นว่ากล่องทับหน้าเว็บตรงไหน
+const PAGE = `
+  <div class="pl-top">paperless จำลอง<span>หน้าทดสอบกล่องคำนวณ CrCl</span></div>
+  <div class="pl-side">${'<i></i>'.repeat(12)}</div>
+  <div class="pl-main">
+    <div class="pl-card">ผู้ป่วยจำลอง ไม่ใช่ข้อมูลจริง</div>
+    <div class="pl-lines">${['72%', '64%', '80%', '58%', '76%', '68%', '61%', '74%', '66%'].map((w) => `<i style="width:${w}"></i>`).join('')}</div>
+  </div>`;
+
+const STATE = { sex: 'male', age: '65', w: '70', h: '170', scr: '1.2' };
+
+async function screen(id, extra) {
+  const sc = document.getElementById(id);
+  sc.innerHTML = PAGE;
+  for (const side of ['left', 'right']) {
+    const host = document.createElement('div');
+    host.className = 'host';
+    sc.appendChild(host);
+    const root = host.attachShadow({ mode: 'open' });
+    await styleRoot(root, side === 'left' ? extra : '');
+    const box = new CrCl.Box({ root, mode: 'float', layout: 'narrow', side, top: 96, canPanel: true, state: STATE });
+    box.show();
+  }
+}
+await screen('mirror', MIRROR_CSS);
+await screen('now', '');
+})();
+</script>
+</body>
+</html>

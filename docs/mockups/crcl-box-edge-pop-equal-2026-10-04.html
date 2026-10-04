@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>แผงเลือกขอบ 4 ชิ้นเท่ากัน</title>
+<!--
+  มอคอัปให้พี่กันดู 4 ต.ค. 2569 ต่อจาก crcl-box-edge-pop-2026-10-04.html
+  พี่กันเลือกแบบแบ่งจอตามแนวทแยง แล้วสั่งปรับ
+  "ชอบเเบบนี้ เเต่เเบ่ง 4 ส่วนให้พื้นที่พอๆกัน จะมีช่องว่างนิดๆได้ เพราะตอนนี้ ซ้ายขวาเนื้อที่มันน้อยกว่า ทั้งๆที่เรามักจะเลือกซ้ายขวามากกว่านะ"
+
+  - ก่อนปรับ: เส้นแบ่งเอียง 45 องศาจากมุมจอ ขอบซ้ายขวาเป็นสามเหลี่ยมเล็ก ขอบบนล่างใหญ่
+  - ปรับแล้ว: แบ่งตามเส้นทแยงมุมจอ (มุมบนซ้ายไปมุมล่างขวา กับมุมบนขวาไปมุมล่างซ้าย) 4 ชิ้นพื้นที่เท่ากันพอดี
+  - ทุกภาพวาดด้วยกล่องตัวจริงของส่วนขยาย (extension/content/*.js · extension/styles/box.css)
+    แผงกว้าง 212 รูปจอ 186 x 124 สีทุกสีตาม box.css · ตัวเลขใต้ภาพหน้านี้วัดเองจากขนาดที่วาดจริง
+  - การเปิดแผง ชี้โดนปุ่มแผงขึ้นทันที เลื่อนออกรอ 0.3 วินาทีแผงหาย กดแล้วค้าง
+    (มอคอัปก่อนหน้าชี้ค้าง 0.15 วินาที พี่กันสั่งแก้ "เราขอทันทีตอนเมาส์โดน เเต่พอเอาเมาส์ออกเอา 0.3")
+  เปิดผ่าน http://127.0.0.1:3311/docs/mockups/crcl-box-edge-pop-equal-2026-10-04.html (เซิร์ฟเวอร์ crcl-dev)
+  ข้อมูลในกล่องเป็นค่าตัวอย่าง ไม่ใช่ผู้ป่วยจริง
+-->
+<style>
+  *{box-sizing:border-box}
+  html{font-family:"CrClX Sarabun",Sarabun,"Noto Sans Thai",Tahoma,sans-serif}
+  body{margin:0;background:#e9eeec;color:#1f2d2a;font-size:15px;line-height:1.6}
+  .page{padding:20px 16px 60px}
+  h1{margin:0 0 4px;font-size:22px;line-height:1.35}
+  .lead{margin:0;color:#465753;font-size:14px}
+  section{margin-top:26px}
+  h2{margin:0 0 4px;font-size:19px;line-height:1.4}
+  .note{margin:0 0 12px;color:#465753;font-size:14px}
+  .key{display:inline-flex;align-items:center;gap:6px;margin-right:14px;white-space:nowrap}
+  .sw{display:inline-block;width:22px;height:12px;border-radius:3px}
+  .row{display:flex;flex-wrap:wrap;align-items:flex-start;gap:22px 40px}
+  figure{margin:0}
+  figcaption{margin-bottom:6px;font-weight:700;font-size:14.5px;line-height:1.4}
+  figcaption span{display:block;color:#687874;font-weight:500;font-size:13px}
+  .crop{position:relative;width:320px;height:244px;overflow:hidden;border-radius:12px;
+    -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent)}
+  .host{position:relative;width:320px;isolation:isolate}
+  .meas{margin-top:6px;color:#0b5c55;font-size:13px;font-weight:600}
+  .over{position:absolute;inset:0;z-index:1;pointer-events:none}
+  .cur{position:absolute;width:18px;height:26px;margin:-1px 0 0 -1px}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>แผงเลือกขอบ แบ่งจอ 4 ชิ้นพื้นที่เท่ากัน</h1>
+  <p class="lead">ทุกภาพวาดด้วยกล่องตัวจริงของส่วนขยาย ขนาดเท่าบนจอจริง</p>
+
+  <section>
+    <h2>ก่อนปรับกับปรับแล้ว</h2>
+    <p class="note">
+      <span class="key"><i class="sw" style="background:#0f766e"></i>ขอบที่ติดอยู่ตอนนี้</span>
+      <span class="key"><i class="sw" style="background:#9fd3c6"></i>ขอบที่เมาส์ชี้อยู่ (ในภาพชี้ขอบซ้าย)</span>
+      <span class="key"><i class="sw" style="background:#d9ebe6"></i>ขอบอื่น</span>
+      ลองชี้ลองกดขอบในภาพได้
+    </p>
+    <div class="row" id="compare"></div>
+  </section>
+
+  <section>
+    <h2>ลองเอง ชี้ กด เลื่อนออก</h2>
+    <p class="note">ชี้โดนปุ่มเลือกขอบ แผงขึ้นทันที · เลื่อนเมาส์ออกนอกกรอบแผง รอ 0.3 วินาทีแผงหาย · กดปุ่มแล้วแผงค้าง เลื่อนเมาส์ไปไหนก็ไม่หาย · กดขอบแล้วแผงปิด ขอบนั้นเป็นสีทึบ ไอคอนบนปุ่มเปลี่ยนตาม (ในมอคอัปกล่องไม่ย้ายจริง)</p>
+    <div class="row" id="live"></div>
+  </section>
+</div>
+
+<script src="../../extension/content/fonts.js"></script>
+<script src="../../extension/content/calc.js"></script>
+<script src="../../extension/content/render.js"></script>
+<script src="../../extension/content/box.js"></script>
+<script>
+(async () => {
+'use strict';
+const CrCl = window.CrCl;
+const ICON = CrCl.render.ICON;
+const BASE = '../../extension/';
+const CLOSE_MS = 300;  // เลื่อนเมาส์ออกนอกกรอบแล้วรอเท่านี้ก่อนหาย · ชี้โดนปุ่มแผงขึ้นทันที (พี่กันสั่ง "เราขอทันทีตอนเมาส์โดน เเต่พอเอาเมาส์ออกเอา 0.3")
+
+const fst = document.createElement('style');
+fst.textContent = CrCl.fontCSS((p) => BASE + p);
+document.head.appendChild(fst);
+
+let boxCss = null;
+try { boxCss = await (await fetch(BASE + 'styles/box.css', { cache: 'no-store' })).text(); } catch (_) {}
+
+const MOCK_CSS = `
+.dock.static{position:relative;inset:auto;filter:none}
+.dock.static .base,.dock.static .fillet{display:none}
+.dock.static .cx{position:relative;left:auto;top:auto;height:auto;clip-path:none;border-radius:12px;box-shadow:0 0 0 1px #c5ced6,0 6px 16px rgba(16,52,45,.10)}
+.dock.static .cx-body{overflow:visible}
+.cx-ib.is-hov,.cx-ib[aria-expanded="true"]{background-color:var(--accent-soft-2);color:var(--accent)}
+.cx-edge.is-hov{background-color:#9fd3c6}
+/* ทั้ง 4 ขอบเป็นชิ้นเต็มจอ เว้นขอบในจอ 4 จุด แล้วตัดรูปทรงด้วย clip-path (การกดก็ตามรูปทรงที่ตัด) */
+.cx-pop[data-v] .cx-edge[data-edge]{top:4px;right:4px;bottom:4px;left:4px;width:auto;height:auto;border-radius:7px}
+.vgap{position:absolute;top:4px;left:4px;pointer-events:none;overflow:visible}
+.vgap line{stroke:var(--surface-2);stroke-width:3;stroke-linecap:round}
+`;
+
+async function styleRoot(root) {
+  const ex = new CSSStyleSheet();
+  ex.replaceSync(MOCK_CSS);
+  if (boxCss !== null) {
+    const s = new CSSStyleSheet();
+    s.replaceSync(boxCss);
+    root.adoptedStyleSheets = [s, ex];
+    return;
+  }
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = BASE + 'styles/box.css';
+  const done = new Promise((r) => { link.onload = r; link.onerror = r; });
+  root.appendChild(link);
+  root.adoptedStyleSheets = [ex];
+  await done;
+}
+
+const NORMAL = { sex: 'male', age: '65', w: '70', h: '170', scr: '1.2' };
+
+async function staticBox(parent, side) {
+  const crop = document.createElement('div');
+  crop.className = 'crop';
+  const host = document.createElement('div');
+  host.className = 'host';
+  crop.appendChild(host);
+  parent.appendChild(crop);
+  const root = host.attachShadow({ mode: 'open' });
+  await styleRoot(root);
+  const box = new CrCl.Box({ root, mode: 'float', layout: 'narrow', side: side || 'right', top: 96, canPanel: true, state: NORMAL });
+  box.dock.classList.add('static');
+  box.show();
+  const over = document.createElement('div');
+  over.className = 'over';
+  crop.appendChild(over);
+  return { box, root, crop, over };
+}
+
+function fig(row, title, sub) {
+  const f = document.createElement('figure');
+  f.innerHTML = '<figcaption></figcaption>';
+  f.firstChild.innerHTML = title + (sub ? `<span>${sub}</span>` : '');
+  document.getElementById(row).appendChild(f);
+  return f;
+}
+
+const CURSOR = '<svg class="cur" viewBox="0 0 18 26" aria-hidden="true"><path d="M1 1 L1 20 L6 15.5 L9.5 23.5 L13 22 L9.6 14.2 L16 14 Z" fill="#111" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+function cursorAt(over, crop, x, y) {
+  const r = crop.getBoundingClientRect();
+  over.insertAdjacentHTML('beforeend', CURSOR);
+  const c = over.lastElementChild;
+  c.style.left = (x - r.left) + 'px';
+  c.style.top = (y - r.top) + 'px';
+}
+
+const area = (pts) => Math.abs(pts.reduce((s, p, i) => { const q = pts[(i + 1) % pts.length]; return s + p[0] * q[1] - q[0] * p[1]; }, 0)) / 2;
+
+/** รูปทรง 4 ชิ้น · diag = เส้นแบ่งเอียง 45 องศา (ก่อนปรับ) · equal = เส้นทแยงมุมจอ พื้นที่เท่ากัน (ปรับแล้ว)
+ *  ต้องเรียกตอนแผงแสดงอยู่ แผงที่ซ่อนวัดขนาดได้ศูนย์ */
+function shape(pop, v) {
+  pop.dataset.v = v;
+  const scr = pop.querySelector('.cx-scr');
+  scr.querySelectorAll('.vgap').forEach((e) => e.remove());
+  const btn = (e) => scr.querySelector(`[data-edge="${e}"]`);
+  const r = btn('top').getBoundingClientRect();
+  const W = r.width, H = r.height;
+  let pts, L;
+  if (v === 'equal') {
+    const c = [W / 2, H / 2];
+    pts = { top: [[0, 0], [W, 0], c], bottom: [[0, H], c, [W, H]], left: [[0, 0], c, [0, H]], right: [[W, 0], [W, H], c] };
+    L = [[0, 0, W, H], [W, 0, 0, H]];
+  } else {
+    const t = H / 2;
+    pts = { top: [[0, 0], [W, 0], [W - t, t], [t, t]], bottom: [[0, H], [t, t], [W - t, t], [W, H]], left: [[0, 0], [t, t], [0, H]], right: [[W, 0], [W - t, t], [W, H]] };
+    L = [[0, 0, t, t], [0, H, t, t], [t, t, W - t, t], [W - t, t, W, 0], [W - t, t, W, H]];
+  }
+  for (const e of Object.keys(pts)) btn(e).style.clipPath = `polygon(${pts[e].map((p) => `${p[0]}px ${p[1]}px`).join(',')})`;
+  scr.insertAdjacentHTML('beforeend', `<svg class="vgap" width="${W}" height="${H}" aria-hidden="true">${L.map((l) => `<line x1="${l[0]}" y1="${l[1]}" x2="${l[2]}" y2="${l[3]}"/>`).join('')}</svg>`);
+  return { pts, W, H };
+}
+
+function setCurrent(box, edge) {
+  box.pop.querySelectorAll('.cx-edge').forEach((b) => b.setAttribute('aria-current', String(b.dataset.edge === edge)));
+  box.panel.querySelector('[data-act="edge"]').innerHTML = ICON.edge[edge];
+}
+
+/* ══════════ ก่อนปรับกับปรับแล้ว ══════════ */
+const COMPARE = [
+  ['diag', 'ก่อนปรับ', 'เส้นแบ่งเอียง 45 องศา ขอบซ้ายขวาเล็กกว่า'],
+  ['equal', 'ปรับแล้ว', 'แบ่งตามเส้นทแยงมุมจอ 4 ชิ้นเท่ากัน'],
+];
+for (const [v, title, sub] of COMPARE) {
+  const f = fig('compare', title, sub);
+  const { box, root, crop, over } = await staticBox(f);
+  box.edgePop(true);
+  window.removeEventListener('pointerdown', box.offPop, true);
+  if (root.activeElement) root.activeElement.blur();
+  const { pts, W, H } = shape(box.pop, v);
+  const pc = (e) => Math.round(area(pts[e]) / (W * H) * 100);
+  f.insertAdjacentHTML('beforeend', `<div class="meas">พื้นที่กดของแต่ละขอบ ขอบซ้าย ${pc('left')}% · ขอบขวา ${pc('right')}% · ขอบบน ${pc('top')}% · ขอบล่าง ${pc('bottom')}% ของจอ</div>`);
+  // ภาพนิ่งตอนชี้ขอบซ้าย · เอาเมาส์จริงเข้ามาในแผง สีชี้ของภาพนิ่งหายไป ให้สีจริงทำงาน
+  const left = box.pop.querySelector('[data-edge="left"]');
+  left.classList.add('is-hov');
+  const lr = left.getBoundingClientRect();
+  cursorAt(over, crop, lr.left + (v === 'equal' ? 24 : 14), lr.top + H / 2 - 6);
+  box.pop.addEventListener('pointerenter', () => { left.classList.remove('is-hov'); over.innerHTML = ''; }, { once: true });
+  root.addEventListener('pointerdown', (e) => { if (!e.composedPath().includes(box.pop)) e.stopPropagation(); }, true);
+  root.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const b = e.target.closest && e.target.closest('.cx-edge');
+    if (b) setCurrent(box, b.dataset.edge);
+  }, true);
+  root.addEventListener('keydown', (e) => { if (e.key === 'Escape') e.stopPropagation(); }, true);
+}
+
+/* ══════════ ลองเอง ══════════ */
+for (const [title, cur] of [['ติดขอบขวาอยู่', 'right'], ['ติดขอบซ้ายอยู่', 'left']]) {
+  const f = fig('live', title);
+  const { box, root } = await staticBox(f, cur);
+  const btn = box.panel.querySelector('[data-act="edge"]');
+  const pop = box.pop;
+  let mode = null;     // hover = เปิดเพราะชี้ · pin = เปิดเพราะกด
+  let tClose = 0;
+  let shaped = false;
+  const clear = () => { clearTimeout(tClose); };
+  const open = (how) => {
+    const keep = root.activeElement;
+    box.edgePop(true);
+    if (!shaped) { shape(pop, 'equal'); shaped = true; }
+    if (how === 'hover') { if (keep) keep.focus({ preventScroll: true }); else if (root.activeElement) root.activeElement.blur(); }
+    mode = how;
+  };
+  new MutationObserver(() => { if (pop.hidden) { mode = null; clear(); } }).observe(pop, { attributes: true, attributeFilter: ['hidden'] });
+  const enter = () => { clearTimeout(tClose); };
+  const leave = () => { if (mode === 'hover') { clearTimeout(tClose); tClose = setTimeout(() => box.edgePop(false), CLOSE_MS); } };
+  btn.addEventListener('pointerenter', () => {
+    enter();
+    if (pop.hidden) open('hover');
+  });
+  btn.addEventListener('pointerleave', leave);
+  pop.addEventListener('pointerenter', enter);
+  pop.addEventListener('pointerleave', leave);
+  root.addEventListener('pointerdown', (e) => {
+    const path = e.composedPath();
+    if (path.includes(box.head) && !path.includes(btn)) e.stopPropagation();
+  }, true);
+  root.addEventListener('click', (e) => {
+    const path = e.composedPath();
+    const zone = e.target.closest && e.target.closest('.cx-edge');
+    if (zone) { e.stopPropagation(); clear(); setCurrent(box, zone.dataset.edge); box.edgePop(false); return; }
+    if (path.includes(btn)) {
+      e.stopPropagation();
+      clear();
+      if (pop.hidden) open('pin');
+      else if (mode === 'hover') mode = 'pin';
+      else box.edgePop(false);
+      return;
+    }
+    if (path.includes(box.head)) e.stopPropagation();
+  }, true);
+  root.addEventListener('keydown', (e) => { if (e.key === 'Escape' && pop.hidden) e.stopPropagation(); }, true);
+}
+})();
+</script>
+</body>
+</html>

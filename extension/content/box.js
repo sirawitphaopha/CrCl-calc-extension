@@ -39,6 +39,8 @@
   const SNAP = 6;        // ลากจนเมาส์ห่างขอบบนหรือขอบล่างของหน้าต่างไม่เกินเท่านี้ ถึงจะไปติดขอบนั้น
   const GLIDE_MS = 300;  // ปล่อยเมาส์แล้วกล่องไหลเข้าขอบ
   const LIFT_SCALE = 1.025, TILT_MAX = 2.5;   // ระหว่างลาก กล่องขยายนิดหนึ่ง เอียงได้ไม่เกิน 2.5 องศาตามความเร็ว
+  // แผงเลือกขอบ ชี้โดนปุ่มแผงขึ้นทันที เลื่อนเมาส์ออกนอกปุ่มกับแผงแล้วรอเท่านี้ก่อนหาย (พี่กันสั่ง "เราขอทันทีตอนเมาส์โดน เเต่พอเอาเมาส์ออกเอา 0.3")
+  const POP_LEAVE_MS = 300;
   const EDGES = ['right', 'left', 'top', 'bottom'];
   const EDGE_TH = { left: 'ขอบซ้าย', right: 'ขอบขวา', top: 'ขอบบน', bottom: 'ขอบล่าง' };
   const isSide = (e) => e === 'left' || e === 'right';
@@ -101,7 +103,7 @@
         </div>
         ${float ? `<div class="cx-pop" data-pop hidden role="group" aria-label="เลือกขอบที่จะย้ายกล่องไปติด">
           <p class="cx-pop-t">ย้ายกล่องไปติดขอบ</p>
-          <div class="cx-scr">${EDGES.map((e) => `<button type="button" class="cx-edge" data-edge="${e}"></button>`).join('')}</div>
+          <div class="cx-scr">${EDGES.map((e) => `<button type="button" class="cx-edge" data-edge="${e}"></button>`).join('')}<svg class="cx-scr-gap" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L37.5 37.5M100 0L62.5 37.5M100 100L62.5 62.5M0 100L37.5 62.5"/></svg></div>
         </div>` : ''}
         <div class="cx-bar" data-bar hidden>${ICON.alertSm}<span></span><button type="button" class="cx-barbtn" data-act="bar"></button></div>
         <div class="cx-body">
@@ -115,7 +117,7 @@
                 <div class="cx-msg" data-msg="sex" hidden></div>
               </div>
             </div>
-            ${this.field('age')}${this.field('w')}${this.field('h')}${this.field('scr')}
+            ${this.field('age')}${this.field('scr')}${this.field('w')}${this.field('h')}
           </div>
           <div class="cx-results" aria-live="polite"></div>
         </div>
@@ -179,7 +181,10 @@
         this.layout === 'narrow' ? ICON.narrow : ICON.wide,
         this.layout === 'narrow' ? 'ตอนนี้เป็นแผงแคบ กดเพื่อสลับเป็นแผงกว้าง' : 'ตอนนี้เป็นแผงกว้าง กดเพื่อสลับเป็นแผงแคบ');
       // ปุ่มเลือกขอบ ไอคอนบอกขอบที่ติดอยู่ตอนนี้ · ในแผงเลือกขอบ ขอบที่ติดอยู่เป็นสีทึบ
-      say(el.querySelector('[data-act="edge"]'), ICON.edge[this.side], `ตอนนี้ติด${EDGE_TH[this.side]} กดเพื่อเลือกขอบที่จะย้ายไป`);
+      // ชี้แล้วแผงขึ้นทันที ไม่ใส่ title ให้ป้ายของ Chrome เด้งมาทับแผง (เหลือ aria-label ให้โปรแกรมอ่านจอ)
+      const edgeBtn = el.querySelector('[data-act="edge"]');
+      say(edgeBtn, ICON.edge[this.side], `ตอนนี้ติด${EDGE_TH[this.side]} กดเพื่อเลือกขอบที่จะย้ายไป`);
+      edgeBtn.removeAttribute('title');
       el.querySelectorAll('.cx-edge').forEach((b) => {
         const cur = b.dataset.edge === this.side;
         const t = cur ? `ติด${EDGE_TH[b.dataset.edge]}อยู่ตอนนี้` : `ย้ายไปติด${EDGE_TH[b.dataset.edge]}`;
@@ -341,7 +346,12 @@
         else if (act === 'mode') { if (this.o.onMode) this.o.onMode(); }
         else if (act === 'bar') { this.hideBar(); if (this.o.onBar) this.o.onBar(); }
         else if (act === 'layout') { this.setLayout(this.layout === 'narrow' ? 'wide' : 'narrow'); this.emitPrefs(); }
-        else if (act === 'edge') this.edgePop(this.pop.hidden);
+        // กดปุ่มเลือกขอบ แผงค้าง · แผงที่ขึ้นเพราะชี้อยู่ กดแล้วกลายเป็นค้าง · ค้างอยู่แล้วกดซ้ำ แผงปิด
+        else if (act === 'edge') {
+          if (this.pop.hidden) this.edgePop(true);
+          else if (this.popHow === 'hover') this.edgePop(true);
+          else this.edgePop(false);
+        }
         else if (act === 'fold') this.fold(true);
         else if (act === 'close') this.close();
       });
@@ -378,6 +388,31 @@
         e.stopPropagation();
       };
       for (const t of ['keydown', 'keyup', 'keypress']) this.dock.addEventListener(t, stopKey);
+
+      // กดในกล่องแต่นอกแผงเลือกขอบ แผงปิด (ตัวดักนี้อยู่ใน Shadow DOM เห็นของข้างในครบ ทั้งแบบเปิดและแบบปิด)
+      this.dock.addEventListener('pointerdown', (e) => {
+        if (!this.pop || this.pop.hidden) return;
+        const path = e.composedPath();
+        if (!path.includes(this.pop) && !path.includes(this.panel.querySelector('[data-act="edge"]'))) this.edgePop(false);
+      });
+
+      // ชี้โดนปุ่มเลือกขอบ แผงขึ้นทันทีโดยไม่ต้องกด · เลื่อนเมาส์ออกนอกปุ่มและแผง รอ 0.3 วินาทีแผงหาย
+      // แผงที่ขึ้นเพราะกด ไม่หายตอนเลื่อนเมาส์ออก (พี่กันสั่ง 4 ต.ค. 2569 ดูมอคอัป crcl-box-edge-pop-trap-2026-10-04.html)
+      // จอสัมผัสไม่มีการชี้ ใช้การกดอย่างเดียว · ระหว่างลากกล่องไม่เปิด
+      const edgeBtn = this.panel.querySelector('[data-act="edge"]');
+      const stay = () => clearTimeout(this.popTimer);
+      const away = () => {
+        if (this.popHow !== 'hover') return;
+        clearTimeout(this.popTimer);
+        this.popTimer = setTimeout(() => this.edgePop(false), POP_LEAVE_MS);
+      };
+      edgeBtn.addEventListener('pointerenter', (e) => {
+        stay();
+        if (e.pointerType === 'mouse' && this.pop.hidden && !this.lifted) this.edgePop(true, 'hover');
+      });
+      edgeBtn.addEventListener('pointerleave', away);
+      this.pop.addEventListener('pointerenter', stay);
+      this.pop.addEventListener('pointerleave', away);
 
       this.base.addEventListener('click', () => {
         if (this.justDragged) { this.justDragged = false; return; }
@@ -756,26 +791,39 @@
     /* ══════════ ปุ่มเลือกขอบ (พี่กันเลือกแบบ ข 3 ต.ค. 2569) ══════════
        กดปุ่มที่หัวกล่องแล้วมีแผงเล็กเป็นรูปจอ กดขอบไหนกล่องไหลไปติดขอบนั้น · ใช้แป้นพิมพ์ได้ครบทุกขอบ */
 
-    /** เปิดหรือปิดแผงเลือกขอบ · กดที่อื่นหรือ Esc แผงปิด */
-    edgePop(open) {
+    /** เปิดหรือปิดแผงเลือกขอบ · how = 'hover' เปิดเพราะเมาส์ชี้ (เลื่อนออกแล้วหาย) · ไม่ใส่ = เปิดเพราะกด (ค้างไว้)
+     *  กดที่อื่นหรือ Esc แผงปิดทั้งสองแบบ */
+    edgePop(open, how) {
       const pop = this.pop;
-      if (!pop || open === !pop.hidden) return;
+      if (!pop) return;
+      clearTimeout(this.popTimer);
       const btn = this.panel.querySelector('[data-act="edge"]');
+      // แผงที่ขึ้นเพราะชี้อยู่แล้ว ถูกกดเปิด = เปลี่ยนเป็นค้าง ย้ายเคอร์เซอร์ไปขอบปัจจุบันให้ใช้แป้นพิมพ์ต่อได้
+      if (open && !pop.hidden) {
+        if (how !== 'hover' && this.popHow === 'hover') {
+          this.popHow = 'pin';
+          pop.querySelector('[aria-current="true"]').focus({ preventScroll: true });
+        }
+        return;
+      }
+      if (!open && pop.hidden) return;
       pop.hidden = !open;
       btn.setAttribute('aria-expanded', String(open));
       if (!open) {
+        this.popHow = null;
         window.removeEventListener('pointerdown', this.offPop, true);
         this.offPop = null;
         return;
       }
+      this.popHow = how === 'hover' ? 'hover' : 'pin';
       // วางใต้ปุ่ม ไม่ให้ล้นขอบกล่อง
       const x = clamp(btn.offsetLeft + btn.offsetWidth / 2 - pop.offsetWidth / 2, 8, this.panel.clientWidth - pop.offsetWidth - 8);
       pop.style.setProperty('--pop-x', px(x));
-      pop.querySelector('[aria-current="true"]').focus({ preventScroll: true });
-      this.offPop = (e) => {
-        const path = e.composedPath();
-        if (!path.includes(pop) && !path.includes(btn)) this.edgePop(false);
-      };
+      // เปิดเพราะชี้ ไม่แย่งเคอร์เซอร์จากช่องที่กำลังพิมพ์ · เปิดเพราะกด เคอร์เซอร์ไปอยู่ที่ขอบปัจจุบัน
+      if (this.popHow === 'pin') pop.querySelector('[aria-current="true"]').focus({ preventScroll: true });
+      // กดนอกกล่อง แผงปิด · ส่วนขยายจริงใช้ Shadow DOM แบบปิด ตัวดักที่ window เห็นแค่ crcl-ext-root ไม่เห็นของข้างใน
+      // จึงเช็กแค่ว่าไม่ได้กดในกล่อง การกดในกล่องแต่นอกแผง ตัวดักใน Shadow DOM (bind) เป็นคนปิด
+      this.offPop = (e) => { if (!e.composedPath().includes(this.o.root.host)) this.edgePop(false); };
       window.addEventListener('pointerdown', this.offPop, true);
     }
 

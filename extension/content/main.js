@@ -31,6 +31,30 @@
   const intent = g.__crclIntent || 'restore';
   g.__crclIntent = null;
 
+  // รีโหลดหรืออัปเดตส่วนขยายแล้ว กล่องเดิมยังอยู่บนหน้าเว็บ แต่ส่งค่าให้ส่วนขยายเก็บไม่ได้อีก
+  // ตอนนั้น chrome.runtime.sendMessage โยนข้อผิดพลาดทันที .catch ของ promise จับไม่ได้
+  // Chrome จึงจด "Extension context invalidated" ไว้ในหน้าข้อผิดพลาดของส่วนขยายทุกครั้งที่พิมพ์ (พี่กันเจอ 4 ต.ค. 2569)
+  // ส่งผ่าน send() ตัวนี้ทุกครั้ง เช็กก่อนส่ง ส่วนขยายโหลดใหม่แล้วไม่ส่ง แล้วขึ้นแถบบอกให้กดไอคอนเปิดกล่องใหม่ครั้งเดียว
+  const ORPHAN_TEXT = 'ส่วนขยายถูกโหลดใหม่ กล่องนี้บันทึกค่าไม่ได้แล้ว กดไอคอนคำนวณ CrCl เพื่อเปิดกล่องใหม่';
+  let orphan = false;
+  function orphaned() {
+    if (orphan) return;
+    orphan = true;
+    if (app.box) app.box.showBar(ORPHAN_TEXT, 'ปิดข้อความ');
+  }
+  // เช็กสองชั้น ① ส่วนขยายยังอยู่ไหม (chrome.runtime.id) ② ส่งแล้วได้ข้อผิดพลาดว่าส่วนขยายถูกโหลดใหม่ไหม
+  // ชั้นที่สองกันกรณีที่ชั้นแรกยังบอกว่าอยู่ แต่ส่งไม่ได้แล้ว ทั้งแบบโยนทันทีและแบบ promise ล้มเหลว
+  const deadErr = (err) => !bridge.alive() || /context invalidated/i.test(String(err && err.message));
+  function send(msg) {
+    if (!bridge.alive()) { orphaned(); return Promise.reject(new Error('orphan')); }
+    try {
+      return Promise.resolve(bridge.send(msg)).catch((err) => { if (deadErr(err)) orphaned(); throw err; });
+    } catch (err) {
+      if (deadErr(err)) orphaned();
+      return Promise.reject(err);
+    }
+  }
+
   // ข้อความจาก background ที่มาถึงก่อนกล่องพร้อม เก็บไว้ทำทีหลัง
   const pending = [];
   bridge.listen((msg) => { if (app.box) handle(msg); else pending.push(msg); });
@@ -75,7 +99,7 @@
   }
 
   const quiet = () => {};
-  bridge.send({ type: 'load' }).then((boot) => {
+  send({ type: 'load' }).then((boot) => {
     if (!boot || !boot.css) return;
     const prefs = boot.prefs || {};
     const ui = boot.ui || {};
@@ -87,17 +111,17 @@
       side: prefs.side,
       top: prefs.top,
       canPanel: boot.canPanel,
-      onState: (state) => { bridge.send({ type: 'save', state }).catch(quiet); },
-      onUi: (u) => { bridge.send({ type: 'saveUi', ui: u }).catch(quiet); },
-      onPrefs: (p) => { bridge.send({ type: 'prefs', prefs: p }).catch(quiet); },
+      onState: (state) => { send({ type: 'save', state }).catch(quiet); },
+      onUi: (u) => { send({ type: 'saveUi', ui: u }).catch(quiet); },
+      onPrefs: (p) => { send({ type: 'prefs', prefs: p }).catch(quiet); },
       onMode: () => {
-        bridge.send({ type: 'toPanel' }).then((res) => {
+        send({ type: 'toPanel' }).then((res) => {
           if (res && res.ok) { box.hideBar(); box.close(); return; }
           box.showBar('Chrome ไม่ให้เปิดแผงข้างจากปุ่มในกล่อง กดไอคอนคำนวณ CrCl บนแถบเครื่องมือของ Chrome เพื่อเปิดแผงข้าง', 'ยกเลิก');
         }).catch(quiet);
       },
-      // ยกเลิกการย้ายไปแผงข้าง ไอคอนกลับมาเปิดปิดกล่องลอยเหมือนเดิม
-      onBar: () => { bridge.send({ type: 'cancelPanel' }).catch(quiet); },
+      // ยกเลิกการย้ายไปแผงข้าง ไอคอนกลับมาเปิดปิดกล่องลอยเหมือนเดิม · แถบบอกว่าส่วนขยายโหลดใหม่ กดปิดข้อความอย่างเดียว
+      onBar: () => { if (!orphan) send({ type: 'cancelPanel' }).catch(quiet); },
     });
     app.box = box;
     if (intent === 'open') box.show({ animate: true, focus: true });

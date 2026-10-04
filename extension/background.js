@@ -43,9 +43,11 @@ async function setMode(mode) {
 }
 
 // ทุกครั้งที่ตัวกลางตื่น ตั้งพฤติกรรมไอคอนให้ตรงกับโหมดที่จำไว้
+// ตอนรีโหลดส่วนขยาย ตัวกลางตัวเก่ากำลังปิด อ่านค่าไม่สำเร็จได้ Chrome จด "No SW" ไว้ในหน้าข้อผิดพลาด (พี่กันเจอ 4 ต.ค. 2569)
+// ปล่อยผ่านเงียบ ๆ ตัวกลางตัวใหม่ตื่นมาแล้วตั้งให้เองอยู่แล้ว
 getMode().then((mode) => {
   if (CAN_PANEL) chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: mode === 'panel' }).catch(quiet);
-});
+}).catch(quiet);
 
 /* ══════════ ฉีดกล่องลงหน้าเว็บ ══════════ */
 
@@ -111,16 +113,17 @@ chrome.action.onClicked.addListener(async (tab) => {
 });
 
 // เปลี่ยนหน้าในแท็บเดิม ถ้าแท็บนั้นเปิดกล่องค้างไว้ ฉีดให้ใหม่เมื่อหน้าใหม่โหลดเสร็จ
+// ทั้งก้อนอยู่ใน try เพราะหน้าโหลดเสร็จตรงจังหวะรีโหลดส่วนขยาย ตัวกลางตัวเก่ากำลังปิด อ่านค่าไม่สำเร็จได้ ("No SW")
 chrome.tabs.onUpdated.addListener(async (tabId, info, tab) => {
-  if (info.status === 'loading') { await clearBlocked(tabId); return; }
-  if (info.status !== 'complete') return;
-  if ((await getMode()) !== 'float' || !injectable(tab.url)) return;
-  const got = await chrome.storage.session.get(UI_KEY(tabId));
-  const ui = got[UI_KEY(tabId)];
-  if (!ui || !ui.open) return;
   try {
+    if (info.status === 'loading') { await clearBlocked(tabId); return; }
+    if (info.status !== 'complete') return;
+    if ((await getMode()) !== 'float' || !injectable(tab.url)) return;
+    const got = await chrome.storage.session.get(UI_KEY(tabId));
+    const ui = got[UI_KEY(tabId)];
+    if (!ui || !ui.open) return;
     if (!(await hasApp(tabId))) await inject(tabId, 'restore');
-  } catch (_) { /* หน้านั้นฉีดไม่ได้ ไม่ต้องขึ้นป้ายจนกว่าผู้ใช้จะกดไอคอนเอง */ }
+  } catch (_) { /* หน้านั้นฉีดไม่ได้ หรือตัวกลางกำลังปิดตอนรีโหลดส่วนขยาย ไม่ต้องขึ้นป้ายจนกว่าผู้ใช้จะกดไอคอนเอง */ }
 });
 
 // ปิดแท็บ ค่าของแท็บนั้นหายตามที่พี่กันเลือก

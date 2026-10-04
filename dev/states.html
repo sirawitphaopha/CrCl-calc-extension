@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ทุกสภาพของกล่อง CrCl</title>
+<!--
+  หน้ารวมทุกสภาพของกล่อง สำหรับพี่กันเกลาคำ (สั่ง 4 ต.ค. 2569 "สร้างหน้า extention ทุกหน้าที่เป้นไปได้หน่อย เราจะเกลาคำ ไม่ให้มันเยอะ")
+  หน้าทดสอบตอนพัฒนาเท่านั้น เปิดผ่าน dev/serve.py ที่ http://127.0.0.1:3311/dev/states.html
+  - ทุกภาพวาดด้วยกล่องตัวจริง (calc.js render.js box.js box.css) ข้อความในภาพจึงตรงกับส่วนขยายเสมอ
+  - ตารางข้อความท้ายหน้าเขียนตามไฟล์ของส่วนขยาย ณ วันที่ทำ แก้คำในส่วนขยายเมื่อไหร่ต้องแก้ตารางนี้ตาม
+  - ข้อมูลทุกกรณีเป็นค่าตัวอย่าง ไม่ใช่ผู้ป่วยจริง
+-->
+<style>
+  *{box-sizing:border-box}
+  html{font-family:"CrClX Roboto Mono","CrClX Sarabun",Tahoma,sans-serif}
+  body{margin:0;background:#e9eeec;color:#1f2d2a;font-size:15px;line-height:1.6}
+  .page{padding:22px 16px 64px}
+  h1{margin:0 0 6px;font:700 23px/1.35 "CrClX Sarabun",sans-serif}
+  .lead{margin:0 0 8px;color:#465753;max-width:1040px}
+  .howto{margin:0;padding-left:20px;color:#465753;font-size:14px}
+  section{margin-top:30px}
+  h2{margin:0 0 12px;font:700 20px/1.4 "CrClX Sarabun",sans-serif}
+  .grid{display:flex;flex-wrap:wrap;align-items:flex-start;gap:22px 18px}
+  .shot{margin:0}
+  .shot figcaption{min-height:44px;margin-bottom:6px;color:#1f2d2a;font:700 14px/1.4 "CrClX Sarabun",sans-serif;white-space:nowrap}
+  .shot figcaption b{display:inline-grid;place-items:center;min-width:26px;height:22px;margin-right:8px;padding:0 6px;border-radius:999px;background:#0f766e;color:#fff;font:700 12px/1 "CrClX Roboto Mono",sans-serif}
+  .shot figcaption span{display:block;color:#687874;font-weight:500;font-size:12.5px}
+  .host{position:relative;width:320px}
+  .host.wide{width:620px}
+  /* กรอบที่ต้องการขอบจอจำลอง (แถบตอนพับ แผงข้าง) · transform ทำให้กล่องวางตามกรอบ ไม่ใช่ตามหน้าต่าง */
+  .frame{position:relative;overflow:hidden;border-radius:10px;background:#f3f5f7;box-shadow:0 0 0 1px #c5ced6;transform:translateZ(0)}
+  .frame>.host{position:absolute;inset:0;width:auto}
+  table{width:100%;max-width:1320px;border-collapse:collapse;background:#fff;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px #d3e0dc}
+  th,td{padding:7px 10px;border-bottom:1px solid #e5ecea;text-align:left;vertical-align:top;font-size:14px}
+  thead th{background:#e4f3ef;color:#0b5c55;font:700 13px/1.4 "CrClX Sarabun",sans-serif}
+  td.n{width:56px;color:#0f766e;font:700 14px/1.4 "CrClX Roboto Mono",sans-serif;text-align:right}
+  td.t{font-weight:600}
+  td.w{width:36%;color:#687874;font-size:13px}
+  tr.grp td{background:#f5f9f8;color:#0b5c55;font:700 14px/1.4 "CrClX Sarabun",sans-serif}
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>ทุกสภาพของกล่อง CrCl สำหรับเกลาคำ</h1>
+  <p class="lead">ทุกภาพวาดด้วยกล่องตัวจริงของส่วนขยาย ข้อความในภาพจึงตรงกับที่ขึ้นจริง ช่องกรอกเรียงแบบใหม่แล้ว Cr ขึ้นก่อน BW กับ Height</p>
+  <ul class="howto">
+    <li>ภาพขนาดจริง กล่องยืดเต็มความสูงให้เห็นข้อความครบ ของจริงสูงไม่เกินจอแล้วเลื่อนดูในกล่อง</li>
+    <li>ข้อความทุกข้อมีเลขอยู่ในตารางท้ายหน้า รวมข้อความที่ขึ้นตอนชี้เมาส์ ซึ่งในภาพมองไม่เห็น</li>
+    <li>อยากเกลาข้อไหน บอกเลขข้อกับคำใหม่ได้เลย</li>
+  </ul>
+
+  <section>
+    <h2>ภาพทุกสภาพ</h2>
+    <div class="grid" id="shots"></div>
+  </section>
+
+  <section>
+    <h2>ข้อความทั้งหมด</h2>
+    <table>
+      <thead><tr><th>เลข</th><th>ข้อความตอนนี้</th><th>ขึ้นที่ไหน</th></tr></thead>
+      <tbody id="texts"></tbody>
+    </table>
+  </section>
+</div>
+
+<script src="/extension/content/fonts.js"></script>
+<script src="/extension/content/calc.js"></script>
+<script src="/extension/content/render.js"></script>
+<script src="/extension/content/box.js"></script>
+<script>
+(async () => {
+'use strict';
+const CrCl = window.CrCl;
+
+// ฟอนต์ของกล่อง ประกาศที่ระดับหน้าเว็บเหมือนที่ส่วนขยายฉีดให้หน้าเว็บจริง
+const fst = document.createElement('style');
+fst.textContent = CrCl.fontCSS((p) => '/extension/' + p);
+document.head.appendChild(fst);
+
+// วางกล่องนิ่ง ๆ เต็มความสูง ไม่มีลำต้น ใช้เฉพาะหน้านี้
+const STATIC_CSS = `
+.dock.static{position:relative;inset:auto;filter:none}
+.dock.static .base,.dock.static .fillet{display:none}
+.dock.static .cx{position:relative;left:auto;top:auto;height:auto;clip-path:none;border-radius:12px;box-shadow:0 0 0 1px #c5ced6,0 6px 16px rgba(16,52,45,.10)}
+.dock.static .cx-body{overflow:visible}
+.pane{position:absolute}
+`;
+const css = await (await fetch('/extension/styles/box.css', { cache: 'no-store' })).text();
+const sheets = [new CSSStyleSheet(), new CSSStyleSheet()];
+sheets[0].replaceSync(css);
+sheets[1].replaceSync(STATIC_CSS);
+
+// ข้อความสองแถบนี้อยู่ใน main.js กับ sidepanel.js (ไม่ได้ส่งออกมาให้หน้านี้เรียก) คัดลอกมาตรงตัว
+const BAR_FLOAT = 'Chrome ไม่ให้เปิดแผงข้างจากปุ่มในกล่อง กดไอคอนคำนวณ CrCl บนแถบเครื่องมือของ Chrome เพื่อเปิดแผงข้าง';
+const BAR_PANEL = 'หน้านี้เป็นหน้าของ Chrome เองหรือ Chrome Web Store กล่องลอยใช้ไม่ได้ เปิดหน้าเว็บที่จะใช้ก่อน แล้วกดปุ่มนี้อีกครั้ง';
+const BAR_ORPHAN = 'ส่วนขยายถูกโหลดใหม่ กล่องนี้บันทึกค่าไม่ได้แล้ว กดไอคอนคำนวณ CrCl เพื่อเปิดกล่องใหม่';
+
+const S = {
+  empty: {},
+  normal: { sex: 'male', age: '65', w: '70', h: '170', scr: '1.2' },
+  under: { sex: 'female', age: '78', w: '41', h: '158', scr: '0.8' },
+  obese: { sex: 'male', age: '55', w: '95', h: '165', scr: '1.1' },
+  short: { sex: 'female', age: '72', w: '52', h: '148', scr: '1.0' },
+  noht: { sex: 'male', age: '60', w: '58', h: '', scr: '1.1' },
+  multi: { sex: 'male', age: '95', w: '50', h: '160', scr: '1.6' },
+  nosex: { sex: '', age: '45', w: '60', h: '165', scr: '0.9' },
+  crerr: { sex: 'female', age: '50', w: '60', h: '160', scr: '45' },
+  units: { sex: 'male', age: '65', w: '154', h: '66.9', scr: '106', wu: 'lb', hu: 'inch', su: 'umol' },
+  low: { sex: 'male', age: '10', w: '10', h: '50', scr: '0.05' },
+  high: { sex: 'male', age: '120', w: '250', h: '250', scr: '40' },
+  crlow: { sex: 'female', age: '40', w: '55', h: '160', scr: '0.3' },
+};
+
+const shots = document.getElementById('shots');
+let no = 0;
+function figure(title, sub, cls) {
+  const fig = document.createElement('figure');
+  fig.className = 'shot';
+  fig.innerHTML = `<figcaption><b>${++no}</b>${title}<span>${sub || ''}</span></figcaption><div class="host ${cls || ''}" inert></div>`;
+  shots.appendChild(fig);
+  return fig.querySelector('.host');
+}
+function mount(host, o) {
+  const root = host.attachShadow({ mode: 'open' });
+  root.adoptedStyleSheets = sheets;
+  return new CrCl.Box(Object.assign({ root, mode: 'float', layout: 'narrow', side: 'right', top: 96, canPanel: true }, o));
+}
+/** กล่องนิ่ง เต็มความสูง */
+function still(title, sub, state, layout) {
+  const host = figure(title, sub, layout === 'wide' ? 'wide' : '');
+  const box = mount(host, { state, layout: layout || 'narrow' });
+  box.dock.classList.add('static');
+  box.show();
+  return box;
+}
+/** กล่องในกรอบที่มีขอบจอจำลอง */
+function framed(title, sub, w, h, o, after) {
+  const host = figure(title, sub);
+  host.classList.add('frame');
+  host.style.width = w + 'px';
+  host.style.height = h + 'px';
+  const inner = document.createElement('div');
+  inner.className = 'host';
+  host.appendChild(inner);
+  const box = mount(inner, o);
+  after(box);
+  return box;
+}
+
+still('เปิดครั้งแรก ยังไม่กรอก', '', S.empty);
+still('ปกติ', 'ชาย 65 ปี 70 kg 170 cm Cr 1.2', S.normal);
+still('ผอม ใช้ Actual BW', 'หญิง 78 ปี 41 kg', S.under);
+still('อ้วน ใช้ Adjusted BW', 'ชาย 55 ปี 95 kg 165 cm', S.obese);
+still('เตี้ยกว่า 152 cm', 'หญิง 72 ปี 148 cm', S.short);
+still('ไม่กรอกส่วนสูง', '', S.noht);
+still('เตือนหลายอย่าง', 'อายุ 95 ปี Cr สูงกว่าค่าอ้างอิง', S.multi);
+still('ยังไม่เลือกเพศ', '', S.nosex);
+still('Cr เกินขอบเขต', 'Cr 45 mg/dL', S.crerr);
+still('Cr ต่ำกว่าค่าอ้างอิง', 'หญิง Cr 0.3', S.crlow);
+still('ทุกช่องต่ำเกินขอบเขต', '', S.low);
+still('ทุกช่องสูงเกินขอบเขต', '', S.high);
+still('หน่วย lb in μmol/L', '', S.units);
+still('แผงกว้าง', 'กรณีปกติ', S.normal, 'wide');
+{
+  const box = still('กดปุ่มเลือกขอบ', 'แผงเลือกขอบเปิดอยู่', S.normal);
+  box.edgePop(true);
+  // ภาพนิ่ง กดที่อื่นในหน้านี้แล้วแผงต้องไม่ปิด
+  window.removeEventListener('pointerdown', box.offPop, true);
+}
+{
+  const box = still('แถบบอกวิธีเปิดแผงข้าง', 'ขึ้นเมื่อ Chrome ไม่ยอมเปิดแผงข้าง', S.normal);
+  box.showBar(BAR_FLOAT, 'ยกเลิก');
+}
+framed('แถบตอนพับ ขอบขวา', 'มีค่า CrCl', 200, 190, { state: S.normal, side: 'right', top: 50 }, (b) => b.show({ folded: true }));
+framed('แถบตอนพับ ยังไม่มีค่า', '', 200, 190, { state: S.empty, side: 'right', top: 50 }, (b) => b.show({ folded: true }));
+framed('แถบตอนพับ ขอบบน', 'ขอบบนกับล่างเป็นแถบแนวนอน', 330, 100, { state: S.normal, side: 'top', top: 60 }, (b) => b.show({ folded: true }));
+framed('แผงข้างของ Chrome', 'มีแถบบอกว่าใช้กล่องลอยไม่ได้', 360, 640, { state: S.normal, mode: 'panel' }, (b) => b.showBar(BAR_PANEL, 'ปิดข้อความ'));
+{
+  const box = still('แถบบอกว่าส่วนขยายถูกโหลดใหม่', 'กล่องเก่าที่ค้างบนหน้าเว็บ หลังรีโหลดส่วนขยาย', S.normal);
+  box.showBar(BAR_ORPHAN, 'ปิดข้อความ');
+}
+
+/* ══════════ ตารางข้อความ ══════════ */
+
+const T = [
+  ['หัวกล่อง ปุ่ม และแถบตอนพับ'],
+  ['คำนวณ CrCl', 'ชื่อบนหัวกล่อง ทุกภาพ'],
+  ['ตอนนี้เป็นกล่องลอยบนหน้าเว็บ กดเพื่อย้ายไปแผงข้างของ Chrome', 'ชี้เมาส์ที่ปุ่มที่ 1 บนหัวกล่อง'],
+  ['ตอนนี้อยู่ในแผงข้างของ Chrome กดเพื่อกลับเป็นกล่องลอยบนหน้าเว็บ', 'ชี้เมาส์ที่ปุ่มบนหัวแผงข้าง (ภาพ 20)'],
+  ['ตอนนี้เป็นแผงแคบ กดเพื่อสลับเป็นแผงกว้าง', 'ชี้เมาส์ที่ปุ่มที่ 2'],
+  ['ตอนนี้เป็นแผงกว้าง กดเพื่อสลับเป็นแผงแคบ', 'ชี้เมาส์ที่ปุ่มที่ 2 ตอนเป็นแผงกว้าง (ภาพ 14)'],
+  ['ตอนนี้ติดขอบขวา กดเพื่อเลือกขอบที่จะย้ายไป', 'ชื่อปุ่มที่ 3 สำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ (ชี้ปุ่มนี้แล้วแผงเลือกขอบขึ้นแทน) · คำว่าขอบขวาเปลี่ยนตามขอบที่ติดอยู่'],
+  ['ย้ายกล่องไปติดขอบ', 'หัวแผงเลือกขอบ (ภาพ 15)'],
+  ['ย้ายไปติดขอบบน · ขอบล่าง · ขอบซ้าย · ขอบขวา', 'ชี้เมาส์ที่ขอบในแผงเลือกขอบ'],
+  ['ติดขอบขวาอยู่ตอนนี้', 'ชี้เมาส์ที่ขอบที่ติดอยู่ในแผงเลือกขอบ'],
+  ['เลือกขอบที่จะย้ายกล่องไปติด', 'ชื่อแผงเลือกขอบสำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ'],
+  ['พับเก็บไว้ที่ขอบจอ', 'ชี้เมาส์ที่ปุ่มที่ 4'],
+  ['ปิดกล่อง ค่าที่กรอกยังอยู่', 'ชี้เมาส์ที่ปุ่มที่ 5'],
+  ['พับกล่องเก็บไว้ที่ขอบจอ', 'ชี้เมาส์ที่ลำต้นตอนกล่องกาง'],
+  ['กางกล่องคำนวณ CrCl', 'ชี้เมาส์ที่แถบตอนพับ'],
+  ['CrCl · ค่า · mL/min', 'ในแถบตอนพับ (ภาพ 17 18 19)'],
+  ['กล่องคำนวณ CrCl', 'ชื่อกล่องสำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ'],
+  ['ช่องกรอก'],
+  ['เพศกำเนิด', 'ป้ายช่องเพศ'],
+  ['ชาย · หญิง', 'ปุ่มเพศ'],
+  ['อายุ (ปี)', 'ป้ายช่องอายุ'],
+  ['Cr · BW · Height', 'ป้ายช่อง'],
+  ['เช่น 45', 'ช่องอายุตอนว่าง (ภาพ 1)'],
+  ['เช่น 1.0 · เช่น 88', 'ช่อง Cr ตอนว่าง หน่วย mg/dL · μmol/L'],
+  ['เช่น 60 · เช่น 132', 'ช่อง BW ตอนว่าง หน่วย kg · lb'],
+  ['เช่น 165 · เช่น 65', 'ช่อง Height ตอนว่าง หน่วย cm · in'],
+  ['หน่วยตอนนี้ kg กดเพื่อสลับเป็น lb', 'ชี้เมาส์ที่ปุ่มหน่วย · หน่วยเปลี่ยนตามช่อง'],
+  ['กรุณาเลือกเพศ', 'ใต้ปุ่มเพศ ตอนกรอกช่องอื่นแล้วแต่ยังไม่เลือกเพศ (ภาพ 8)'],
+  ['CrCl อาจไม่แม่นยำ สูตรนี้ใช้กับอายุ 18–92 ปี', 'ใต้ช่องอายุ สีส้ม (ภาพ 7)'],
+  ['อายุต่ำเกินไป (ต่ำสุด 15 ปี)', 'ใต้ช่องอายุ สีแดง (ภาพ 11)'],
+  ['อายุสูงเกินไป (สูงสุด 110 ปี)', 'ใต้ช่องอายุ สีแดง (ภาพ 12)'],
+  ['ค่า Cr ต่ำเกินไป (ต่ำสุด 0.1 mg/dL) · (ต่ำสุด 9 μmol/L)', 'ใต้ช่อง Cr สีแดง (ภาพ 11)'],
+  ['ค่า Cr สูงเกินไป (สูงสุด 30 mg/dL) · (สูงสุด 2652 μmol/L)', 'ใต้ช่อง Cr สีแดง (ภาพ 9 12)'],
+  ['น้ำหนักต่ำเกินไป (ต่ำสุด 20 kg) · (ต่ำสุด 44 lb)', 'ใต้ช่อง BW สีแดง (ภาพ 11)'],
+  ['น้ำหนักสูงเกินไป (สูงสุด 200 kg) · (สูงสุด 441 lb)', 'ใต้ช่อง BW สีแดง (ภาพ 12)'],
+  ['ส่วนสูงต่ำเกินไป (ต่ำสุด 100 cm) · (ต่ำสุด 40 in)', 'ใต้ช่อง Height สีแดง (ภาพ 11)'],
+  ['ส่วนสูงสูงเกินไป (สูงสุด 230 cm) · (สูงสุด 91 in)', 'ใต้ช่อง Height สีแดง (ภาพ 12)'],
+  ['ค่าอ้างอิง Cr ชาย 0.7–1.2 และหญิง 0.5–1.0 mg/dL', 'ใต้ช่อง Cr ตอนยังไม่เลือกเพศ (ภาพ 1 8)'],
+  ['ค่าอ้างอิง Cr ชาย 0.7–1.2 mg/dL · หญิง 0.5–1.0 mg/dL', 'ใต้ช่อง Cr ตอนเลือกเพศแล้ว ค่าปกติ (ภาพ 2)'],
+  ['Cr ต่ำกว่าค่าอ้างอิง (หญิง 0.5–1.0 mg/dL) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง', 'ใต้ช่อง Cr สีส้ม (ภาพ 10)'],
+  ['Cr สูงกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด', 'ใต้ช่อง Cr สีเหลืองเข้ม (ภาพ 7)'],
+  ['ส่วน CrCl'],
+  ['Creatinine Clearance (CrCl)', 'หัวข้อ'],
+  ['ใช้ปรับขนาดยา', 'ป้ายข้างหัวข้อ'],
+  ['สูตร Cockcroft-Gault', 'ข้างตัวเลข'],
+  ['ยังคำนวณไม่ได้', 'แทนตัวเลขตอนกรอกไม่ครบ (ภาพ 1 8)'],
+  ['ยังไม่ได้กรอก เพศกำเนิด อายุ BW และ Cr', 'ใต้คำว่ายังคำนวณไม่ได้ · รายการเปลี่ยนตามช่องที่ขาด (ภาพ 1)'],
+  ['ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ', 'กล่องแดงตอนมีช่องเกินขอบเขต (ภาพ 9 11 12)'],
+  ['Normal ใช้ Ideal BW 65.9 kg · เพราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW', 'กล่องเขียว (ภาพ 2)'],
+  ['Underweight ใช้ Actual BW 41.0 kg · เพราะ BW น้อยกว่า IBW', 'กล่องเหลือง (ภาพ 3)'],
+  ['มวลกล้ามเนื้อน้อย ค่า CrCl อาจสูงกว่าความเป็นจริง', 'บรรทัดเตือนในกล่องเหลือง (ภาพ 3)'],
+  ['Obese ใช้ Adjusted BW 74.8 kg · เพราะ BW มากกว่า 1.2 เท่าของ IBW', 'กล่องแดงอ่อน (ภาพ 4)'],
+  ['ใช้ Actual BW 52.0 kg · เพราะสูงต่ำกว่า 152 cm', 'กล่องส้ม (ภาพ 5)'],
+  ['อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง', 'บรรทัดเตือนในกล่องส้ม (ภาพ 5)'],
+  ['ใช้ Actual BW 58.0 kg · เพราะยังไม่ได้กรอกส่วนสูง', 'กล่องเหลือง (ภาพ 6)'],
+  ['กรอกส่วนสูงเพื่อความแม่นยำ', 'บรรทัดเตือนในกล่องเหลือง (ภาพ 6)'],
+  ['อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ', 'บรรทัดเตือนในกล่องน้ำหนัก (ภาพ 7)'],
+  ['BW (kg) · CrCl (mL/min)', 'หัวตาราง'],
+  ['Actual BW · Ideal BW · Adjusted BW', 'แถวตาราง'],
+  ['กรอกส่วนสูง', 'ในตาราง ตอนไม่กรอกส่วนสูง (ภาพ 6)'],
+  ['N/A', 'ในตาราง ตอนเตี้ยกว่า 152 cm (ภาพ 5)'],
+  ['IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', 'ใต้ตาราง'],
+  ['ใช้ค่านี้ · ชนิดน้ำหนัก', 'สำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ'],
+  ['ส่วน eGFR'],
+  ['eGFR', 'หัวข้อ'],
+  ['mL/min/1.73m²', 'หน่วยข้างตัวเลข'],
+  ['CKD Stage 1 · Stage 2 · Stage 3a · Stage 3b · Stage 4 · Stage 5 (ESRD)', 'ระยะ CKD ข้างตัวเลข'],
+  ['กรุณากรอก เพศกำเนิด อายุ และ Cr', 'ตอนกรอกไม่ครบ (ภาพ 1 8)'],
+  ['คำนวณไม่ได้ เพราะค่า Cr หรืออายุเกินขอบเขต', 'ตอนช่องเกินขอบเขต (ภาพ 9 11 12)'],
+  ['สูตร CKD-EPI 2021', 'ใต้ตัวเลข'],
+  ['แสดงผลเท่านั้น', 'ป้ายใต้ eGFR กับ BMI'],
+  ['ส่วน BMI'],
+  ['BMI', 'หัวข้อ'],
+  ['kg/m²', 'หน่วยข้างตัวเลข'],
+  ['Underweight (ผอม) · Normal Weight (ปกติ) · Overweight (น้ำหนักเกิน) · Obese I (อ้วนระดับ 1) · Obese II (อ้วนระดับ 2) · Obese III (อ้วนระดับ 3)', 'ระดับ BMI ข้างตัวเลข'],
+  ['กรุณากรอก BW และ Height', 'ตอนกรอกไม่ครบ (ภาพ 1 6)'],
+  ['คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต', 'ตอนช่องเกินขอบเขต (ภาพ 11 12)'],
+  ['เกณฑ์ WHO Asia-Pacific', 'ใต้ตัวเลข'],
+  ['ท้ายกล่อง'],
+  ['เปลี่ยนผู้ป่วย กดล้างค่าก่อนทุกครั้ง', 'ท้ายกล่อง'],
+  ['ล้างค่า', 'ปุ่มสีแดงอิฐ'],
+  ['ข้อความอื่น'],
+  [BAR_FLOAT, 'แถบสีครีมในกล่องลอย (ภาพ 16)'],
+  ['ยกเลิก', 'ปุ่มบนแถบนั้น'],
+  [BAR_PANEL, 'แถบในแผงข้าง (ภาพ 20)'],
+  ['ปิดข้อความ', 'ปุ่มบนแถบนั้น'],
+  [BAR_ORPHAN, 'แถบสีครีมในกล่องเก่าที่ค้างบนหน้าเว็บ ขึ้นตอนกรอกค่าหลังรีโหลดส่วนขยาย (ภาพ 21)'],
+  ['ปิดข้อความ', 'ปุ่มบนแถบนั้น'],
+  ['คำนวณ CrCl ใช้กับหน้านี้ไม่ได้ หน้าของ Chrome เองและ Chrome Web Store ไม่อนุญาตให้ส่วนขยายทำงาน', 'ชี้เมาส์ที่ไอคอนส่วนขยายตอนขึ้นป้าย !'],
+  ['คำนวณ CrCl', 'ชี้เมาส์ที่ไอคอนส่วนขยายตอนปกติ · ชื่อในหน้า chrome://extensions'],
+  ['กล่องคำนวณ CrCl eGFR และ BMI ติดขอบจอ กรอกค่าเอง คำนวณในเครื่อง ไม่ส่งข้อมูลออกนอกเครื่อง', 'คำอธิบายในหน้า chrome://extensions'],
+];
+const tbody = document.getElementById('texts');
+let n = 0;
+for (const row of T) {
+  const tr = document.createElement('tr');
+  if (row.length === 1) {
+    tr.className = 'grp';
+    tr.innerHTML = '<td colspan="3"></td>';
+    tr.firstChild.textContent = row[0];
+  } else {
+    tr.innerHTML = '<td class="n"></td><td class="t"></td><td class="w"></td>';
+    tr.children[0].textContent = ++n;
+    tr.children[1].textContent = row[0];
+    tr.children[2].textContent = row[1];
+  }
+  tbody.appendChild(tr);
+}
+})();
+</script>
+</body>
+</html>
