@@ -21,6 +21,8 @@
   --brick:#c2543c; --brick-bg:#fdf1ed; --brick-line:rgba(194,84,60,.32);
   --r:12px;
   --crcl-lt30:#c2410c; --crcl-ge30:#ffa000;
+  /* บั้งคู่สูงต่ำในช่อง sCr สีตามป้าย H L ของเว็บ HCV (พี่กันสั่ง 5 ต.ค. 2569) */
+  --flag-hi:#dc2626; --flag-lo:#ea580c;
 }
 *,*::before,*::after{box-sizing:border-box}
 
@@ -164,6 +166,13 @@
 .cx-field .cx-unit{width:calc(50% + .5px)}
 /* ค่าที่กรอกสีเขียวน้ำทะเล สีเดียวกับลูกศรบนปุ่มสลับหน่วย (พี่กันสั่ง "ตามรูป ตอนกรอก ขอสิ่งที่กรอกเป็นสีเขียว เหมือนสี icon สลับหน่วยค่าเเลป" 5 ต.ค. 2569) */
 .cx-in{color:var(--accent)}
+/* บั้งคู่ต่อท้ายตัวเลข sCr · สำเนาตัวเลขใช้ฟอนต์และระยะซ้ายเดียวกับช่อง มองไม่เห็น ตัวบั้งจึงอยู่ถัดตัวเลข 4 จุด (พี่กันเลือกแบบ 7-7 ข้อ 7 กับ 8 5 ต.ค. 2569) */
+.cx-field[data-f="scr"]{position:relative}
+.cx-mirror{position:absolute;top:0;bottom:0;left:0;display:flex;align-items:center;padding-left:calc(25% - 11.6px);font:600 15px/1 var(--font-en),var(--font-sarabun),sans-serif;white-space:pre;pointer-events:none}
+.cx-mirror-t{visibility:hidden}
+.cx-flag{display:flex;margin-left:4px}
+.cx-mirror.hi .cx-flag{color:var(--flag-hi)}
+.cx-mirror.lo .cx-flag{color:var(--flag-lo)}
 .cx-in::placeholder{color:var(--ink-4);font-size:13px;font-weight:400;opacity:1}
 /* ช่องอายุมีกล่องหน่วย "ปี" กดไม่ได้ ทุกช่องกว้างเท่ากัน คำว่า "เช่น" จึงตรงแนวกันทุกช่อง (พี่กันสั่ง "เห็นคำว่า เช่น ไหม เอาให้มันตรงกัน" แล้วเลือก "ชอบอันนี้" 4 ต.ค. 2569) */
 /* กล่อง ปี ไม่มีลูกศร เว้นขวาเท่าลูกศร 12 กับช่องห่าง 4 ตัวหนังสือจึงอยู่กึ่งกลางแนวเดียวกับตัวหน่วยในปุ่มที่มีลูกศร */
@@ -183,7 +192,8 @@
 .cx-seg button:hover{background-color:var(--accent-soft);color:var(--accent-ink)}
 .cx-seg button[aria-pressed="true"]{background-color:var(--accent-soft-2);color:var(--accent-ink);font-weight:700}
 .cx-seg button[aria-pressed="true"]:hover{background-color:#bde0d6}
-.cx-msg{display:flex;align-items:flex-start;gap:5px;margin-top:3px;color:var(--ink-3);font-size:12px;line-height:1.45}
+/* ข้อความใต้ช่องกรอกทุกข้อความ 10.5 เท่าหมายเหตุใต้ตัวเลข (พี่กันสั่ง "ปรับให้หมายเหตุพวกนี้ 10.5 ทั้งหมด ทั้งหมดเลย เเก้เลย" 5 ต.ค. 2569 · เดิม 12) */
+.cx-msg{display:flex;align-items:flex-start;gap:5px;margin-top:3px;color:var(--ink-3);font-size:10.5px;line-height:1.45}
 .cx-msg[hidden]{display:none}
 .cx-msg svg{flex:none;margin-top:2px}
 .cx-msg.err{color:var(--danger-ink)}
@@ -192,6 +202,10 @@
 /* ค่าอ้างอิง sCr ตอนเลือกเพศแล้ว เพศที่เลือกตัวเข้ม อีกเพศจาง (พี่กันเลือก 4 ต.ค. 2569) */
 .cx-msg .cx-ref{color:#b3bfbb}
 .cx-msg .cx-ref.on{color:var(--ink-2);font-weight:700}
+/* High Low ข้างช่วงค่าอ้างอิง สีเดียวกับบั้งคู่ · บีบช่องว่างระหว่างคำ 1 จุดให้อยู่บรรทัดเดียว ตัวอักษรเท่าเดิม (พี่กันเลือก 5 ต.ค. 2569) */
+.cx-msg .cx-ref .cx-hl.hi{color:var(--flag-hi);font-weight:700}
+.cx-msg .cx-ref .cx-hl.lo{color:var(--flag-lo);font-weight:700}
+.cx-tight{word-spacing:-1px}
 
 /* ผลลัพธ์ */
 .cx-sec{margin-top:10px;padding-top:8px;border-top:1px solid var(--line-2)}
@@ -208,8 +222,20 @@
 .cx-big span{color:var(--ink-3);font:500 13px/1 var(--font-en),sans-serif}
 .cx-big em{margin-left:auto;color:var(--ink-3);font:500 11px/1 var(--font-en),var(--font-sarabun),sans-serif;font-style:normal}
 .cx-big .cx-none{color:var(--ink-4);font:600 15px/1.4 var(--font-sarabun),sans-serif}
-.cx-hint{margin:3px 0 0;color:var(--ink-3);font-size:12px}
+/* ข้อความแทนตัวเลขตอนยังคำนวณไม่ได้ (กรุณากรอก · คำนวณไม่ได้ เพราะ) 10.5 เท่าข้อความใต้ช่องกรอก · กล่องแดง ข้อมูลบางช่องไม่ถูกต้อง ไม่เปลี่ยน
+   (พี่กันสั่ง "ปรับเป็น 10.5 ทั้งหมดเลย ยกเว้น ภาพ 11 ตามรูป เอาเท่าเดิม" 5 ต.ค. 2569 · เดิม 12) */
+.cx-hint{margin:3px 0 0;color:var(--ink-3);font-size:10.5px}
 .cx-note{margin:4px 0 0;color:var(--ink-3);font-size:11px;line-height:1.45}
+/* บรรทัดหมายเหตุใต้ตารางน้ำหนัก ขนาด 8.5 ให้อยู่บรรทัดเดียว (พี่กันเลือกแบบ 3-7 ข้อ 4 "เอาอันนี้" 5 ต.ค. 2569 · ขนาด 10.5 ยังยาวเกินช่อง)
+   ชื่อคลาส cx-dvpop ห้ามใช้ cx-pop เพราะซ้ำกับแผงเลือกขอบ · กล่องสูตร Devine ขึ้นเหนือบรรทัดตอนชี้หรือกด Tab มาที่คำ กว้างเต็มส่วน CrCl */
+.cx-crcl .cx-note{position:relative;font-size:8.5px}
+.cx-dv{border-bottom:1px dotted currentColor;cursor:help;outline:none}
+.cx-dv:hover,.cx-dv:focus-visible{color:var(--accent-ink)}
+.cx-dv:focus-visible{border-radius:2px;box-shadow:0 0 0 2px var(--accent)}
+.cx-dvpop{display:none;position:absolute;left:0;right:0;bottom:calc(100% + 4px);z-index:5;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--surface);box-shadow:0 4px 14px rgba(31,45,42,.14);color:var(--ink-2);font:500 10.5px/1.5 var(--font-en),var(--font-sarabun),sans-serif;white-space:normal;cursor:auto}
+.cx-dvpop>span{display:block}
+.cx-dvpop .cx-dvpop-t{margin-bottom:2px;color:var(--ink);font-weight:700}
+.cx-dv:hover .cx-dvpop,.cx-dv:focus .cx-dvpop{display:block}
 .cx-alert{display:flex;align-items:flex-start;gap:6px;margin-top:6px;padding:7px 10px;border-radius:8px;font-size:12.5px}
 .cx-alert svg{flex:none;margin-top:2px}
 .cx-alert.err{border:1px solid var(--danger-line);background:var(--danger-bg);color:var(--danger-ink)}
@@ -218,8 +244,12 @@
 .cx-top .cx-big{flex:none;margin-top:0}
 /* ช่องตัวเลข CrCl กว้างเท่าเลข 3 หลัก (120.5) เสมอ กล่องทางขวาไม่ขยับตามจำนวนหลัก · ตัวเลขชิดซ้าย (พี่กันสั่ง "ให้ชิดขอบซ้าย เเม้จะกันที่ไว้ก็ตาม" 5 ต.ค. 2569)
    (พี่กันสั่ง "เเต่อย่าลืมล็อกขนาดของค่า CrCl ไว้นะ เพราะมันนเป็นเลขสามตำแหน่งได้ เช่น 120.5 ml/min" 5 ต.ค. 2569) */
-.cx-top .cx-big b{display:inline-block;min-width:5ch;text-align:left}
+/* หน่วยติดตัวเลขเสมอ ที่ที่กันไว้ไปอยู่หลังหน่วยแทน (พี่กันสั่ง "อัน 57.2 เอา ml ติดกับเลขหน่อย ไปเว้นไว้หลังหน่วยจบ" 5 ต.ค. 2569)
+   กว้างคงที่ 137 = เลข 5 ตัวที่ 28 จุด (84) + ช่องไฟ 6 + mL/min (47) · เดิมกันที่ไว้ที่ตัวเลข หน่วยเลยห่างจากเลข 4 หลัก */
+.cx-top .cx-big{min-width:137px}
 .cx-top .cx-basis{flex:1 1 auto;min-width:0;margin-top:0;padding:5px 6px;font-size:11.5px}
+/* กล่อง Obese ใช้ Adjusted BW ยาวกว่าใช้ Ideal BW ขนาด 11.5 ตก 2 บรรทัด จึงลดเฉพาะกล่องนี้ (พี่กันเลือกแบบ 4-1 ข้อ 7 5 ต.ค. 2569) */
+.cx-top .cx-basis.obese{font-size:10.5px}
 /* กล่องทางขวาตัวหนังสือ 11.5 ช่องไฟ 6 ให้ "ใช้ Ideal BW 65.9 kg" อยู่บรรทัดเดียว · ตัวเลข CrCl ไม่ลดขนาด
    (พี่กันเลือกแบบ 2.1-1 ข้อ 4 "เอาอันนี้ เราจะไม่ลดขนาดค่า Crcl" 5 ต.ค. 2569) */
 .cx-basis{margin-top:6px;padding:5px 8px;border:1px solid;border-radius:8px;font-size:12.5px;line-height:1.45}
@@ -236,17 +266,34 @@
 /* หมายเหตุใต้แถวตัวเลข CrCl ตัวหนังสือ 10.5 จุดทุกบรรทัด ให้อยู่บรรทัดเดียวในแผงแคบ
    (พี่กันสั่ง "ลดขนาดฟอนต์ ให้มันเหลือ 1 บรรทัด" ได้ 11 · คำเตือนอายุ "ลดด้วยเลย" ได้ 10.5 · แล้ว "ลดเป็น 10.5 ให้เท่ากัน" 5 ต.ค. 2569) */
 .cx-top ~ .cx-warnline{font-size:10.5px}
-.cx-bw{width:100%;margin-top:6px;border-collapse:collapse;table-layout:fixed;font-size:12px}
+/* คำขอให้กรอกส่วนสูง อยู่ใต้กล่องในคอลัมน์ขวา ตัวเลขจึงอยู่กึ่งกลางของทั้งสองอย่าง (พี่กันสั่ง 5 ต.ค. 2569)
+   ไม่มีไอคอน เริ่มตรงกับคำว่าใช้ในกล่อง = เส้น 1 + ขอบใน 6 · ขนาด 10.5 เท่าหมายเหตุอื่น */
+.cx-rcol{flex:1 1 auto;min-width:0}
+.cx-rcol .cx-warnline.nh{margin-top:3px;padding-left:7px;font-size:10.5px}
+/* ตารางน้ำหนัก (พี่กันเลือก 5 ต.ค. 2569 "กรอบแบบรูปแรก · ติ๊กแบบรูป 2 เเต่ต้องเว้นระยะให้เครื่องหมายด้วย · รูปสาม เเถวอื่นจางด้วย")
+   กรอบมุมมน หัวคอลัมน์พื้นเขียว เส้นแบ่งคอลัมน์ · แถวที่ใช้มีเครื่องหมายถูก พื้นเขียวอ่อน · แถวอื่นตัวหนังสือจาง
+   แบบ separate เพื่อให้กรอบมุมมนได้ ตารางนี้ไม่มีหัวตรึง จึงใช้ overflow:hidden ตัดมุมได้ */
+.cx-bw{width:100%;margin-top:6px;border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:8px;overflow:hidden;table-layout:fixed;font-size:12px}
 .cx-bw th,.cx-bw td{padding:3px 7px;border-bottom:1px solid var(--line-2);white-space:nowrap}
-.cx-bw thead th{border-bottom:1px solid var(--line);color:var(--ink-3);font:600 11px/1.3 var(--font-en),var(--font-sarabun),sans-serif;text-align:right}
-.cx-bw thead th:nth-child(1){width:36%}
-.cx-bw thead th:nth-child(2){width:26%}
-.cx-bw thead th:nth-child(3){width:38%}
-.cx-bw tbody th{color:var(--ink-2);font:600 12px/1.3 var(--font-en),sans-serif;text-align:left}
-.cx-bw td{color:var(--ink-2);font:500 12.5px/1.3 var(--font-en),sans-serif;text-align:right}
+.cx-bw th:not(:last-child),.cx-bw td:not(:last-child){border-right:1px solid var(--line-2)}
+.cx-bw tbody tr:last-child th,.cx-bw tbody tr:last-child td{border-bottom:0}
+/* หัวคอลัมน์พื้นเทาอ่อน ตัวหนังสือเทา จางเท่าแบบตารางในกรอบพื้นเทาอ่อน (พี่กันสั่ง "ขอหัวคอลัมจางเท่านี้" 5 ต.ค. 2569 · เดิมพื้นเขียว ตัวหนังสือเขียวเข้ม) */
+.cx-bw thead th{border-bottom:1px solid var(--line);background:var(--surface-2);color:var(--ink-3);font:600 11px/1.3 var(--font-en),var(--font-sarabun),sans-serif;text-align:center}
+/* เส้นแบ่งคอลัมน์ BW กับ CrCl ตรงกับเส้นแบ่งปุ่มชายหญิง (พี่กันสั่ง 5 ต.ค. 2569)
+   ช่องกรอกเริ่มหลังป้าย 76 + ช่องไฟ 8 = 84 จุด ตารางกับช่องกรอกจบขอบขวาเดียวกัน ปุ่มหญิงจึงกว้างครึ่งหนึ่งของ (กว้างตาราง - 84)
+   คอลัมน์ CrCl กว้างเท่าปุ่มหญิง · คอลัมน์ BW คงที่ · คอลัมน์ชื่อแถวได้ที่เหลือ
+   ตารางไม่รับ calc ที่ผสม % กับ px จึงวัดจากความกว้างส่วน CrCl ด้วยหน่วย cqw (Chrome 105 ขึ้นไป) · โครมเก่ากว่านั้นใช้ % ที่ตรงพอดีกับกล่องแผงแคบ 320
+   เส้นของปุ่มหญิงอยู่ทางซ้ายของปุ่ม เส้นของตารางอยู่ทางขวาของคอลัมน์ BW คอลัมน์ CrCl จึงแคบกว่าปุ่มหญิง 1 จุด ให้สองเส้นทับกันพอดี
+   แผงกว้างใช้สูตรเดียวกัน (พี่กันสั่ง "แก้เลย" 5 ต.ค. 2569) · ปุ่มชายหญิงอยู่คนละคอลัมน์กับตาราง เส้นจึงไม่ได้อยู่แนวเดียวกัน แต่สัดส่วนคอลัมน์เหมือนแผงแคบ */
+.cx-crcl{container-type:inline-size}
+.cx-bw thead th:nth-child(2){width:73px}
+.cx-bw thead th:nth-child(3){width:35.54%;width:calc(50cqw - 43.5px)}
+.cx-bw tbody th{color:var(--ink-4);font:600 12px/1.3 var(--font-en),sans-serif;text-align:left}
+/* ตัวเลขในตารางกึ่งกลางช่อง (พี่กันสั่ง "ลองตัวเลข กึ่งกลาง" 5 ต.ค. 2569 · เดิมชิดขวา · หัวคอลัมน์ยังชิดขวา) */
+.cx-bw td{color:var(--ink-4);font:500 12.5px/1.3 var(--font-en),sans-serif;text-align:center}
 .cx-bw td.cx-na{color:var(--ink-4);font-family:var(--font-en),var(--font-sarabun),sans-serif;font-weight:500;text-align:center;white-space:normal}
 .cx-bw tr.on th,.cx-bw tr.on td{background:var(--accent-soft);color:var(--ink);font-weight:700}
-.cx-bw tr.on th{box-shadow:inset 3px 0 0 var(--accent)}
+.cx-ck{display:inline-block;width:15px;color:var(--accent);vertical-align:-1px}
 .cx-kv{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:0 10px;margin-top:3px}
 .cx-val{color:var(--ink);font:700 17px/1.25 var(--font-en),sans-serif}
 .cx-val small{margin-left:4px;color:var(--ink-3);font:500 11.5px/1 var(--font-en),sans-serif}

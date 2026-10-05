@@ -15,6 +15,8 @@
   const sv = (s, body, sw = 2.2) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${sw}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${body}</svg>`;
   const ICON = {
     grip: '<svg width="10" height="16" viewBox="0 0 10 16" fill="currentColor" aria-hidden="true" focusable="false"><circle cx="2.5" cy="2.5" r="1.5"/><circle cx="7.5" cy="2.5" r="1.5"/><circle cx="2.5" cy="8" r="1.5"/><circle cx="7.5" cy="8" r="1.5"/><circle cx="2.5" cy="13.5" r="1.5"/><circle cx="7.5" cy="13.5" r="1.5"/></svg>',
+    // เครื่องหมายถูกหน้าแถวที่ใช้ในตารางน้ำหนัก (พี่กันเลือก 5 ต.ค. 2569)
+    check: sv(11, '<path d="M5 12.5l4.5 4.5L19 7.5"/>', 3.2),
     // ไอคอนสลับแบบ วาด "แบบที่เป็นอยู่ตอนนี้" ตามกฎไอคอนสลับสถานะ
     narrow: sv(18, '<rect x="7" y="3.5" width="10" height="17" rx="2"/><path d="M10 8.5h4"/><path d="M10 12h4"/><path d="M10 15.5h4"/>', 1.9),
     wide: sv(18, '<rect x="2.5" y="5.5" width="19" height="13" rx="2"/><path d="M11 5.5v13"/><path d="M5 9.5h3.5"/><path d="M5 13h3.5"/><path d="M13.8 9.5h5"/><path d="M13.8 13h5"/>', 1.9),
@@ -41,6 +43,9 @@
     x: sv(13, '<path d="M6 6l12 12"/><path d="M18 6L6 18"/>', 2.6),
     alert: sv(15, '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.3v.2"/>'),
     alertSm: sv(13, '<path d="M12 3.5l9 16H3z"/><path d="M12 10v4"/><path d="M12 17.3v.2"/>', 2.4),
+    // บั้งคู่ขึ้นลง ต่อท้ายตัวเลขในช่อง sCr ตอนสูงหรือต่ำกว่าค่าอ้างอิง (พี่กันเลือกแบบ 7-7 ข้อ 7 กับ 8 "เอาอันนี้" 5 ต.ค. 2569)
+    flagUp: sv(14, '<path d="M6 12l6-6 6 6"/><path d="M6 18l6-6 6 6"/>', 2.6),
+    flagDown: sv(14, '<path d="M6 6l6 6 6-6"/><path d="M6 12l6 6 6-6"/>', 2.6),
     swapSm: sv(12, '<path d="M4 9h16"/><path d="M15 4l5 5"/><path d="M20 15H4"/><path d="M9 20l-5-5"/>', 2.4),
     calc: '<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><rect x="4" y="2.5" width="16" height="19" rx="3.2" fill="currentColor"/><rect x="7" y="5.5" width="10" height="4.2" rx="1.2" fill="#fff"/><g fill="#fff"><circle cx="8.6" cy="13.3" r="1.25"/><circle cx="12" cy="13.3" r="1.25"/><circle cx="15.4" cy="13.3" r="1.25"/><circle cx="8.6" cy="17.3" r="1.25"/><circle cx="12" cy="17.3" r="1.25"/><circle cx="15.4" cy="17.3" r="1.25"/></g></svg>',
   };
@@ -57,13 +62,25 @@
   function basisHTML(c, r, below) {
     const lines = [];
     let toBelow = false;
-    let cls, main, why;
+    let cls, main, why, ask = '';
     if (c.state === 'noheight') {
-      cls = 'noht'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะยังไม่ได้กรอกส่วนสูง';
-      lines.push('กรอกส่วนสูงเพื่อความแม่นยำ');
+      // ตัดบรรทัดเหตุผล คำขอให้กรอกไปอยู่ใต้แถวตัวเลข ไม่มีไอคอน เพราะเป็นคำขอ ไม่ใช่คำเตือน · เริ่มตรงกับคำว่าใช้ในกล่อง (box.css .nh)
+      // (พี่กันเลือกแบบ 6-1 ข้อ 7 "เอา 7 เเละขยับ กรุณา... ไปฝั่งขวา ให้ตรงกัล ใช้ actual" 5 ต.ค. 2569 · เดิม เพราะยังไม่ได้กรอกส่วนสูง กับ กรอกส่วนสูงเพื่อความแม่นยำ อยู่ในกล่อง)
+      cls = 'noht'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = '';
+      // เหลือแค่ กรุณากรอกส่วนสูง ให้อยู่บรรทัดเดียวในแผงแคบ (พี่กันสั่ง "กรุณากรอกส่วนสูง เอาเเค่นี้" 5 ต.ค. 2569)
+      // คำขออยู่ใต้กล่องในคอลัมน์ขวา ตัวเลข CrCl จึงอยู่กึ่งกลางความสูงของกล่องกับคำขอรวมกัน
+      // (พี่กันสั่ง "เอา 58.6 ไปอยู่ตรงหลาง ตอนนี้มันอยู่บนน่ะ" 5 ต.ค. 2569 · เดิมคำขออยู่ใต้แถวตัวเลข ตัวเลขกึ่งกลางเฉพาะกล่อง)
+      ask = 'กรุณากรอกส่วนสูง';
+      toBelow = true;
     } else if (c.kind === 'short') {
-      cls = 'short'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะสูงต่ำกว่า 152 cm';
-      lines.push('อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง');
+      // ตัดบรรทัดเหตุผล คำเตือนสั้นลง ย้ายไปเป็นหมายเหตุใต้แถวตัวเลข ขึ้นต้นด้วย สูงต่ำกว่า 152 cm: แนวเดียวกับผอม
+      // (พี่กันเลือกแบบ 5-1 ข้อ 5 "เอาอันนี้" 5 ต.ค. 2569 · เดิม เพราะสูงต่ำกว่า 152 cm กับ อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง อยู่ในกล่อง)
+      cls = 'short'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = '';
+      // คำนำหน้าใช้คำว่าส่วนสูง แล้วเปลี่ยนต่ำกว่าเป็นเครื่องหมายน้อยกว่า (พี่กันสั่ง "ใช่คำว่า ส่วนสูง" "ต่ำกว่า เป็น <" 5 ต.ค. 2569 · เดิม สูงต่ำกว่า 152 cm:)
+      // ข้อความนี้ลง innerHTML จึงเขียน < เป็น &lt;
+      // ตัดคำว่ามีภาวะ ให้อยู่บรรทัดเดียวในแผงแคบ (พี่กันสั่ง "เอา อาจหลังค่อม" 5 ต.ค. 2569)
+      lines.push('ส่วนสูง &lt; 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง');
+      toBelow = true;
     } else if (c.kind === 'under') {
       // ตัดคำ Underweight ตัดบรรทัดเหตุผล คำเตือนแบบสั้น แล้วย้ายคำเตือนไปเป็นหมายเหตุใต้แถวตัวเลขไม่มีกรอบ
       // (พี่กันเลือกแบบ 3-2 ข้อ 6 "เอาอันนี้ เเต่ย้าย มวลกล้ามเนื้อ ไปไว้เป็นหมายเหตุด้านล่างเลย โดยไม่มีกรอบ" 5 ต.ค. 2569)
@@ -72,15 +89,19 @@
       lines.push('Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง');
       toBelow = true;
     } else if (c.kind === 'obese') {
-      cls = 'obese o' + c.obLevel; main = `Obese ใช้ Adjusted BW ${f1(c.adj)} kg`; why = 'เพราะ BW มากกว่า 1.2 เท่าของ IBW';
+      // ตัดคำ Obese กับบรรทัดเหตุผล เหมือนกรณีปกติกับผอม · ตัวหนังสือในกล่องนี้ 10.5 ให้อยู่บรรทัดเดียว (box.css)
+      // (พี่กันเลือกแบบ 4-1 ข้อ 7 "เอาข้อ 7" 5 ต.ค. 2569 · เดิม Obese ใช้ Adjusted BW xx kg กับ เพราะ BW มากกว่า 1.2 เท่าของ IBW)
+      cls = 'obese o' + c.obLevel; main = `ใช้ Adjusted BW ${f1(c.adj)} kg`; why = '';
     } else {
       // กรณีปกติไม่มีบรรทัดเหตุผล กรณีอื่นยังบอกว่าทำไมไม่ใช้ IBW (พี่กันเลือก "เอาออกเฉพาะ Normal" แล้วสั่ง "เอาออกเลย" 5 ต.ค. 2569)
       // ไม่มีคำว่า Normal อ่านแล้วสงสัยว่าปกติอะไร และชนกับ BMI ที่อาจขึ้น Overweight (พี่กันสั่ง "เอาแบบตัดคำ Normal ออก" 5 ต.ค. 2569)
       cls = 'normal'; main = `ใช้ Ideal BW ${f1(c.ibw)} kg`; why = '';
     }
-    if (r.ageWarn) lines.push('อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ');
+    // ขึ้นต้นด้วยกรณีแล้วทวิภาค เหมือนหมายเหตุอื่น (พี่กันเลือกแบบ 7-3 ข้อ 2 5 ต.ค. 2569 · เดิม อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ)
+    if (r.ageWarn) lines.push('อายุนอกช่วง 18–92 ปี: CrCl อาจไม่แม่นยำ');
     if (toBelow && below) { below.push(...lines); lines.length = 0; }
-    return `<div class="cx-basis ${cls}"><div class="cx-basis-main">${main}</div>${why ? `<div class="cx-basis-why">${why}</div>` : ''}${lines.map(warnLine).join('')}</div>`;
+    const box = `<div class="cx-basis ${cls}"><div class="cx-basis-main">${main}</div>${why ? `<div class="cx-basis-why">${why}</div>` : ''}${lines.map(warnLine).join('')}</div>`;
+    return ask ? `<div class="cx-rcol">${box}<div class="cx-warnline nh"><span>${ask}</span></div></div>` : box;
   }
 
   /** ตารางน้ำหนักสามแบบ เป็นตารางจริง */
@@ -88,9 +109,12 @@
     const row = (key, label, bw, cc, note) => {
       const on = c.pick === key;
       const cells = note ? `<td colspan="2" class="cx-na">${note}</td>` : `<td>${f1(bw)}</td><td>${f1(cc)}</td>`;
-      return `<tr class="${on ? 'on' : ''}"><th scope="row">${label}${on ? '<span class="sr"> ใช้ค่านี้</span>' : ''}</th>${cells}</tr>`;
+      // ช่องหน้าชื่อแถวจองที่ไว้ทุกแถว แถวที่ใช้มีเครื่องหมายถูก ชื่อแถวจึงตรงแนวกันทุกแถว
+      // (พี่กันสั่ง "ติ๊กแบบรูป 2 เเต่ต้องเว้นระยะให้เครื่องหมายด้วย" 5 ต.ค. 2569 · เดิมเป็นแถบเขียวทางซ้าย)
+      return `<tr class="${on ? 'on' : ''}"><th scope="row"><span class="cx-ck">${on ? ICON.check : ''}</span>${label}${on ? '<span class="sr"> ใช้ค่านี้</span>' : ''}</th>${cells}</tr>`;
     };
-    const note = c.state === 'noheight' ? 'กรอกส่วนสูง' : c.short ? 'N/A' : '';
+    // ขึ้นต้นด้วยกรุณาเหมือนคำขอใต้กล่อง (พี่กันสั่ง "กรุณา ด้วย" 5 ต.ค. 2569 · เดิม กรอกส่วนสูง)
+    const note = c.state === 'noheight' ? 'กรุณากรอกส่วนสูง' : c.short ? 'N/A' : '';
     const rows = row('A', 'Actual BW', c.w, c.cA)
       + (note ? row('I', 'Ideal BW', 0, 0, note) + row('J', 'Adjusted BW', 0, 0, note)
               : row('I', 'Ideal BW', c.ibw, c.cI) + row('J', 'Adjusted BW', c.adj, c.cJ));
@@ -109,16 +133,26 @@
     } else if (c.state === 'incomplete') {
       // ขึ้นต้นด้วย กรุณากรอก เหมือนข้อความใน eGFR กับ BMI (พี่กันสั่ง "เปลี่ยนเป็นกรุณาให้หมด" 5 ต.ค. 2569)
       h += `<div class="cx-big"><span class="cx-none">ยังคำนวณไม่ได้</span></div><p class="cx-hint">กรุณากรอก ${joinThai(c.missing)}</p>`;
-      if (r.ageWarn) h += warnLine('อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ');
+      if (r.ageWarn) h += warnLine('อายุนอกช่วง 18–92 ปี: CrCl อาจไม่แม่นยำ');
     } else {
       // ค่า CrCl ต่ำกว่า 30 สีอำพันส้มอิฐ ตั้งแต่ 30 ขึ้นไปสีอำพันส้มอ่อน ตัดสินจากเลขที่โชว์ (ทศนิยม 1 ตำแหน่ง) 30.0 พอดีเป็นอำพันส้มอ่อน
       // (พี่กันสั่ง "ค่าที่คำนวนได้ ถ้ามากกว่า 30 จะสีอำพันเข้ม เเต่ถ้าต่ำกส่า 30 จะสีโทนเเดงเลือดหมุ" แล้วเลือก "เเต่เอาออันนี้เป้นน้อยกว่าสามสิบ" 4 ต.ค. 2569)
       // ตั้งแต่ 30 ขึ้นไป พี่กันสั่ง "ลองออันนี้" (ส่งภาพการ์ดอำพันส้มอ่อน #FFA000 · ก่อนหน้านี้ลองเหลืองอำพัน #FFC107)
       const below = [];   // หมายเหตุใต้แถวตัวเลข basisHTML ใส่ให้
       // กล่องบอกน้ำหนักที่ใช้ อยู่ทางขวาของตัวเลข บรรทัดเดียวกัน (พี่กันสั่ง "ย้ายจากที่อยู่บรรทัดล่าง ไปเป็นกรออกสี่เหลี่ยมขวา" 5 ต.ค. 2569 · เดิมอยู่บรรทัดใต้ตัวเลข)
-      h += `<div class="cx-top"><div class="cx-big"><b class="${Number(f1(c.value)) < 30 ? 'lt30' : 'ge30'}">${f1(c.value)}</b><span>mL/min</span></div>${basisHTML(c, r, below)}</div>${below.map((t) => warnLine(t, t.startsWith('อายุนอกช่วง') ? 'age' : '')).join('')}`
+      h += `<div class="cx-top"><div class="cx-big"><b class="${Number(f1(c.value)) < 30 ? 'lt30' : 'ge30'}">${f1(c.value)}</b><span>mL/min</span></div>${basisHTML(c, r, below)}</div>${below.map((t) => typeof t === 'string' ? warnLine(t, t.startsWith('อายุนอกช่วง') ? 'age' : '') : `<div class="cx-warnline ${t.cls}"><span>${t.t}</span></div>`).join('')}`
         + tableHTML(c)
-        + '<p class="cx-note">IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4</p>';
+        // ชื่อสูตรในวงเล็บเหมือนหัวข้อ CrCl eGFR BMI · เขียน Devine Formula เต็ม (พี่กันสั่ง "มันควรเขียนว่า Devine Formula เพราะถ้าเเค่ Devine ใครมันจะรู้"
+        // "วงเล้บไหมนะ เพราะตามจุดอื่น ถ้าสูตร มันจะวงเล็บ" 5 ต.ค. 2569 · เดิม IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4)
+        // Adjusted BW เขียนสูตรเต็มหลังทวิภาค พี่กันเลือกจากตัวเลือกกลุ่ม 3-6 ("เอาอันีน้" ส่งภาพ IBW (Devine Formula) กับ Adjusted BW: IBW + 0.4 x (BW - IBW))
+        // ชี้หรือกด Tab มาที่ Devine Formula แล้วขึ้นกล่องสูตร (พี่กันสั่ง "พอเอาเมาส์ไปชี้ที่ devine มันจะมี popup สูตรขึ้นด้วย" 5 ต.ค. 2569)
+        // สูตรในกล่องตรงกับ calc.js ทุกตัวเลข (ชาย 50 หญิง 45.5 บวก 2.3 ต่อนิ้วที่เกิน 60 นิ้ว · นิ้ว = cm / 2.54)
+        + '<p class="cx-note">IBW (<span class="cx-dv" tabindex="0">Devine Formula<span class="cx-dvpop" role="tooltip">'
+        + '<span class="cx-dvpop-t">Devine Formula (kg)</span>'
+        + '<span>ชาย: IBW = 50 + 2.3 x (Height (in) - 60)</span>'
+        + '<span>หญิง: IBW = 45.5 + 2.3 x (Height (in) - 60)</span>'
+        + '<span>Height (in) = Height (cm) / 2.54</span>'
+        + '</span></span>) · Adjusted BW: IBW + 0.4 x (BW - IBW)</p>';
     }
     return h + '</div>';
   }
@@ -133,7 +167,8 @@
     let b;
     if (r.egfr.v != null) {
       const s = r.egfr.stage;
-      b = `<div class="cx-kv"><span class="cx-val">${f1(r.egfr.v)}<small>mL/min/1.73m²</small></span><span class="cx-cls ${s.cls}">CKD ${s.label}</span></div>`;
+      // ตัวเลข eGFR สีเดียวกับระยะ CKD (พี่กันสั่ง "เราขอสีของค่า eGFR BMI เปลี่ยนสีตามระบบหน่อย" 5 ต.ค. 2569 · หน่วยยังเทา)
+      b = `<div class="cx-kv"><span class="cx-val ${s.cls}">${f1(r.egfr.v)}<small>mL/min/1.73m²</small></span><span class="cx-cls ${s.cls}">CKD ${s.label}</span></div>`;
     } else if (r.egfr.state === 'error') {
       b = '<p class="cx-hint">คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต</p>';
     } else {
@@ -148,7 +183,8 @@
   function bmiHTML(r) {
     let b;
     if (r.bmi.v != null) {
-      b = `<div class="cx-kv"><span class="cx-val">${f1(r.bmi.v)}<small>kg/m²</small></span><span class="cx-cls ${r.bmi.cls.cls}">${r.bmi.cls.label}</span></div>`;
+      // ตัวเลข BMI สีเดียวกับระดับ BMI (พี่กันสั่งพร้อม eGFR 5 ต.ค. 2569)
+      b = `<div class="cx-kv"><span class="cx-val ${r.bmi.cls.cls}">${f1(r.bmi.v)}<small>kg/m²</small></span><span class="cx-cls ${r.bmi.cls.cls}">${r.bmi.cls.label}</span></div>`;
     } else if (r.bmi.state === 'error') {
       b = '<p class="cx-hint">คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต</p>';
     } else {
@@ -165,9 +201,21 @@
 
   /** ข้อความใต้ช่อง sCr */
   function crRefMsg(r, sex) {
-    const refTxt = sex === 'male' ? 'ชาย 0.7–1.2 mg/dL' : 'หญิง 0.5–1.0 mg/dL';
-    if (r.crRef === 'low') return ['warn', `sCr ต่ำกว่าค่าอ้างอิง (${refTxt}) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง`];
-    if (r.crRef === 'high') return ['hi', `sCr สูงกว่าค่าอ้างอิง (${refTxt}) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด`];
+    // สูงหรือต่ำกว่าค่าอ้างอิง ใต้ช่องเป็นบรรทัดค่าอ้างอิงแบบปกติ สูงต่ำบอกด้วยบั้งคู่สีแดงหรือส้มต่อท้ายตัวเลขในช่อง (box.js .cx-mirror)
+    // โปรแกรมอ่านจอได้ยินคำว่าสูงหรือต่ำจากข้อความซ่อน (พี่กันเลือกแบบ 7-7 ข้อ 7 กับ 8 5 ต.ค. 2569
+    // เดิม sCr สูงกว่าค่าอ้างอิง (...) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด · sCr ต่ำกว่าค่าอ้างอิง (...) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง)
+    // คำว่า High อยู่หลังเลขบน Low อยู่หน้าเลขล่าง ของเพศที่เลือก ฝั่งที่ค่าหลุดออกไป สีเดียวกับบั้งคู่
+    // บีบช่องว่างระหว่างคำ 1 จุดให้อยู่บรรทัดเดียว ไม่ลดขนาด ไม่ตัดคำ (box.css .cx-tight)
+    // (พี่กันเสนอ "1.6 : ชาย 0.7–1.2 High หญิง 0.5–1.0 mg/dL · 0.6 : ชาย Low 0.7–1.2 หญิง 0.5–1.0 mg/dL" แล้วเลือกแบบ 7-11 "เอาอันนี้ จบ เราเเค่ให้มันอยูบันทัดเดียว" 5 ต.ค. 2569)
+    if (r.crRef === 'low' || r.crRef === 'high') {
+      const male = sex === 'male', hi = r.crRef === 'high';
+      const sr = hi ? 'sCr สูงกว่าค่าอ้างอิง ' : 'sCr ต่ำกว่าค่าอ้างอิง ';
+      const w = hi ? '<b class="cx-hl hi">High</b>' : '<b class="cx-hl lo">Low</b>';
+      const range = (lo, up) => (hi ? `${lo}–${up} ${w}` : `${w} ${lo}–${up}`);
+      const m = male ? `ชาย ${range('0.7', '1.2')}` : 'ชาย 0.7–1.2';
+      const f = male ? 'หญิง 0.5–1.0' : `หญิง ${range('0.5', '1.0')}`;
+      return ['mute', `<span class="cx-tight"><span class="sr">${sr}</span><span class="cx-ref${male ? ' on' : ''}">${m}</span> <span class="cx-ref${male ? '' : ' on'}">${f}</span> mg/dL</span>`];
+    }
     // เลือกเพศแล้ว sCr อยู่ในเกณฑ์ ข้อความเดียวกับตอนยังไม่เลือกเพศ เพศที่เลือกตัวเข้ม อีกเพศจาง (box.css .cx-ref)
     // พี่กันเลือกจากตัวเลือกใต้ภาพที่ 2 ในหน้าเกลาคำ "เอาอันนี้ละกัน ที่จะจางเข้ม" 4 ต.ค. 2569 · ข้อความตายตัว ไม่มีค่าจากผู้ใช้ปน
     if (r.crRef === 'ok') {

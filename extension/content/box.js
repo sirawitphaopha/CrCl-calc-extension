@@ -89,7 +89,7 @@
       const unit = unitKey ? `<button type="button" class="cx-unit" data-unit="${unitKey}"></button>`
         : `<span class="cx-unit fixed" id="${id}-unit">ปี</span>`;
       const ref = k === 'scr' ? '<div class="cx-msg" data-msg="scrref" hidden></div>' : '';
-      return `<div class="cx-row" data-row="${k}"><label class="cx-lab" for="${id}">${LABEL[k]}</label><div class="cx-ctl"><div class="cx-field" data-f="${k}"><input id="${id}" class="cx-in" data-k="${k}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="${ph}"${unitKey ? '' : ` aria-describedby="${id}-unit"`}>${unit}</div><div class="cx-msg" data-msg="${k}" hidden></div>${ref}</div></div>`;
+      return `<div class="cx-row" data-row="${k}"><label class="cx-lab" for="${id}">${LABEL[k]}</label><div class="cx-ctl"><div class="cx-field" data-f="${k}"><input id="${id}" class="cx-in" data-k="${k}" type="text" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="${ph}"${unitKey ? '' : ` aria-describedby="${id}-unit"`}>${k === 'scr' ? '<span class="cx-mirror" aria-hidden="true"><span class="cx-mirror-t"></span><span class="cx-flag"></span></span>' : ''}${unit}</div><div class="cx-msg" data-msg="${k}" hidden></div>${ref}</div></div>`;
     }
 
     panelHTML() {
@@ -235,8 +235,18 @@
         fld.classList.toggle('is-warn', k === 'age' && r.ageWarn);
         inp.setAttribute('aria-invalid', showErr ? 'true' : 'false');
         if (showErr) this.setMsg(k, ['err', r.err[k]]);
-        else if (k === 'age' && r.ageWarn) this.setMsg(k, ['warn', 'CrCl อาจไม่แม่นยำ สูตรนี้ใช้กับอายุ 18–92 ปี']);
+        // บอกตามค่าที่กรอก เกินหรือต่ำกว่าช่วงอายุ ไม่ซ้ำกับหมายเหตุใต้ตัวเลข CrCl (พี่กันเลือกแบบ 7-1 ข้อ 8 "เอาอันนี้ เเต่เอาวงเล้บออก" 5 ต.ค. 2569
+        // เดิม CrCl อาจไม่แม่นยำ สูตรนี้ใช้กับอายุ 18–92 ปี) · ช่องอายุกรองให้เหลือแต่ตัวเลข Number อ่านได้ตรง
+        else if (k === 'age' && r.ageWarn) this.setMsg(k, ['warn', `${Number(st.age) > 92 ? 'เกิน' : 'ต่ำกว่า'}ช่วงอายุที่สูตรรองรับ 18–92 ปี`]);
         else this.setMsg(k, null);
+        // บั้งคู่ต่อท้ายตัวเลข sCr ตอนสูงหรือต่ำกว่าค่าอ้างอิง · สำเนาตัวเลขแบบมองไม่เห็นวางทับช่อง ตัวบั้งจึงอยู่ถัดตัวเลขพอดี ตัวเลขไม่ขยับ
+        if (k === 'scr') {
+          const mir = fld.querySelector('.cx-mirror');
+          const f = showErr ? '' : r.crRef === 'high' ? 'hi' : r.crRef === 'low' ? 'lo' : '';
+          mir.className = 'cx-mirror' + (f ? ' ' + f : '');
+          mir.firstChild.textContent = inp.value;
+          mir.lastChild.innerHTML = f === 'hi' ? ICON.flagUp : f === 'lo' ? ICON.flagDown : '';
+        }
       }
       el.querySelectorAll('[data-unit]').forEach((b) => {
         const key = b.dataset.unit, cur = st[key], nxt = C.UNIT[key][cur].next;

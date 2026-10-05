@@ -234,7 +234,7 @@ function sigOf(el, top) {
   const parts = [];
   for (let n = el; n && n !== top; n = n.parentElement) {
     let p = n.tagName.toLowerCase();
-    const cls = [...n.classList].filter((c) => !STATE_CLS.includes(c) && !c.startsWith('dx')).sort().join('.');
+    const cls = [...n.classList].filter((c) => !STATE_CLS.includes(c) && !c.startsWith('dx') && !/^(ckd|bmi)-/.test(c)).sort().join('.');
     if (cls) p += '.' + cls;
     for (const a of SIG_ATTR) if (n.hasAttribute(a)) p += `[${a}=${n.getAttribute(a)}]`;
     parts.push(p);
@@ -398,6 +398,15 @@ function lock(box, root) {
 
 const shots = document.getElementById('shots');
 /* ตัวเลือกที่พี่กันขอ ต่อท้ายใต้แถวของภาพนั้น · กล่องจากฉบับร่าง แล้วเปลี่ยนเฉพาะจุดที่ให้เลือก · พี่กันเลือกแล้วจดใน HISTORY */
+// ตัวเลขก่อน 5 ต.ค. 2569 กันที่ไว้ที่ตัวเลข หน่วยห่างจากเลข 4 หลัก · ใช้กับภาพตัวเลือกที่ทำก่อนหน่วยติดตัวเลข (กล่องวาดผลใหม่ได้ จึงใช้สไตล์ ไม่ใช้ style ในแท็ก)
+const OLDNUM = new CSSStyleSheet();
+OLDNUM.replaceSync('.cx-top .cx-big{min-width:0}.cx-top .cx-big b{min-width:5ch}');
+// ข้อความใต้ช่องกรอกก่อน 5 ต.ค. 2569 ขนาด 12 · ภาพตัวเลือกที่ทำก่อนหน้านั้นคงขนาดเดิม (ตัวเลือกที่ใส่ msg12: true ก็ใช้ด้วย)
+const MSG12 = new CSSStyleSheet();
+MSG12.replaceSync('.cx-msg{font-size:12px}.cx-hint{font-size:12px}');
+// บั้งคู่ในช่อง sCr ใส่ในฉบับร่าง 5 ต.ค. 2569 · ภาพตัวเลือกที่ทำก่อนหน้าซ่อนไว้ (ตัวเลือกที่ใส่ flagNew: true จะเห็น)
+const NOFLAG = new CSSStyleSheet();
+NOFLAG.replaceSync('.cx-mirror{display:none}');
 const OPT = new CSSStyleSheet();
 OPT.replaceSync('.opt-on{color:var(--ink-2);font-weight:700}.opt-dim{color:#b3bfbb}'
   + '.opt-unit{cursor:default}.opt-unit:hover{background-color:var(--surface-2);color:var(--ink-2)}'
@@ -913,6 +922,612 @@ OPTIONS[3].push({
   ],
 });
 
+// ภาพที่ 3 ตารางน้ำหนักใต้ตัวเลข CrCl หลายหน้าตา · วาดจากกล่องจริง ตัดเฉพาะตารางกับหมายเหตุใต้ตาราง
+// แต่ละแบบเติมคลาสให้ตาราง แล้วใช้สไตล์ชุด TBLV · ตัวเลขกับฟอนต์เท่าเดิมทุกแบบ (web-craft 6.1 ตารางจริง · 6.8 ฟอนต์)
+const TBLV = new CSSStyleSheet();
+// tv-old ย้อนตารางเป็นแบบก่อนพี่กันเลือก (ฉบับร่างเปลี่ยนแล้ว 5 ต.ค. 2569) ภาพในกลุ่มนี้จะได้คงหน้าตาตอนเลือก · ต้องอยู่ก่อนกฎของแต่ละแบบ
+TBLV.replaceSync(
+  '.cx-bw.tv-old{border-collapse:collapse;border:0;border-radius:0;overflow:visible}'
+  + '.cx-bw.tv-old th,.cx-bw.tv-old td{border-right:0}'
+  + '.cx-bw.tv-old tbody tr:last-child th,.cx-bw.tv-old tbody tr:last-child td{border-bottom:1px solid var(--line-2)}'
+  + '.cx-bw.tv-old thead th{background:none;color:var(--ink-3)}'
+  + '.cx-bw.tv-old thead th:nth-child(1){width:36%}.cx-bw.tv-old thead th:nth-child(2){width:26%}.cx-bw.tv-old thead th:nth-child(3){width:38%}'
+  + '.cx-bw.tv-old tbody tr:not(.on) th,.cx-bw.tv-old tbody tr:not(.on) td{color:var(--ink-2)}'
+  + '.cx-bw.tv-old tr.on th{box-shadow:inset 3px 0 0 var(--accent)}'
+  + '.cx-bw.tv-old td:not(.cx-na){text-align:right}'
+  + '.cx-bw.tv-grid{border-collapse:separate;border-spacing:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}'
+  + '.cx-bw.tv-grid thead th{background:var(--accent-soft-2);color:var(--accent-ink);border-bottom:1px solid var(--line)}'
+  + '.cx-bw.tv-grid th:not(:last-child),.cx-bw.tv-grid td:not(:last-child){border-right:1px solid var(--line-2)}'
+  + '.cx-bw.tv-grid tbody tr:last-child th,.cx-bw.tv-grid tbody tr:last-child td{border-bottom:0}'
+  + '.cx-bw.tv-ring{border-collapse:separate;border-spacing:0}'
+  + '.cx-bw.tv-ring tr:has(+ tr.on) th,.cx-bw.tv-ring tr:has(+ tr.on) td{border-bottom-color:transparent}'
+  + '.cx-bw.tv-ring tr.on th,.cx-bw.tv-ring tr.on td{background:var(--surface);border-top:1.5px solid var(--accent);border-bottom:1.5px solid var(--accent)}'
+  + '.cx-bw.tv-ring tr.on th{box-shadow:none;border-left:1.5px solid var(--accent);border-radius:7px 0 0 7px}'
+  + '.cx-bw.tv-ring tr.on td:last-child{border-right:1.5px solid var(--accent);border-radius:0 7px 7px 0}'
+  + '.cx-bw.tv-check tr.on th{box-shadow:none}'
+  + '.tv-ck{display:inline-block;margin-right:4px;color:var(--accent);vertical-align:-1px}'
+  + '.cx-bw.tv-dim tbody tr:not(.on) th,.cx-bw.tv-dim tbody tr:not(.on) td{color:var(--ink-4)}'
+  + '.cx-bw.tv-zebra tbody th,.cx-bw.tv-zebra tbody td{border-bottom:0}'
+  + '.cx-bw.tv-zebra tbody tr:nth-child(even) th,.cx-bw.tv-zebra tbody tr:nth-child(even) td{background:var(--surface-2)}'
+  + '.cx-bw.tv-zebra tbody tr.on:nth-child(n) th,.cx-bw.tv-zebra tbody tr.on:nth-child(n) td{background:var(--accent-soft)}'
+  + '.tv-u{color:var(--ink-4);font-size:10px;font-weight:500}'
+  + '.cx-bw.tv-card{border-collapse:separate;border-spacing:0;padding:2px 0;border-radius:8px;background:var(--surface-2)}'
+  + '.cx-bw.tv-card tbody th,.cx-bw.tv-card tbody td{border-bottom:0}'
+  + '.cx-note.tv-n{font-size:10.5px}');
+const tv = (cls, extra) => (root) => {
+  if (!root.adoptedStyleSheets.includes(TBLV)) root.adoptedStyleSheets = [...root.adoptedStyleSheets, TBLV];
+  const t = root.querySelector('.cx-crcl .cx-bw');
+  t.classList.add('tv-old');
+  t.querySelectorAll('.cx-ck').forEach((e) => e.remove());
+  const nt = root.querySelector('.cx-crcl .cx-note');
+  if (nt) nt.textContent = 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4';
+  if (cls) t.classList.add(cls);
+  if (extra) extra(root, t);
+};
+const tblH = (root, box, col) => {
+  const t = root.querySelector('.cx-crcl .cx-bw');
+  const sub = col.querySelector('.opt-sub');
+  if (!t || !sub) return;
+  const over = [...t.querySelectorAll('th,td')].some((c) => c.scrollWidth > c.clientWidth + 0.5);
+  sub.textContent += ` · วัดแล้ว ตารางสูง ${Math.round(t.getBoundingClientRect().height)} จุด${over ? ' มีช่องที่ข้อความล้น' : ' ไม่มีช่องล้น'}`;
+};
+const TBL_SAID = 'ขอตารางให้เราเลือกหลายแบบหน่อย (ส่งภาพตารางน้ำหนัก ภาพที่ 3)';
+OPTIONS[3].push({
+  title: 'ตัวเลือก หน้าตาตารางน้ำหนักใต้ตัวเลข CrCl · แต่ละแบบเปลี่ยนเฉพาะที่เขียนไว้ ตัวเลขกับฟอนต์เท่าเดิม',
+  said: TBL_SAID,
+  cropSel: '.cx-crcl .cx-bw',
+  cropEnd: '.cx-crcl .cx-note',
+  cropW: 320,
+  padTop: 6,   // ตัดเหนือตารางน้อยลง ไม่ให้หมายเหตุข้างบนโผล่ครึ่งบรรทัด
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'เส้นคั่นแถวบาง ๆ แถวที่ใช้พื้นเขียวอ่อนมีแถบเขียวทางซ้าย', apply: tv(''), measure: tblH },
+    { chosen: true, name: 'มีกรอบ หัวตารางพื้นเขียว', sub: 'กรอบมุมมนรอบตาราง เส้นแบ่งคอลัมน์ หัวคอลัมน์พื้นเขียว แบบตารางในเว็บอื่นของพี่กัน (web-craft 6.2)', apply: tv('tv-grid'), measure: tblH },
+    { name: 'กรอบเขียวรอบแถวที่ใช้', sub: 'แถวที่ใช้ไม่มีพื้นสี มีกรอบเขียวมุมมนล้อมทั้งแถวแทน', apply: tv('tv-ring'), measure: tblH },
+    { chosen: true, name: 'เครื่องหมายถูกหน้าแถวที่ใช้', sub: 'แถบเขียวทางซ้ายเปลี่ยนเป็นเครื่องหมายถูกหน้าชื่อแถว พื้นเขียวอ่อนเท่าเดิม', apply: tv('tv-check', (root, t) => { const th = t.querySelector('tr.on th'); if (th) th.insertAdjacentHTML('afterbegin', '<span class="tv-ck"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg></span>'); }), measure: tblH },
+    { chosen: true, name: 'แถวอื่นจาง', sub: 'แถวที่ไม่ได้ใช้ตัวหนังสือสีจาง ตาไปที่แถวที่ใช้ก่อน', apply: tv('tv-dim'), measure: tblH },
+    { name: 'แถวสลับสี ไม่มีเส้นคั่น', sub: 'เอาเส้นคั่นแถวออก แถวคู่พื้นเทาอ่อนแทน', apply: tv('tv-zebra'), measure: tblH },
+    { name: 'หน่วยตัวเล็กในหัวคอลัมน์', sub: 'หัวคอลัมน์เป็น BW kg กับ CrCl mL/min หน่วยตัวเล็กสีจาง ไม่มีวงเล็บ', apply: tv('', (root, t) => { const h = t.querySelectorAll('thead th'); if (h[1]) h[1].innerHTML = 'BW <span class="tv-u">kg</span>'; if (h[2]) h[2].innerHTML = 'CrCl <span class="tv-u">mL/min</span>'; }), measure: tblH },
+    { name: 'ตารางในกรอบพื้นเทาอ่อน', sub: 'ทั้งตารางอยู่บนพื้นเทาอ่อนมุมมน ไม่มีเส้นคั่นแถว แยกจากตัวเลขข้างบนชัดขึ้น', apply: tv('tv-card'), measure: tblH },
+    { name: 'หมายเหตุใต้ตาราง 10.5 จุด', sub: 'บรรทัด IBW ใช้สูตร Devine เล็กลงจาก 11 เป็น 10.5 เท่าหมายเหตุใต้ตัวเลข', apply: tv('', (root) => { const n = root.querySelector('.cx-crcl .cx-note'); if (n) n.classList.add('tv-n'); }), measure: tblH },
+  ],
+});
+
+// ภาพที่ 3 บรรทัดหมายเหตุใต้ตารางน้ำหนัก เกลาคำ · สูตรตรงกับ calc.js (IBW แบบ Devine · Adjusted BW = IBW + 0.4 x (BW - IBW)) · จำนวนบรรทัดวัดในกล่องจริงแผงแคบ
+const NOTE_SAID = 'gd]ksojvp (พิมพ์ตอนลืมเปลี่ยนแป้น อ่านได้ว่า เกลาหน่อย · ส่งภาพบรรทัด IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4)';
+const FORMULA_SAID = 'ม่ายยย มันควรเขียนว่า Devine Formula  เพราะถ้าเเค่ Devine .8i,yo0ti^h (พิมพ์ตอนลืมเปลี่ยนแป้น อ่านได้ว่า ใครมันจะรู้)';
+OPTIONS[3].push({
+  title: 'ตัวเลือก คำในบรรทัดหมายเหตุใต้ตารางน้ำหนัก · ตอนนี้บรรทัดเดียว กว้าง 278 จาก 296 จุด · ทุกแบบเขียน Devine Formula เต็ม (พี่กันแก้) · แคลร์แนะนำแบบแรก',
+  said: NOTE_SAID + ' · ' + FORMULA_SAID,
+  list: [
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW: Devine Formula · Adjusted BW: ตัวคูณ 0.4', why: 'ทวิภาคแบบเดียวกับ Underweight: ที่พี่กันเลือก อ่านเป็นคู่ ชื่อ: ที่มา · บรรทัดเดียว กว้าง 286 จาก 296 จุด (แคลร์แนะนำ)' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW Devine Formula · Adjusted BW ตัวคูณ 0.4', why: 'ไม่มีทวิภาค ตัดคำว่าใช้กับคำว่าและ คั่นด้วยจุดกลาง · บรรทัดเดียว กว้าง 272 จุด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'Devine Formula IBW · Adjusted BW 0.4', why: 'สั้นที่สุด บรรทัดเดียว กว้าง 238 จุด · แต่เลข 0.4 ลอย ๆ อาจไม่รู้ว่าคืออะไร' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW: Devine Formula · Adjusted BW: IBW + 0.4 x (BW - IBW)', why: 'เขียนสูตร Adjusted BW เต็ม ไม่ต้องจำว่าตัวคูณ 0.4 คูณอะไร · ตก 2 บรรทัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW ใช้ Devine Formula และ Adjusted BW ใช้ตัวคูณ 0.4', why: 'เปลี่ยนแค่คำว่าสูตร Devine เป็น Devine Formula ที่เหลือเหมือนเดิม · ตก 2 บรรทัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: '(คงไว้)', why: 'บรรทัดเดียวอยู่แล้ว แต่เขียนแค่ Devine' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW (Devine Formula) · Adjusted BW (ตัวคูณ 0.4)', why: 'ชื่อสูตรในวงเล็บเหมือนหัวข้อ CrCl eGFR BMI · ขนาด 11 เกินช่อง 3 จุด ตก 2 บรรทัด (ขนาด 10.5 บรรทัดเดียว) พี่กันให้ใส่ก่อนแล้วค่อยวัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW (Devine Formula) · Adjusted BW (IBW + 0.4 x (BW - IBW))', why: 'เขียนสูตร Adjusted BW เต็มในวงเล็บ ไม่ต้องจำว่า 0.4 คูณอะไร · ชุดวงเล็บ ยังไม่วัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW (Devine Formula) · Adjusted BW (0.4)', why: 'สั้นที่สุดในชุดวงเล็บ แต่เลข 0.4 ลอย ๆ อาจไม่รู้ว่าคืออะไร · ชุดวงเล็บ ยังไม่วัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW (Devine Formula) · Adjusted BW (Correction Factor 0.4)', why: 'ใช้คำอังกฤษที่ตำราเรียกตัวคูณนี้ คู่กับ Devine Formula ที่เป็นอังกฤษ · ชุดวงเล็บ ยังไม่วัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW (Devine Formula) · Adjusted BW (IBW + 40% ของส่วนที่เกิน IBW)', why: 'บอกความหมายของ 0.4 เป็นคำ ไม่ต้องอ่านสูตร · ชุดวงเล็บ ยังไม่วัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW (Devine Formula) และ Adjusted BW (ตัวคูณ 0.4)', why: 'ใช้คำว่าและแทนจุดกลาง อ่านเป็นประโยคเหมือนบรรทัดเดิม · ชุดวงเล็บ ยังไม่วัด' },
+    { from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'Ideal BW (Devine Formula) · Adjusted BW (ตัวคูณ 0.4)', why: 'เขียน Ideal BW เต็ม ตรงกับชื่อแถวในตารางข้างบน ซึ่งเขียน Ideal BW ไม่ใช่ IBW · ชุดวงเล็บ ยังไม่วัด' },
+    { chosen: true, from: 'IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', to: 'IBW (Devine Formula) · Adjusted BW: IBW + 0.4 x (BW - IBW)', why: 'พี่กันรวมเอง IBW แบบวงเล็บจากข้อ 7 กับ Adjusted BW แบบสูตรเต็มจากข้อ 4 · ยังไม่วัด' },
+  ],
+});
+
+// ภาพที่ 3 บรรทัดหมายเหตุใต้ตาราง ขนาด 10.5 ยังไม่พอบรรทัดเดียว (วัดแล้ว 365 จาก 296 จุด) · ทำทางเลือกเป็นภาพกล่องจริง
+const SMALL_SAID = 'ลดเป็น 10.5 ให้อยู่บรรทัดเดียว';
+const noteSet = (size, html) => (root) => { const n = root.querySelector('.cx-crcl .cx-note'); if (!n) return; n.style.fontSize = size; if (html) n.innerHTML = html; };
+const noteLines = (root, box, col) => {
+  const n = root.querySelector('.cx-crcl .cx-note');
+  const sub = col.querySelector('.opt-sub');
+  if (!n || !sub) return;
+  const lines = Math.round(n.getBoundingClientRect().height / parseFloat(getComputedStyle(n).lineHeight));
+  sub.textContent += ` · วัดแล้ว ${lines === 1 ? 'บรรทัดเดียว' : lines + ' บรรทัด'}`;
+};
+OPTIONS[3].push({
+  title: 'ตัวเลือก บรรทัดหมายเหตุใต้ตาราง IBW (Devine Formula) · Adjusted BW: IBW + 0.4 x (BW - IBW) · ขนาด 10.5 ยังยาวเกินช่อง (365 จาก 296 จุด) ต้องเล็กถึงราว 8.5 จึงจะบรรทัดเดียว',
+  said: SMALL_SAID,
+  cropSel: '.cx-crcl .cx-bw',
+  cropEnd: '.cx-crcl .cx-note',
+  cropW: 320,
+  padTop: 6,
+  newNum: true,
+  items: [
+    { name: 'ขนาด 10.5 ตามที่สั่ง', sub: 'ยังตก 2 บรรทัด ขึ้นบรรทัดใหม่กลางสูตร', apply: noteSet('10.5px'), measure: noteLines },
+    { name: 'ขนาด 10.5 แยกบรรทัดละเรื่อง', sub: 'IBW อยู่บรรทัดบน Adjusted BW กับสูตรอยู่บรรทัดล่าง ไม่มีจุดกลาง สูตรไม่ขาดกลาง', apply: noteSet('10.5px', 'IBW (Devine Formula)<br>Adjusted BW: IBW + 0.4 x (BW - IBW)'), measure: noteLines },
+    { name: 'ขนาด 11 แยกบรรทัดละเรื่อง', sub: 'แบบเดียวกับข้างบน ขนาดเท่าเดิม', apply: noteSet('11px', 'IBW (Devine Formula)<br>Adjusted BW: IBW + 0.4 x (BW - IBW)'), measure: noteLines },
+    { chosen: true, name: 'ขนาด 8.5 บรรทัดเดียว', sub: 'เล็กพอให้อยู่บรรทัดเดียว แต่เล็กกว่าตัวหนังสืออื่นในกล่องมาก อ่านยาก', apply: noteSet('8.5px'), measure: noteLines },
+  ],
+});
+
+// ภาพที่ 4 กล่อง Obese ทางขวาตัวเลข เกลาแบบเดียวกับกรณีปกติและผอม · วาดจากกล่องจริง ตัดถึงหมายเหตุใต้ตัวเลข
+const OB_SAID = 'ทำภาพ 4 อ้วนต่อ';
+const WARN_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3.5l9 16H3z"></path><path d="M12 10v4"></path><path d="M12 17.3v.2"></path></svg>';
+// ฉบับร่างเปลี่ยนกล่อง Obese แล้ว (แบบ 4-1 ข้อ 7) ภาพในกลุ่ม 4-1 ย้อนเป็นกล่องแบบก่อนเลือกก่อน แล้วค่อยใส่ของแต่ละแบบ
+const oldOb = (root) => {
+  const b = root.querySelector('.cx-top .cx-basis'); const m = root.querySelector('.cx-top .cx-basis-main');
+  if (!b || !m) return;
+  b.style.fontSize = '11.5px';
+  if (!/^Obese/.test(m.textContent)) m.textContent = 'Obese ' + m.textContent;
+  if (!b.querySelector('.cx-basis-why')) m.insertAdjacentHTML('afterend', '<div class="cx-basis-why">เพราะ BW มากกว่า 1.2 เท่าของ IBW</div>');
+};
+const obNoLabel = (root) => { const m = root.querySelector('.cx-top .cx-basis-main'); if (m) m.textContent = m.textContent.replace(/^Obese\s+/, ''); };
+// หมายเหตุใต้แถวตัวเลข แบบเดียวกับ Underweight (มีไอคอนเตือน) หรือไม่มีไอคอน
+const obNote = (text, icon) => (root) => {
+  const top = root.querySelector('.cx-crcl .cx-top');
+  if (top) top.insertAdjacentHTML('afterend', `<div class="cx-warnline">${icon ? WARN_SVG : ''}<span>${text}</span></div>`);
+};
+OPTIONS[4] = {
+  title: 'ตัวเลือก กล่อง Obese ทางขวาตัวเลข ตัดหรือย้ายอะไรดี · กรณีปกติกับผอมเคาะแล้วว่าไม่มีคำนำหน้าและไม่มีบรรทัดเหตุผลในกล่อง · แต่ละแบบเปลี่ยนเฉพาะที่เขียนไว้',
+  said: OB_SAID,
+  cropSel: '.cx-top',
+  cropEnd: '.cx-crcl .cx-note',
+  cropW: 320,
+  padTop: 5,   // ไม่ให้หัวข้อ CrCl โผล่ครึ่งบรรทัด
+  newNum: true,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'Obese ใช้ Adjusted BW 74.8 kg · เพราะ BW มากกว่า 1.2 เท่าของ IBW', apply: oldOb, measure: boxH },
+    { name: 'ตัดคำ Obese', sub: 'ขึ้นต้นด้วยคำว่าใช้ เหมือนกรณีปกติกับผอม บรรทัดเหตุผลยังอยู่', apply: (root) => { oldOb(root); obNoLabel(root); }, measure: boxH },
+    { name: 'ตัดบรรทัดเหตุผล', sub: 'เหลือ Obese ใช้ Adjusted BW 74.8 kg', apply: (root) => { oldOb(root); noWhy(root); }, measure: boxH },
+    { name: 'ตัดทั้งสองอย่าง', sub: 'เหลือ ใช้ Adjusted BW 74.8 kg เหมือนกรณีปกติ เหตุผลดูจากตารางที่มีเครื่องหมายถูก', apply: (root) => { oldOb(root); obNoLabel(root); noWhy(root); }, measure: boxH },
+    { name: 'ตัดทั้งสองอย่าง แล้วย้ายเหตุผลไปใต้ตัวเลขแบบผอม', sub: 'หมายเหตุ Obese: BW มากกว่า 1.2 เท่าของ IBW มีไอคอนเตือน แบบเดียวกับ Underweight:', apply: (root) => { oldOb(root); obNoLabel(root); noWhy(root); obNote('Obese: BW มากกว่า 1.2 เท่าของ IBW', true)(root); }, measure: boxH },
+    { name: 'ตัดทั้งสองอย่าง แล้วย้ายเหตุผลไปใต้ตัวเลข ไม่มีไอคอน', sub: 'หมายเหตุเดียวกัน ไม่มีไอคอนเตือน เพราะเป็นแค่เกณฑ์ ไม่ใช่คำเตือน', apply: (root) => { oldOb(root); obNoLabel(root); noWhy(root); obNote('Obese: BW มากกว่า 1.2 เท่าของ IBW', false)(root); }, measure: boxH },
+    { chosen: true, name: 'ตัดทั้งสองอย่าง ตัวหนังสือในกล่อง 10.5', sub: 'ใช้ Adjusted BW 74.8 kg ยาวกว่าใช้ Ideal BW จึงยังตก 2 บรรทัดที่ขนาด 11.5 · ลองลดเฉพาะกล่องนี้เป็น 10.5', apply: (root) => { oldOb(root); obNoLabel(root); noWhy(root); const b = root.querySelector('.cx-top .cx-basis'); if (b) b.style.fontSize = '10.5px'; }, measure: boxH },
+  ],
+};
+
+// ภาพที่ 5 กล่องเตี้ยกว่า 152 cm ทางขวาตัวเลข เกลาแนวเดียวกับผอม (แบบ 3-2 ข้อ 6 · 3-3 ข้อ 2 · 3-4 ข้อ 1) · วาดจากกล่องจริง
+const SH_SAID = 'ทำภาพ 5 เตี้ยต่อ';
+const shBoxWarn = (text) => (root) => { const w = root.querySelector('.cx-top .cx-basis .cx-warnline span'); if (w) w.textContent = text; };
+// ย้ายคำเตือนออกจากกล่องไปเป็นหมายเหตุใต้แถวตัวเลข ไม่มีกรอบ มีไอคอนเตือน แบบเดียวกับ Underweight
+const shBelow = (text) => (root) => {
+  const w = root.querySelector('.cx-top .cx-basis .cx-warnline'); if (w) w.remove();
+  const top = root.querySelector('.cx-crcl .cx-top');
+  if (top) top.insertAdjacentHTML('afterend', `<div class="cx-warnline">${WARN_SVG}<span>${text}</span></div>`);
+};
+const shMeasure = (root, box, col) => {
+  boxH(root, box, col);
+  const n = root.querySelector('.cx-crcl .cx-top + .cx-warnline');
+  const sub = col.querySelector('.opt-sub');
+  if (!n || !sub) return;
+  const lines = Math.round(n.getBoundingClientRect().height / parseFloat(getComputedStyle(n).lineHeight));
+  sub.textContent += ` · หมายเหตุใต้ตัวเลข${lines === 1 ? 'บรรทัดเดียว' : ' ' + lines + ' บรรทัด'}`;
+};
+const SH_WARN = 'อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง';
+// ฉบับร่างเปลี่ยนกรณีเตี้ยแล้ว (แบบ 5-1 ข้อ 5) ภาพในกลุ่ม 5-1 ย้อนเป็นกล่องแบบก่อนเลือกก่อน แล้วค่อยใส่ของแต่ละแบบ
+const oldSh = (root) => {
+  root.querySelectorAll('.cx-crcl .cx-top ~ .cx-warnline').forEach((e) => { if (/152 cm/.test(e.textContent)) e.remove(); });
+  const b = root.querySelector('.cx-top .cx-basis'); const m = root.querySelector('.cx-top .cx-basis-main');
+  if (!b || !m || b.querySelector('.cx-basis-why')) return;
+  m.insertAdjacentHTML('afterend', `<div class="cx-basis-why">เพราะสูงต่ำกว่า 152 cm</div><div class="cx-warnline">${WARN_SVG}<span>อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง</span></div>`);
+};
+OPTIONS[5] = {
+  title: 'ตัวเลือก กล่องเตี้ยกว่า 152 cm ทางขวาตัวเลข ตัดหรือย้ายอะไรดี · ผอมเคาะแล้วว่ากล่องเหลือบรรทัดเดียว คำเตือนย้ายไปใต้ตัวเลข ขึ้นต้นด้วยชื่อกรณีตามด้วยทวิภาค · แต่ละแบบเปลี่ยนเฉพาะที่เขียนไว้',
+  said: SH_SAID,
+  cropSel: '.cx-top',
+  cropEnd: '.cx-crcl .cx-note',
+  cropW: 320,
+  padTop: 5,
+  newNum: true,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'ใช้ Actual BW 52.0 kg · เพราะสูงต่ำกว่า 152 cm · อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง ทั้งหมดอยู่ในกล่อง', apply: oldSh, measure: shMeasure },
+    { name: 'ตัดบรรทัดเหตุผล', sub: 'เอา เพราะสูงต่ำกว่า 152 cm ออก คำเตือนยังอยู่ในกล่อง', apply: (root) => { oldSh(root); noWhy(root); }, measure: shMeasure },
+    { name: 'คำเตือนสั้นลง', sub: 'อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง แบบเดียวกับ CrCl อาจสูงเกินจริง ของผอม · ยังอยู่ในกล่อง', apply: (root) => { oldSh(root); noWhy(root); shBoxWarn(SH_WARN)(root); }, measure: shMeasure },
+    { name: 'ย้ายไปใต้ตัวเลข ขึ้นต้น Height < 152 cm:', sub: 'กล่องเหลือ ใช้ Actual BW 52.0 kg · หมายเหตุ Height < 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง', apply: (root) => { oldSh(root); noWhy(root); shBelow('Height &lt; 152 cm: ' + SH_WARN)(root); }, measure: shMeasure },
+    { chosen: true, name: 'ย้ายไปใต้ตัวเลข ขึ้นต้น สูงต่ำกว่า 152 cm:', sub: 'หมายเหตุเป็นภาษาไทยทั้งคำนำหน้า', apply: (root) => { oldSh(root); noWhy(root); shBelow('สูงต่ำกว่า 152 cm: ' + SH_WARN)(root); }, measure: shMeasure },
+    { name: 'ย้ายไปใต้ตัวเลข ขึ้นต้น Short stature:', sub: 'ชื่อกรณีเป็นภาษาอังกฤษแบบเดียวกับ Underweight:', apply: (root) => { oldSh(root); noWhy(root); shBelow('Short stature: ' + SH_WARN)(root); }, measure: shMeasure },
+    { name: 'ย้ายไปใต้ตัวเลข ไม่มีคำนำหน้า', sub: 'หมายเหตุ อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง · ตารางบอกอยู่แล้วว่า Ideal BW กับ Adjusted BW เป็น N/A', apply: (root) => { oldSh(root); noWhy(root); shBelow(SH_WARN)(root); }, measure: shMeasure },
+  ],
+};
+
+// ภาพที่ 5 คำนำหน้า ส่วนสูงต่ำกว่า 152 cm: ทำให้หมายเหตุตก 2 บรรทัดในแผงแคบ (กว้าง 296) · ตัวเลือกให้ได้บรรทัดเดียว
+const HT_SAID = 'ใช่คำว่า ส่วนสูง · ได้มั้ย';
+const shNote = (html, size) => (root) => { const n = root.querySelector('.cx-crcl .cx-top + .cx-warnline'); if (!n) return; if (html) n.querySelector('span').innerHTML = html; if (size) n.style.fontSize = size; };
+OPTIONS[5] = [OPTIONS[5], {
+  title: 'ตัวเลือก หมายเหตุกรณีเตี้ยที่ขึ้นต้นด้วย ส่วนสูง · ขนาด 10.5 ตก 2 บรรทัดในแผงแคบ (แผงกว้างบรรทัดเดียว)',
+  said: HT_SAID,
+  cropSel: '.cx-top',
+  cropEnd: '.cx-crcl .cx-top + .cx-warnline',
+  cropW: 320,
+  padTop: 5,
+  newNum: true,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'ส่วนสูงต่ำกว่า 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง · ขนาด 10.5', apply: shNote('ส่วนสูงต่ำกว่า 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง'), measure: shMeasure },
+    { name: 'ตัวหนังสือ 10', sub: 'ข้อความเดิม เล็กลงจาก 10.5 เป็น 10 เฉพาะบรรทัดนี้ จะเล็กกว่าหมายเหตุของผอมกับคำเตือนอายุ', apply: shNote('', '10px'), measure: shMeasure },
+    { name: 'ตัดคำว่า มีภาวะ', sub: 'ส่วนสูงต่ำกว่า 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง · ขนาด 10.5 เท่าหมายเหตุอื่น', apply: shNote('ส่วนสูงต่ำกว่า 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง'), measure: shMeasure },
+    { chosen: true, name: 'ใช้เครื่องหมายน้อยกว่า', sub: 'ส่วนสูง < 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง · ขนาด 10.5', apply: shNote('ส่วนสูง &lt; 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง'), measure: shMeasure },
+    { name: 'กลับเป็น สูงต่ำกว่า 152 cm:', sub: 'แบบที่เลือกตอนแรก บรรทัดเดียว ไม่มีคำว่าส่วน', apply: shNote('สูงต่ำกว่า 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง'), measure: shMeasure },
+  ],
+}];
+
+// ภาพที่ 6 กล่องไม่กรอกส่วนสูง ทางขวาตัวเลข เกลาแนวเดียวกับผอมกับเตี้ย (กล่องเหลือบรรทัดเดียว คำเตือนไปใต้ตัวเลข) · วาดจากกล่องจริง
+const NH_SAID = 'ทำภาพ 6 ไม่กรอกส่วนสูงต่อ';
+const nhBelow = (text, icon) => (root) => {
+  const w = root.querySelector('.cx-top .cx-basis .cx-warnline'); if (w) w.remove();
+  const top = root.querySelector('.cx-crcl .cx-top');
+  if (top) top.insertAdjacentHTML('afterend', `<div class="cx-warnline">${icon === false ? '' : WARN_SVG}<span>${text}</span></div>`);
+};
+// ฉบับร่างเปลี่ยนกรณีไม่กรอกส่วนสูงแล้ว (แบบ 6-1 ข้อ 7) ภาพในกลุ่ม 6-1 ย้อนเป็นกล่องแบบก่อนเลือกก่อน แล้วค่อยใส่ของแต่ละแบบ
+const oldNh = (root) => {
+  root.querySelectorAll('.cx-bw td.cx-na').forEach((td) => { if (/ส่วนสูง/.test(td.textContent)) td.textContent = 'กรอกส่วนสูง'; });
+  root.querySelectorAll('.cx-crcl .cx-warnline.nh').forEach((e) => e.remove());
+  const b = root.querySelector('.cx-top .cx-basis'); const m = root.querySelector('.cx-top .cx-basis-main');
+  if (!b || !m || b.querySelector('.cx-basis-why')) return;
+  m.insertAdjacentHTML('afterend', `<div class="cx-basis-why">เพราะยังไม่ได้กรอกส่วนสูง</div><div class="cx-warnline">${WARN_SVG}<span>กรอกส่วนสูงเพื่อความแม่นยำ</span></div>`);
+};
+const nhBox = (text) => (root) => { const w = root.querySelector('.cx-top .cx-basis .cx-warnline span'); if (w) w.textContent = text; };
+OPTIONS[6] = {
+  title: 'ตัวเลือก กล่องไม่กรอกส่วนสูง ทางขวาตัวเลข ตัดหรือย้ายอะไรดี · ผอมกับเตี้ยเคาะแล้วว่ากล่องเหลือบรรทัดเดียว คำเตือนไปใต้ตัวเลข ขึ้นต้นด้วยกรณีตามด้วยทวิภาค · แต่ละแบบเปลี่ยนเฉพาะที่เขียนไว้',
+  said: NH_SAID,
+  cropSel: '.cx-top',
+  cropEnd: '.cx-crcl .cx-note',
+  cropW: 320,
+  padTop: 5,
+  newNum: true,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'ใช้ Actual BW 58.0 kg · เพราะยังไม่ได้กรอกส่วนสูง · กรอกส่วนสูงเพื่อความแม่นยำ ทั้งหมดอยู่ในกล่อง', apply: oldNh, measure: shMeasure },
+    { name: 'ตัดบรรทัดเหตุผล', sub: 'เอา เพราะยังไม่ได้กรอกส่วนสูง ออก คำเตือนยังอยู่ในกล่อง · ตารางขึ้นคำว่ากรอกส่วนสูงอยู่แล้ว', apply: (root) => { oldNh(root); noWhy(root); }, measure: shMeasure },
+    { name: 'ตัดบรรทัดเหตุผล คำเตือนขึ้นต้น กรุณา', sub: 'กรุณากรอกส่วนสูงเพื่อความแม่นยำ ยังอยู่ในกล่อง · ขึ้นต้นด้วยกรุณาเหมือนข้อความกรอกไม่ครบอื่น', apply: (root) => { oldNh(root); noWhy(root); nhBox('กรุณากรอกส่วนสูงเพื่อความแม่นยำ')(root); }, measure: shMeasure },
+    { name: 'ย้ายไปใต้ตัวเลข ขึ้นต้น ไม่ได้กรอกส่วนสูง:', sub: 'กล่องเหลือ ใช้ Actual BW 58.0 kg · หมายเหตุ ไม่ได้กรอกส่วนสูง: กรอกส่วนสูงเพื่อความแม่นยำ', apply: (root) => { oldNh(root); noWhy(root); nhBelow('ไม่ได้กรอกส่วนสูง: กรอกส่วนสูงเพื่อความแม่นยำ')(root); }, measure: shMeasure },
+    { name: 'ย้ายไปใต้ตัวเลข ขึ้นต้น ส่วนสูง:', sub: 'หมายเหตุ ส่วนสูง: กรุณากรอกเพื่อความแม่นยำ · คำนำหน้าแบบเดียวกับกรณีเตี้ย ส่วนสูง < 152 cm:', apply: (root) => { oldNh(root); noWhy(root); nhBelow('ส่วนสูง: กรุณากรอกเพื่อความแม่นยำ')(root); }, measure: shMeasure },
+    { name: 'ย้ายไปใต้ตัวเลข ไม่มีคำนำหน้า', sub: 'หมายเหตุ กรุณากรอกส่วนสูงเพื่อความแม่นยำ', apply: (root) => { oldNh(root); noWhy(root); nhBelow('กรุณากรอกส่วนสูงเพื่อความแม่นยำ')(root); }, measure: shMeasure },
+    { chosen: true, name: 'ย้ายไปใต้ตัวเลข ไม่มีคำนำหน้า ไม่มีไอคอน', sub: 'หมายเหตุเดียวกับข้างบน ไม่มีไอคอนเตือน เพราะเป็นคำขอให้กรอก ไม่ใช่คำเตือน', apply: (root) => { oldNh(root); noWhy(root); nhBelow('กรุณากรอกส่วนสูงเพื่อความแม่นยำ', false)(root); }, measure: shMeasure },
+  ],
+};
+
+// ภาพที่ 6 ขยับคำขอให้กรอกไปเริ่มตรงคำว่าใช้แล้ว ที่เหลือ 146 จุด ข้อความกว้าง 148 ตก 2 บรรทัดในแผงแคบ · ตัวเลือกให้ได้บรรทัดเดียว
+const NH2_SAID = 'เอา 7 เเละขยับ กรุณา... ไปฝั่งขวา ให้ตรงกัล ใช้ actual';
+// ฉบับร่างย้ายคำขอเข้าไปอยู่ใต้กล่องในคอลัมน์ขวาแล้ว ภาพกลุ่ม 6-2 ย้ายกลับไปใต้แถวตัวเลขแบบตอนเลือก
+const old62 = (root) => {
+  root.querySelectorAll('.cx-bw td.cx-na').forEach((td) => { if (/ส่วนสูง/.test(td.textContent)) td.textContent = 'กรอกส่วนสูง'; });
+  const n = root.querySelector('.cx-crcl .cx-warnline.nh'); const top = root.querySelector('.cx-crcl .cx-top');
+  if (!n || !top || !n.closest('.cx-rcol')) return;
+  top.after(n); n.style.paddingLeft = '150px'; n.style.fontSize = '10.5px'; n.style.marginTop = '3px';
+};
+const nhNote = (text, size) => (root) => { old62(root); const n = root.querySelector('.cx-crcl .cx-warnline.nh'); if (!n) return; if (text) n.querySelector('span').textContent = text; if (size) n.style.fontSize = size; };
+const nhLines = (root, box, col) => {
+  const n = root.querySelector('.cx-crcl .cx-warnline.nh'); const sub = col.querySelector('.opt-sub');
+  if (!n || !sub) return;
+  const lines = Math.round(n.getBoundingClientRect().height / parseFloat(getComputedStyle(n).lineHeight));
+  sub.textContent += ` · วัดแล้ว ${lines === 1 ? 'บรรทัดเดียว' : lines + ' บรรทัด'}`;
+};
+OPTIONS[6] = [OPTIONS[6], {
+  title: 'ตัวเลือก คำขอให้กรอกส่วนสูงที่เริ่มตรงคำว่าใช้ · แผงแคบเหลือที่ 146 จุด ข้อความกว้าง 148 เกินไป 2 จุด ตก 2 บรรทัด (แผงกว้างบรรทัดเดียว)',
+  said: NH2_SAID,
+  cropSel: '.cx-top',
+  cropEnd: '.cx-crcl .cx-warnline.nh',
+  cropW: 320,
+  padTop: 5,
+  newNum: true,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'กรุณากรอกส่วนสูงเพื่อความแม่นยำ ขนาด 10.5', apply: nhNote('กรุณากรอกส่วนสูงเพื่อความแม่นยำ'), measure: nhLines },
+    { name: 'ตัดคำว่า กรุณา', sub: 'กรอกส่วนสูงเพื่อความแม่นยำ ขนาด 10.5 เท่าหมายเหตุอื่น (คำเดิมก่อนเกลา)', apply: nhNote('กรอกส่วนสูงเพื่อความแม่นยำ'), measure: nhLines },
+    { name: 'ตัวหนังสือ 9.5', sub: 'ข้อความเดิม เล็กกว่าหมายเหตุอื่น 1 ขั้น', apply: nhNote('', '9.5px'), measure: nhLines },
+    { chosen: true, name: 'สั้นลงเหลือ กรุณากรอกส่วนสูง', sub: 'ตัดเพื่อความแม่นยำ ขนาด 10.5', apply: nhNote('กรุณากรอกส่วนสูง'), measure: nhLines },
+  ],
+}];
+
+// ภาพที่ 7 คำเตือนสามที่ ใต้ช่องอายุ ใต้ช่อง sCr และหมายเหตุอายุใต้ตัวเลข · เกลาคำเป็นรายการ จำนวนบรรทัดวัดในกล่องจริงแผงแคบ
+// ข้อความเรื่องอายุมีสองที่ซ้ำกัน · ข้อความ sCr ใช้แบบเดียวกันกับ sCr ต่ำกว่าค่าอ้างอิงในภาพ 10
+const W7_SAID = 'ทำภาพ 7 เตือนหลายอย่างต่อ';
+// แต่ละแบบแก้กล่องจริงแล้วตัดภาพเฉพาะส่วนนั้น (พี่กันสั่ง "สามส่วนนี้ ทำเป้นรูปหน่อย จะได้มองได้ตรงๆ" 5 ต.ค. 2569 · เดิมเป็นรายการคำ)
+const W7_PIC_SAID = 'สามส่วนนี้ ทำเป้นรูปหน่อย จะได้มองได้ตรงๆ';
+// ภาพตัวเลือก 7-1 คงขนาด 12 ตอนเลือก (ฉบับร่างเปลี่ยนข้อความใต้ช่องอายุเป็น 10.5 ทีหลัง)
+const msgSet = (key, text) => (root) => {
+  const m = root.querySelector(`[data-msg="${key}"]`); if (!m) return;
+  // ฉบับร่างเปลี่ยนข้อความใต้ช่อง sCr เป็นบรรทัดค่าอ้างอิงแล้ว ภาพตัวเลือกจึงสร้างข้อความเตือนแบบเดิมขึ้นใหม่ทั้งก้อน
+  if (key === 'scrref') { m.className = 'cx-msg hi'; m.innerHTML = `${WARN_SVG}<span>${text}</span>`; return; }
+  const sp = m.querySelector('span'); if (sp) sp.textContent = text; if (key === 'age') m.style.fontSize = '12px';
+};
+const msgHide = (key) => (root) => { const m = root.querySelector(`[data-msg="${key}"]`); if (m) m.hidden = true; };
+// บรรทัดค่าอ้างอิงแบบปกติ (ชายเข้ม หญิงจาง) ต่อใต้ข้อความเตือน sCr
+const refAfter = (root) => { const m = root.querySelector('[data-msg="scrref"]'); if (m) m.insertAdjacentHTML('afterend', '<div class="cx-msg"><span class="cx-ref on">ชาย 0.7–1.2</span> <span class="cx-ref">หญิง 0.5–1.0</span> mg/dL</div>'); };
+const ageNoteSet = (text) => (root) => { const n = root.querySelector('.cx-crcl .cx-warnline.age span'); if (n) n.textContent = text; };
+const ageNoteHide = (root) => { const n = root.querySelector('.cx-crcl .cx-warnline.age'); if (n) n.remove(); };
+const linesOf = (sel) => (root, box, col) => {
+  const el = root.querySelector(sel); const sub = col.querySelector('.opt-sub');
+  if (!sub) return;
+  if (!el || el.hidden) { sub.textContent += ' · วัดแล้ว ไม่มีข้อความ'; return; }
+  const t = el.querySelector('span') || el;
+  const lines = Math.round(t.getBoundingClientRect().height / parseFloat(getComputedStyle(t).lineHeight));
+  sub.textContent += ` · วัดแล้ว ${lines === 1 ? 'บรรทัดเดียว' : lines + ' บรรทัด'}`;
+};
+const AGE_ROW = '.cx-row[data-row="age"]';
+const SCR_ROW = '.cx-row[data-row="scr"]';
+const W7_CROP = { cropW: 320, padTop: 6, padBottom: 5, newNum: true };   // ตัดชิดไม่ให้ช่องถัดไปโผล่
+OPTIONS[7] = [Object.assign({
+  title: 'ตัวเลือก ข้อความใต้ช่องอายุ · ตอนนี้ 2 บรรทัด และซ้ำกับหมายเหตุอายุใต้ตัวเลข CrCl',
+  said: W7_SAID + ' · ' + W7_PIC_SAID,
+  cropSel: AGE_ROW, cropEnd: AGE_ROW,
+  msg12: true,   // เลือกแล้วตอนข้อความใต้ช่องยังขนาด 12 · กลุ่ม 7-2 ยังไม่เลือก จึงใช้ขนาด 10.5 ตามฉบับร่าง
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'CrCl อาจไม่แม่นยำ สูตรนี้ใช้กับอายุ 18–92 ปี', apply: msgSet('age', 'CrCl อาจไม่แม่นยำ สูตรนี้ใช้กับอายุ 18–92 ปี'), measure: linesOf('[data-msg="age"]') },
+    { name: 'บอกเกณฑ์อย่างเดียว', sub: 'สูตรนี้ใช้กับอายุ 18–92 ปี · เรื่อง CrCl อาจไม่แม่นยำอยู่ที่หมายเหตุใต้ตัวเลข ไม่ซ้ำกัน', apply: msgSet('age', 'สูตรนี้ใช้กับอายุ 18–92 ปี'), measure: linesOf('[data-msg="age"]') },
+    { name: 'บอกตามค่าที่กรอก', sub: 'อายุเกิน 92 ปี CrCl อาจไม่แม่นยำ · อายุน้อยกว่า 18 จะขึ้น อายุต่ำกว่า 18 ปี แทน', apply: msgSet('age', 'อายุเกิน 92 ปี CrCl อาจไม่แม่นยำ'), measure: linesOf('[data-msg="age"]') },
+    { name: 'ใช้ได้ทั้งเกินและต่ำกว่า', sub: 'อายุนอก 18–92 ปี CrCl อาจไม่แม่นยำ', apply: msgSet('age', 'อายุนอก 18–92 ปี CrCl อาจไม่แม่นยำ'), measure: linesOf('[data-msg="age"]') },
+    { name: 'เอาออก', sub: 'ช่องอายุยังเป็นกรอบสีส้ม คำอธิบายอยู่ที่หมายเหตุใต้ตัวเลขที่เดียว', apply: msgHide('age'), measure: linesOf('[data-msg="age"]') },
+    { name: 'สูตรรองรับอายุ 18–92 ปี', sub: 'สั้นที่สุดที่ยังบอกเกณฑ์ ไม่ซ้ำกับหมายเหตุใต้ตัวเลข (แคลร์แนะนำ)', apply: msgSet('age', 'สูตรรองรับอายุ 18–92 ปี'), measure: linesOf('[data-msg="age"]') },
+    { name: 'อายุ > 92 ปี: นอกช่วงที่สูตรรองรับ', sub: 'แบบเดียวกับ ส่วนสูง < 152 cm: อายุน้อยกว่า 18 ขึ้น อายุ < 18 ปี:', apply: msgSet('age', 'อายุ > 92 ปี: นอกช่วงที่สูตรรองรับ'), measure: linesOf('[data-msg="age"]') },
+    { chosen: true, name: 'เกินช่วงอายุที่สูตรรองรับ (18–92 ปี)', sub: 'บอกว่าเกินก่อน แล้วเกณฑ์ในวงเล็บ · อายุน้อยกว่า 18 ขึ้น ต่ำกว่าช่วงอายุ', apply: msgSet('age', 'เกินช่วงอายุที่สูตรรองรับ (18–92 ปี)'), measure: linesOf('[data-msg="age"]') },
+    { name: 'Cockcroft-Gault ใช้กับอายุ 18–92 ปี', sub: 'บอกชื่อสูตรตรง ๆ ไม่ต้องเดาว่าสูตรไหน', apply: msgSet('age', 'Cockcroft-Gault ใช้กับอายุ 18–92 ปี'), measure: linesOf('[data-msg="age"]') },
+    { name: 'ช่วงอายุของสูตร 18–92 ปี', sub: 'บอกเกณฑ์เป็นข้อมูล ไม่มีคำว่าอาจ', apply: msgSet('age', 'ช่วงอายุของสูตร 18–92 ปี'), measure: linesOf('[data-msg="age"]') },
+    { name: 'อายุเกินช่วง 18–92 ปี', sub: 'บอกตามค่าที่กรอก สั้น · อายุน้อยกว่า 18 ขึ้น อายุต่ำกว่าช่วง', apply: msgSet('age', 'อายุเกินช่วง 18–92 ปี'), measure: linesOf('[data-msg="age"]') },
+  ],
+}, W7_CROP), Object.assign({
+  title: 'ตัวเลือก ข้อความใต้ช่อง sCr ตอนสูงกว่าค่าอ้างอิง · ตอนนี้ 4 บรรทัด แทนที่บรรทัดค่าอ้างอิง · แบบที่เลือกจะใช้กับตอนต่ำกว่าค่าอ้างอิง (ภาพ 10) ด้วย',
+  said: W7_SAID + ' · ' + W7_PIC_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'sCr สูงกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด', apply: msgSet('scrref', 'sCr สูงกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ตัดค่าอ้างอิงในวงเล็บ โชว์บรรทัดค่าอ้างอิงแทน', sub: 'sCr สูงกว่าค่าอ้างอิง อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด แล้วตามด้วยบรรทัดค่าอ้างอิงแบบปกติ', apply: (root) => { msgSet('scrref', 'sCr สูงกว่าค่าอ้างอิง อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด')(root); refAfter(root); }, measure: linesOf('[data-msg="scrref"]') },
+    { name: 'เหลือ ควรติดตาม', sub: 'sCr สูงกว่าค่าอ้างอิง ควรติดตาม CrCl อย่างใกล้ชิด', apply: msgSet('scrref', 'sCr สูงกว่าค่าอ้างอิง ควรติดตาม CrCl อย่างใกล้ชิด'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'เหลือ อาจบ่งชี้', sub: 'sCr สูงกว่าค่าอ้างอิง อาจบ่งชี้ไตทำงานลดลง', apply: msgSet('scrref', 'sCr สูงกว่าค่าอ้างอิง อาจบ่งชี้ไตทำงานลดลง'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'บอกแค่สูงกว่า โชว์บรรทัดค่าอ้างอิง', sub: 'sCr สูงกว่าค่าอ้างอิง แล้วตามด้วยบรรทัดค่าอ้างอิงแบบปกติ', apply: (root) => { msgSet('scrref', 'sCr สูงกว่าค่าอ้างอิง')(root); refAfter(root); }, measure: linesOf('[data-msg="scrref"]') },
+  ],
+}, W7_CROP), Object.assign({
+  title: 'ตัวเลือก หมายเหตุอายุใต้ตัวเลข CrCl · แบบเดียวกับ Underweight: กับ ส่วนสูง < 152 cm: ที่ขึ้นต้นด้วยกรณีตามด้วยทวิภาค',
+  said: W7_SAID + ' · ' + W7_PIC_SAID,
+  cropSel: '.cx-crcl .cx-top', cropEnd: '.cx-crcl .cx-top ~ .cx-warnline:last-of-type',
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ', apply: ageNoteSet('อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ'), measure: linesOf('.cx-crcl .cx-warnline.age') },
+    { chosen: true, name: 'ขึ้นต้นด้วยกรณีแล้วทวิภาค', sub: 'อายุนอกช่วง 18–92 ปี: CrCl อาจไม่แม่นยำ', apply: ageNoteSet('อายุนอกช่วง 18–92 ปี: CrCl อาจไม่แม่นยำ'), measure: linesOf('.cx-crcl .cx-warnline.age') },
+    { name: 'บอกตามค่าที่กรอก ใช้เครื่องหมาย', sub: 'อายุ > 92 ปี: CrCl อาจไม่แม่นยำ · แบบเดียวกับ ส่วนสูง < 152 cm: · อายุน้อยกว่า 18 ขึ้น อายุ < 18 ปี:', apply: ageNoteSet('อายุ > 92 ปี: CrCl อาจไม่แม่นยำ'), measure: linesOf('.cx-crcl .cx-warnline.age') },
+    { name: 'เอาออก', sub: 'เหลือข้อความใต้ช่องอายุที่เดียว', apply: ageNoteHide, measure: linesOf('.cx-crcl .cx-warnline.age') },
+  ],
+}, W7_CROP)];
+
+// ภาพที่ 7 เขียนข้อความใต้ช่อง sCr ใหม่ตามไอเดียพี่กัน โชว์ค่าอ้างอิงแล้วบอก High หรือ Low · วาดจากกล่องจริง ตัดเฉพาะช่อง sCr
+// ข้อความในภาพตายตัว (ภาพ 7 เป็นชาย sCr 1.6) · ตอนต่ำกว่าค่าอ้างอิง (ภาพ 10) ใช้แบบเดียวกันแต่เป็น Low
+const HL_SAID = 'เราว่า 7-2 ต้องเขียนใหม่เลย มั้ย · เช่นเอา ref มาเเล้วเขียน low high งี้ ลองเอาไอเดียเราไปปรับ';
+// สีตามเว็บ HCV (components/form/VisitCard.tsx ป้าย H text-red-600 #dc2626 · L text-orange-600 #ea580c)
+// (พี่กันสั่ง "high low เอาสีตามเว็บ hcv หน่อย เเต่เว็บนั้นจะเป้น H L ลองไปหามา" 5 ต.ค. 2569 · เดิมสีน้ำตาลทอง #855a00)
+const HI_C = 'color:#dc2626;font-weight:700';
+const LO_C = 'color:#ea580c;font-weight:700';
+const REF_M = '<span class="cx-ref on">ชาย 0.7–1.2</span> <span class="cx-ref">หญิง 0.5–1.0</span> mg/dL';
+const UP_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5"></path><path d="M6 11l6-6 6 6"></path></svg>';
+const scrSet = (cls, html, after) => (root) => {
+  const m = root.querySelector('[data-msg="scrref"]'); if (!m) return;
+  m.className = 'cx-msg' + (cls ? ' ' + cls : ''); m.innerHTML = html;
+  if (after) m.insertAdjacentHTML('afterend', after);
+};
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก ข้อความใต้ช่อง sCr เขียนใหม่ · โชว์ค่าอ้างอิงแบบปกติ แล้วบอก High หรือ Low · สีตามเว็บ HCV High แดง #dc2626 Low ส้ม #ea580c · ตอนต่ำกว่าค่าอ้างอิง (ภาพ 10) ใช้แบบเดียวกันเป็น Low',
+  said: HL_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'sCr สูงกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด', apply: msgSet('scrref', 'sCr สูงกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ค่าอ้างอิงแบบปกติ ต่อท้ายด้วย High', sub: 'ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL High · บรรทัดเดียวกับตอนค่าปกติ เพิ่มแค่คำว่า High สีแดงแบบเว็บ HCV', apply: scrSet('', `${REF_M} <b style="${HI_C}">High</b>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'High ขึ้นก่อน ตามด้วยทวิภาค', sub: 'High: ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL · แบบเดียวกับ Underweight: มีไอคอนเตือน', apply: scrSet('hi', `${WARN_SVG}<span><b style="${HI_C}">High:</b> ${REF_M}</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'High กับค่าอ้างอิงเพศที่เลือก', sub: 'High: ref ชาย 0.7–1.2 mg/dL · โชว์แค่เพศที่เลือก', apply: scrSet('hi', `${WARN_SVG}<span><b style="${HI_C}">High:</b> ref ชาย 0.7–1.2 mg/dL</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ลูกศรขึ้นแทนคำว่า High', sub: 'ลูกศรชี้ขึ้นสีแดง แล้วตามด้วยค่าอ้างอิงแบบปกติ · ต่ำกว่าค่าอ้างอิงเป็นลูกศรชี้ลง', apply: scrSet('', `<span style="color:#dc2626">${UP_SVG}</span><span>${REF_M}</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ค่าอ้างอิงกับ High แล้วคำแนะนำบรรทัดถัดไป', sub: 'บรรทัดแรก ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL High · บรรทัดสอง ควรติดตาม CrCl อย่างใกล้ชิด', apply: scrSet('', `${REF_M} <b style="${HI_C}">High</b>`, '<div class="cx-msg hi">ควรติดตาม CrCl อย่างใกล้ชิด</div>'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'แบบเว็บ HCV ตัว H', sub: 'ค่าอ้างอิงแบบปกติ ต่อท้ายด้วยตัว H สีแดงตัวหนา เหมือนป้ายค่าแลปในเว็บ HCV · ต่ำกว่าเป็นตัว L สีส้ม #ea580c', apply: scrSet('', `${REF_M} <b style="${HI_C}">H</b>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'กรอบช่อง sCr สีส้ม กับ High', sub: 'ช่อง sCr เป็นกรอบสีส้มแบบช่องอายุ ค่าอ้างอิงแบบปกติต่อท้ายด้วย High', apply: (root) => { scrSet('', `${REF_M} <b style="${HI_C}">High</b>`)(root); const fld = root.querySelector('.cx-field[data-f="scr"]'); if (fld) fld.classList.add('is-warn'); }, measure: linesOf('[data-msg="scrref"]') },
+  ],
+}, W7_CROP));
+
+// ภาพที่ 10 sCr ต่ำกว่าค่าอ้างอิง แบบ Low คู่กับกลุ่ม 7-4 ทุกข้อ · หญิง sCr 0.3 · สีส้มตามป้าย L ของเว็บ HCV
+const LOW_SAID = 'ม๊อคอัป low ด้วย';
+const REF_F = '<span class="cx-ref">ชาย 0.7–1.2</span> <span class="cx-ref on">หญิง 0.5–1.0</span> mg/dL';
+const DOWN_SVG = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 5v14"></path><path d="M6 13l6 6 6-6"></path></svg>';
+OPTIONS[10] = Object.assign({
+  title: 'ตัวเลือก ข้อความใต้ช่อง sCr ตอนต่ำกว่าค่าอ้างอิง แบบ Low · คู่กับกลุ่ม 7-4 ข้อต่อข้อ · Low สีส้ม #ea580c ตามป้าย L ของเว็บ HCV',
+  said: LOW_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'sCr ต่ำกว่าค่าอ้างอิง (หญิง 0.5–1.0 mg/dL) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง', apply: scrSet('warn', `${WARN_SVG}<span>sCr ต่ำกว่าค่าอ้างอิง (หญิง 0.5–1.0 mg/dL) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ค่าอ้างอิงแบบปกติ ต่อท้ายด้วย Low', sub: 'ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL Low · หญิงตัวเข้ม · คู่กับ 7-4 ข้อ 2', apply: scrSet('', `${REF_F} <b style="${LO_C}">Low</b>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'Low ขึ้นก่อน ตามด้วยทวิภาค', sub: 'Low: ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL มีไอคอนเตือน · คู่กับ 7-4 ข้อ 3', apply: scrSet('warn', `${WARN_SVG}<span><b style="${LO_C}">Low:</b> ${REF_F}</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'Low กับค่าอ้างอิงเพศที่เลือก', sub: 'Low: ref หญิง 0.5–1.0 mg/dL · คู่กับ 7-4 ข้อ 4', apply: scrSet('warn', `${WARN_SVG}<span><b style="${LO_C}">Low:</b> ref หญิง 0.5–1.0 mg/dL</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ลูกศรลงแทนคำว่า Low', sub: 'ลูกศรชี้ลงสีส้ม แล้วตามด้วยค่าอ้างอิงแบบปกติ · คู่กับ 7-4 ข้อ 5', apply: scrSet('', `<span style="color:#ea580c">${DOWN_SVG}</span><span>${REF_F}</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ค่าอ้างอิงกับ Low แล้วคำอธิบายบรรทัดถัดไป', sub: 'บรรทัดสองใช้คำอธิบายเดิมของกรณีนี้ ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง · คู่กับ 7-4 ข้อ 6', apply: scrSet('', `${REF_F} <b style="${LO_C}">Low</b>`, '<div class="cx-msg warn">ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง</div>'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'แบบเว็บ HCV ตัว L', sub: 'ค่าอ้างอิงแบบปกติ ต่อท้ายด้วยตัว L สีส้มตัวหนา · คู่กับ 7-4 ข้อ 7', apply: scrSet('', `${REF_F} <b style="${LO_C}">L</b>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'กรอบช่อง sCr สีส้ม กับ Low', sub: 'ช่อง sCr เป็นกรอบสีส้มแบบช่องอายุ ค่าอ้างอิงแบบปกติต่อท้ายด้วย Low · คู่กับ 7-4 ข้อ 8', apply: (root) => { scrSet('', `${REF_F} <b style="${LO_C}">Low</b>`)(root); const fld = root.querySelector('.cx-field[data-f="scr"]'); if (fld) fld.classList.add('is-warn'); }, measure: linesOf('[data-msg="scrref"]') },
+  ],
+}, W7_CROP);
+
+// กลุ่ม 7-5 แบบ Low ข้อต่อข้อกับ 7-4 ให้เลื่อนเทียบกันได้ในภาพเดียวกัน (พี่กันบอก "เรานึกว่าเธอจะสร้าง 7-5 ที่เป้น low ให้เทียบ" 5 ต.ค. 2569)
+// ภาพ 7 เป็นชาย sCr 1.6 จึงเปลี่ยนตัวเลขในช่องเป็น 0.5 ให้ต่ำกว่าค่าอ้างอิงชาย 0.7–1.2 · เปลี่ยนแค่ตัวเลขที่เห็นในช่อง ไม่ได้คิดผลใหม่ (ภาพตัดเฉพาะช่อง sCr)
+const LOW7_SAID = 'เราดู 7-4 อยู่ ดู high เเต่อยู่ๆเธอไปสร้าง 10-1 มาเเล้ว ... คือเรานึกว่าเธอจะสร้าง 7-5 ที่เป้น low ให้เทียบ';
+const lowVal = (root) => { const i = root.querySelector('[data-k="scr"]'); if (i) i.value = '0.5'; };
+const lowSet = (cls, html, after) => (root) => { lowVal(root); scrSet(cls, html, after)(root); };
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก แบบ Low ข้อต่อข้อกับ 7-4 · ภาพเดียวกันเปลี่ยน sCr เป็น 0.5 ให้ต่ำกว่าค่าอ้างอิงชาย · Low สีส้ม #ea580c ตามป้าย L ของเว็บ HCV',
+  said: LOW7_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [
+    { name: 'แบบตอนนี้ (ฉบับร่าง)', sub: 'sCr ต่ำกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง · คู่กับ 7-4 ข้อ 1', apply: lowSet('warn', `${WARN_SVG}<span>sCr ต่ำกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ค่าอ้างอิงแบบปกติ ต่อท้ายด้วย Low', sub: 'คู่กับ 7-4 ข้อ 2', apply: lowSet('', `${REF_M} <b style="${LO_C}">Low</b>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'Low ขึ้นก่อน ตามด้วยทวิภาค', sub: 'มีไอคอนเตือน · คู่กับ 7-4 ข้อ 3', apply: lowSet('warn', `${WARN_SVG}<span><b style="${LO_C}">Low:</b> ${REF_M}</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'Low กับค่าอ้างอิงเพศที่เลือก', sub: 'Low: ref ชาย 0.7–1.2 mg/dL · คู่กับ 7-4 ข้อ 4', apply: lowSet('warn', `${WARN_SVG}<span><b style="${LO_C}">Low:</b> ref ชาย 0.7–1.2 mg/dL</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ลูกศรลงแทนคำว่า Low', sub: 'ลูกศรชี้ลงสีส้ม · คู่กับ 7-4 ข้อ 5', apply: lowSet('', `<span style="color:#ea580c">${DOWN_SVG}</span><span>${REF_M}</span>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ค่าอ้างอิงกับ Low แล้วคำอธิบายบรรทัดถัดไป', sub: 'บรรทัดสองใช้คำอธิบายเดิมของกรณีต่ำ · คู่กับ 7-4 ข้อ 6', apply: lowSet('', `${REF_M} <b style="${LO_C}">Low</b>`, '<div class="cx-msg warn">ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง</div>'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'แบบเว็บ HCV ตัว L', sub: 'คู่กับ 7-4 ข้อ 7', apply: lowSet('', `${REF_M} <b style="${LO_C}">L</b>`), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'กรอบช่อง sCr สีส้ม กับ Low', sub: 'คู่กับ 7-4 ข้อ 8', apply: (root) => { lowSet('', `${REF_M} <b style="${LO_C}">Low</b>`)(root); const fld = root.querySelector('.cx-field[data-f="scr"]'); if (fld) fld.classList.add('is-warn'); }, measure: linesOf('[data-msg="scrref"]') },
+  ],
+}, W7_CROP));
+
+// ภาพที่ 7 ไอเดียพี่กัน ใส่สัญลักษณ์ขึ้นลงในช่อง sCr ตัวเลขไม่ขยับ · สัญลักษณ์อยู่ในที่ว่างทางซ้ายของตัวเลข (ตัวเลขเริ่มที่เดิมเสมอ)
+// แต่ละสัญลักษณ์มีคู่ High (sCr 1.6 สีแดง #dc2626) กับ Low (sCr 0.5 สีส้ม #ea580c) วางติดกัน · ใต้ช่องเป็นบรรทัดค่าอ้างอิงแบบปกติ
+const SYM_SAID = 'เรามีไอเดีย เอาลูกศรขึ้นลง ใส่ใน 1.6 แต่ 1.6 ไม่ขยับนะ · เอาไอเดีย symbol หน่อย';
+const sv14 = (body, fill) => `<svg width="14" height="14" viewBox="0 0 24 24" fill="${fill ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${body}</svg>`;
+const SYM = {
+  arrow: [sv14('<path d="M12 19V5"/><path d="M6 11l6-6 6 6"/>'), sv14('<path d="M12 5v14"/><path d="M6 13l6 6 6-6"/>')],
+  tri: [sv14('<path d="M12 6l7 11H5z"/>', true), sv14('<path d="M12 18l7-11H5z"/>', true)],
+  chev: [sv14('<path d="M6 15l6-6 6 6"/>'), sv14('<path d="M6 9l6 6 6-6"/>')],
+  dchev: [sv14('<path d="M6 12l6-6 6 6"/><path d="M6 18l6-6 6 6"/>'), sv14('<path d="M6 6l6 6 6-6"/><path d="M6 12l6 6 6-6"/>')],
+  badge: ['<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 17V7M8 11l4-4 4 4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+          '<svg width="15" height="15" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="currentColor"/><path d="M12 7v10M8 13l4 4 4-4" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>'],
+  trend: [sv14('<path d="M6 18L18 6"/><path d="M9 6h9v9"/>'), sv14('<path d="M6 6l12 12"/><path d="M18 9v9H9"/>')],
+  letter: ['<b style="font:800 13px/1 var(--font-en),sans-serif">H</b>', '<b style="font:800 13px/1 var(--font-en),sans-serif">L</b>'],
+};
+// ใส่สัญลักษณ์ในช่อง · where 'left' = ที่ว่างซ้ายตัวเลข · 'after' = ต่อท้ายตัวเลข (ตำแหน่งขยับตามจำนวนหลัก ตัวเลขยังอยู่ที่เดิม)
+const symIn = (key, low, where) => (root) => {
+  const inp = root.querySelector('[data-k="scr"]'); const fld = root.querySelector('.cx-field[data-f="scr"]');
+  if (!inp || !fld) return;
+  if (low) inp.value = '0.5';
+  const m = root.querySelector('[data-msg="scrref"]');
+  if (m) { m.className = 'cx-msg'; m.innerHTML = REF_M; }
+  fld.style.position = 'relative';
+  const c = low ? '#ea580c' : '#dc2626';
+  const el = document.createElement('span');
+  el.innerHTML = SYM[key][low ? 1 : 0];
+  el.style.cssText = `position:absolute;top:50%;transform:translateY(-50%);display:flex;color:${c};pointer-events:none`;
+  fld.appendChild(el);
+  // วัดตำแหน่งหลังฟอนต์โหลดและกล่องวางเสร็จ (ตอนเรียกครั้งแรกกล่องยังไม่ได้วาง วัดได้ศูนย์)
+  const place = () => {
+    const ir = inp.getBoundingClientRect(); const fr = fld.getBoundingClientRect();
+    const pl = parseFloat(getComputedStyle(inp).paddingLeft);
+    if (where === 'after') {
+      const cv = document.createElement('canvas').getContext('2d'); const cs = getComputedStyle(inp);
+      cv.font = `${cs.fontWeight} ${cs.fontSize} ${cs.fontFamily}`;
+      el.style.left = (ir.left - fr.left + pl + cv.measureText(inp.value).width + 4) + 'px';
+    } else {
+      el.style.left = (ir.left - fr.left + pl - el.getBoundingClientRect().width - 6) + 'px';
+    }
+  };
+  (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(place, 80));
+};
+const SYM_ITEMS = [['arrow', 'ลูกศร'], ['tri', 'สามเหลี่ยมทึบ'], ['chev', 'เครื่องหมายบั้ง'], ['dchev', 'บั้งคู่'], ['badge', 'วงกลมทึบมีลูกศร'], ['trend', 'ลูกศรเฉียง'], ['letter', 'ตัวอักษร H L แบบเว็บ HCV']];
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก สัญลักษณ์ขึ้นลงในช่อง sCr ตัวเลขไม่ขยับ · สัญลักษณ์อยู่ในที่ว่างทางซ้ายของตัวเลข · แต่ละแบบมี High (แดง) กับ Low (ส้ม) ติดกัน · ใต้ช่องเป็นบรรทัดค่าอ้างอิงแบบปกติ',
+  said: SYM_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [].concat(...SYM_ITEMS.map(([k, n]) => [
+    { name: n + ' · High', sub: 'sCr 1.6 สูงกว่าค่าอ้างอิงชาย', apply: symIn(k, false) },
+    { name: n + ' · Low', sub: 'sCr 0.5 ต่ำกว่าค่าอ้างอิงชาย', apply: symIn(k, true) },
+  ]), [
+    { name: 'ลูกศรต่อท้ายตัวเลข · High', sub: 'ตัวเลขยังอยู่ที่เดิม แต่ลูกศรขยับตามจำนวนหลักของตัวเลข', apply: symIn('arrow', false, 'after') },
+    { name: 'ลูกศรต่อท้ายตัวเลข · Low', sub: 'ตัวเลขยังอยู่ที่เดิม แต่ลูกศรขยับตามจำนวนหลักของตัวเลข', apply: symIn('arrow', true, 'after') },
+  ]),
+}, W7_CROP));
+
+// สัญลักษณ์ต่อท้ายตัวเลข (พี่กันสั่ง "เอาไว้หลัง 1.6" 5 ต.ค. 2569) · ตัวเลขเริ่มที่เดิม สัญลักษณ์อยู่ห่างตัวเลข 4 จุด · กลุ่ม 7-6 แบบอยู่ซ้ายยังเก็บไว้
+const SYM2_SAID = 'เอาไว้หลัง 1.6';
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก สัญลักษณ์ขึ้นลงต่อท้ายตัวเลข sCr · ตัวเลขเริ่มที่เดิม · High (แดง) กับ Low (ส้ม) ติดกัน · ใต้ช่องเป็นบรรทัดค่าอ้างอิงแบบปกติ',
+  said: SYM2_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [].concat(...SYM_ITEMS.map(([k, n]) => [
+    { chosen: k === 'dchev', name: n + ' · High', sub: 'sCr 1.6 สูงกว่าค่าอ้างอิงชาย', apply: symIn(k, false, 'after') },
+    { chosen: k === 'dchev', name: n + ' · Low', sub: 'sCr 0.5 ต่ำกว่าค่าอ้างอิงชาย', apply: symIn(k, true, 'after') },
+  ])),
+}, W7_CROP));
+
+// ภาพที่ 7 ไอเดียพี่กัน High Low อยู่ข้างช่วงค่าอ้างอิงของเพศที่เลือก ฝั่งที่ค่าหลุดออกไป (High หลังเลขบน · Low หน้าเลขล่าง)
+// Low ใช้ sCr 0.6 ผ่านกล่องจริง (พิมพ์ค่าแล้วให้กล่องคิดใหม่ บั้งคู่จึงเปลี่ยนเป็นลงเอง) · ใช้บั้งคู่ของฉบับร่าง (flagNew)
+const RANGE_SAID = 'เรามีไอเดีย ที่เขียนว่า ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL และกรอก 1.6 เราอยากให้เป็นแบบนี้ คือ 1.6 : ชาย 0.7–1.2 High หญิง 0.5–1.0 mg/dL · 0.6 : ชาย Low 0.7–1.2 หญิง 0.5–1.0 mg/dL · ทำมอคอัปมาเลย';
+const typeScr = (v) => (root, box) => {
+  const inp = root.querySelector('[data-k="scr"]'); if (!inp || !box) return;
+  inp.value = v; inp.dispatchEvent(new Event('input', { bubbles: true, composed: true }));
+  clearTimeout(box.timers.scr); box.typing.delete('scr'); box.update();
+};
+const rangeMsg = (hi) => (root) => {
+  const m = root.querySelector('[data-msg="scrref"]'); if (!m) return;
+  const word = hi ? `<b style="${HI_C}">High</b>` : `<b style="${LO_C}">Low</b>`;
+  const male = hi ? `ชาย 0.7–1.2 ${word}` : `ชาย ${word} 0.7–1.2`;
+  m.className = 'cx-msg mute';
+  // ห่อทั้งบรรทัดด้วย span เดียวแบบที่กล่องจริงทำ (setMsg) ไม่งั้นแต่ละคำกลายเป็นชิ้นแยกในแถว flex แล้วตกบรรทัดเพี้ยน
+  m.innerHTML = `<span><span class="sr">sCr ${hi ? 'สูง' : 'ต่ำ'}กว่าค่าอ้างอิง </span><span class="cx-ref on">${male}</span> <span class="cx-ref">หญิง 0.5–1.0</span> mg/dL</span>`;
+};
+const noFlag = (root) => { const f = root.querySelector('.cx-flag'); if (f) f.innerHTML = ''; };
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก High Low อยู่ข้างช่วงค่าอ้างอิงของเพศที่เลือก ฝั่งที่ค่าหลุดออกไป · High หลังเลขบน Low หน้าเลขล่าง · ซ้าย sCr 1.6 ขวา sCr 0.6',
+  said: RANGE_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  flagNew: true,
+  items: [
+    { name: 'แบบตอนนี้ (ฉบับร่าง) · 1.6', sub: 'บั้งคู่ขึ้นสีแดงในช่อง ใต้ช่องเป็นค่าอ้างอิงแบบปกติ', measure: linesOf('[data-msg="scrref"]') },
+    { name: 'แบบตอนนี้ (ฉบับร่าง) · 0.6', sub: 'บั้งคู่ลงสีส้มในช่อง ใต้ช่องเป็นค่าอ้างอิงแบบปกติ', apply: typeScr('0.6'), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'มีบั้งคู่ กับ High ข้างช่วง · 1.6', sub: 'ชาย 0.7–1.2 High หญิง 0.5–1.0 mg/dL · บั้งคู่ในช่องยังอยู่', apply: rangeMsg(true), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'มีบั้งคู่ กับ Low ข้างช่วง · 0.6', sub: 'ชาย Low 0.7–1.2 หญิง 0.5–1.0 mg/dL · บั้งคู่ในช่องยังอยู่', apply: (root, box) => { typeScr('0.6')(root, box); rangeMsg(false)(root); }, measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ไม่มีบั้งคู่ High ข้างช่วงอย่างเดียว · 1.6', sub: 'ชาย 0.7–1.2 High หญิง 0.5–1.0 mg/dL · ในช่องเหลือแค่ตัวเลข', apply: (root) => { rangeMsg(true)(root); noFlag(root); }, measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ไม่มีบั้งคู่ Low ข้างช่วงอย่างเดียว · 0.6', sub: 'ชาย Low 0.7–1.2 หญิง 0.5–1.0 mg/dL · ในช่องเหลือแค่ตัวเลข', apply: (root, box) => { typeScr('0.6')(root, box); rangeMsg(false)(root); noFlag(root); }, measure: linesOf('[data-msg="scrref"]') },
+  ],
+}, W7_CROP));
+
+// ภาพที่ 7 ทำให้บรรทัด High อยู่บรรทัดเดียวโดยไม่ลดขนาดตัวหนังสือ · ต่อจากกลุ่ม 7-8 ข้อ 3 (มีบั้งคู่ กับ High ข้างช่วง)
+const ONE_SAID = 'ลองทำให้ส่วน high เหลือ 1 บรรทัด โดยไม่ลดขนาด (ส่งภาพแบบ 7-8 ข้อ 3 กับ 4)';
+// o.word คำที่ใช้ · o.unit โชว์ mg/dL ไหม · o.other โชว์อีกเพศไหม · o.wide ให้บรรทัดยื่นไปใต้ป้าย sCr ด้วย
+const rangeMsg2 = (o) => (root) => {
+  const m = root.querySelector('[data-msg="scrref"]'); if (!m) return;
+  const w = `<b style="${HI_C}">${o.word || 'High'}</b>`;
+  m.className = 'cx-msg mute';
+  m.innerHTML = `<span><span class="sr">sCr สูงกว่าค่าอ้างอิง </span><span class="cx-ref on">ชาย 0.7–1.2 ${w}</span>${o.other === false ? '' : ' <span class="cx-ref">หญิง 0.5–1.0</span>'}${o.unit === false ? '' : ' mg/dL'}</span>`;
+  if (o.wide) { m.style.marginLeft = '-84px'; m.style.width = 'calc(100% + 84px)'; }
+};
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก ให้บรรทัด High อยู่บรรทัดเดียว ขนาดตัวหนังสือ 10.5 เท่าเดิม · ต่อจาก 7-8 ข้อ 3 · บั้งคู่ในช่องยังอยู่ทุกแบบ',
+  said: ONE_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  flagNew: true,
+  items: [
+    { name: '7-8 ข้อ 3 ที่ตก 2 บรรทัด', sub: 'ชาย 0.7–1.2 High หญิง 0.5–1.0 mg/dL', apply: rangeMsg2({}), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ตัด mg/dL', sub: 'ชาย 0.7–1.2 High หญิง 0.5–1.0 · หน่วยอยู่ในกล่องหน่วยข้างตัวเลขแล้ว', apply: rangeMsg2({ unit: false }), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'ใช้ตัว H แทน High', sub: 'ชาย 0.7–1.2 H หญิง 0.5–1.0 mg/dL · แบบป้ายในเว็บ HCV · ฝั่งต่ำเป็นตัว L', apply: rangeMsg2({ word: 'H' }), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'โชว์เฉพาะเพศที่เลือก', sub: 'ชาย 0.7–1.2 High mg/dL · ตัดหญิงออกตอนค่าสูงหรือต่ำ', apply: rangeMsg2({ other: false }), measure: linesOf('[data-msg="scrref"]') },
+    { name: 'บรรทัดยื่นไปใต้ป้าย sCr', sub: 'ข้อความเดิมครบ เริ่มตรงใต้ป้าย sCr ได้ที่เพิ่ม 84 จุด', apply: rangeMsg2({ wide: true }), measure: linesOf('[data-msg="scrref"]') },
+  ],
+}, W7_CROP));
+
+// ภาพที่ 7 กรณีผู้หญิง (พี่กันถาม "เเล้วทำมอคอัปถ้าเป้นผู้หญืง ขะออกมายังไง" 5 ต.ค. 2569)
+// กดปุ่มหญิงในกล่องจริงแล้วพิมพ์ sCr 1.4 (สูงกว่า 0.5–1.0) หรือ 0.4 (ต่ำกว่า) ให้กล่องคิดเอง บั้งคู่จึงขึ้นตามจริง
+const FEM_SAID = 'เเล้วทำมอคอัปถ้าเป้นผู้หญืง ขะออกมายังไง';
+const asFemale = (v) => (root, box) => {
+  const b = root.querySelector('[data-sex="female"]'); if (b) b.click();
+  typeScr(v)(root, box);
+};
+// o.hi สูงหรือต่ำ · o.word คำ · o.unit · o.other โชว์ชายไหม · o.wide ยื่นไปใต้ป้าย
+const femMsg = (o) => (root) => {
+  const m = root.querySelector('[data-msg="scrref"]'); if (!m) return;
+  const w = `<b style="${o.hi ? HI_C : LO_C}">${o.word || (o.hi ? 'High' : 'Low')}</b>`;
+  const fem = o.hi ? `หญิง 0.5–1.0 ${w}` : `หญิง ${w} 0.5–1.0`;
+  m.className = 'cx-msg mute';
+  m.innerHTML = `<span><span class="sr">sCr ${o.hi ? 'สูง' : 'ต่ำ'}กว่าค่าอ้างอิง </span>${o.other === false ? '' : '<span class="cx-ref">ชาย 0.7–1.2</span> '}<span class="cx-ref on">${fem}</span>${o.unit === false ? '' : ' mg/dL'}</span>`;
+  if (o.wide) { m.style.marginLeft = '-84px'; m.style.width = 'calc(100% + 84px)'; }
+};
+const FEM_V = [
+  [{}, 'High Low ข้างช่วง แบบ 7-8 ข้อ 3 กับ 4'],
+  [{ unit: false }, 'ตัด mg/dL แบบ 7-9 ข้อ 2'],
+  [{ word: 'X' }, 'ใช้ตัว H L แบบ 7-9 ข้อ 3'],
+  [{ other: false }, 'โชว์เฉพาะเพศที่เลือก แบบ 7-9 ข้อ 4'],
+  [{ wide: true }, 'บรรทัดยื่นไปใต้ป้าย sCr แบบ 7-9 ข้อ 5'],
+];
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก กรณีผู้หญิง · High Low ข้างช่วง 0.5–1.0 · ซ้าย sCr 1.4 สูงกว่า ขวา sCr 0.4 ต่ำกว่า · แบบเดียวกับ 7-8 กับ 7-9 · บั้งคู่ในช่องยังอยู่',
+  said: FEM_SAID,
+  cropSel: '.cx-row[data-row="sex"]', cropEnd: SCR_ROW,
+  flagNew: true,
+  items: [].concat(...FEM_V.map(([o, n]) => [true, false].map((hi) => ({
+    name: `${n} · ${hi ? 'สูง 1.4' : 'ต่ำ 0.4'}`,
+    sub: hi ? 'หญิง sCr 1.4 สูงกว่าค่าอ้างอิง 0.5–1.0' : 'หญิง sCr 0.4 ต่ำกว่าค่าอ้างอิง 0.5–1.0',
+    apply: (root, box) => { asFemale(hi ? '1.4' : '0.4')(root, box); femMsg(Object.assign({ hi }, o, o.word === 'X' ? { word: hi ? 'H' : 'L' } : {}))(root); },
+    measure: linesOf('[data-msg="scrref"]'),
+  })))),
+}, W7_CROP));
+
+// ภาพที่ 7 บีบบรรทัด High ให้อยู่บรรทัดเดียว ห้ามลดขนาด ห้ามตัดคำ (พี่กันสั่ง 5 ต.ค. 2569)
+// วัดแล้วข้อความยาว 215 จุด ช่องกว้าง 212 เกินแค่ 3 จุด · บีบช่องไฟระหว่างคำหรือระหว่างตัวอักษรนิดเดียวก็พอ
+const SQZ_SAID = 'เราบอกว่า ห้ามลดขนาด เเละห้ามตัดคำไหนทิ้งด้วย ทำยังไงก้ได้บีบประโยคให้มันอยู่ในบรรทัดเดียว';
+const sqz = (prop, val) => (root) => { const sp = root.querySelector('[data-msg="scrref"] > span'); if (sp) sp.style[prop] = val; };
+const SQZ = [
+  ['ช่องไฟระหว่างคำแคบลง 1 จุด', 'มีช่องว่าง 5 ช่อง แคบลงช่องละ 1 จุด ตัวอักษรเท่าเดิม', sqz('wordSpacing', '-1px')],
+  ['ระยะระหว่างตัวอักษรแคบลง 0.1 จุด', 'ทุกตัวอักษรชิดกันขึ้น 0.1 จุด ขนาดตัวเท่าเดิม', sqz('letterSpacing', '-0.1px')],
+  ['บรรทัดยื่นไปใต้ป้าย sCr', 'ข้อความครบ ระยะเท่าเดิม เริ่มใต้ป้าย sCr ได้ที่เพิ่ม 84 จุด (เหมือน 7-9 ข้อ 5)', (root) => { const m = root.querySelector('[data-msg="scrref"]'); if (m) { m.style.marginLeft = '-84px'; m.style.width = 'calc(100% + 84px)'; } }],
+];
+OPTIONS[7].push(Object.assign({
+  title: 'ตัวเลือก บีบบรรทัด High ให้อยู่บรรทัดเดียว ไม่ลดขนาด ไม่ตัดคำ · ข้อความยาว 215 จุด ช่องกว้าง 212 · ซ้ายชาย 1.6 ขวาหญิง 1.4 · บั้งคู่ในช่องยังอยู่',
+  said: SQZ_SAID,
+  cropSel: '.cx-row[data-row="sex"]', cropEnd: SCR_ROW,
+  flagNew: true,
+  items: [].concat(...SQZ.map(([n, d, fn], i) => [
+    { chosen: i === 0, name: n + ' · ชาย 1.6', sub: d, apply: (root) => { rangeMsg2({})(root); fn(root); }, measure: linesOf('[data-msg="scrref"]') },
+    { chosen: i === 0, name: n + ' · หญิง 1.4', sub: d, apply: (root, box) => { asFemale('1.4')(root, box); femMsg({ hi: true })(root); fn(root); }, measure: linesOf('[data-msg="scrref"]') },
+  ])),
+}, W7_CROP));
+
 // ตัวเลือกที่ดูแค่สัญลักษณ์ ไม่วาดทั้งกล่อง · ปุ่มหน่วยขนาดจริงจากสไตล์ฉบับร่าง กับสัญลักษณ์ขยาย
 const ICO = new CSSStyleSheet();
 ICO.replaceSync('.ico-g{margin:0 0 6px;color:#7a5106;font:700 13px/1.4 var(--font-sarabun),sans-serif}'
@@ -1082,6 +1697,10 @@ function buildOptions(fig, o, after, spec) {
     host.inert = true;
     const span = root.querySelector('[data-msg="scrref"] span');
     if (span && it.html) span.innerHTML = it.html;
+    // ตัวเลือกที่ทำก่อน 5 ต.ค. 2569 (หน่วยติดตัวเลข) คงหน้าตาตอนเลือก ที่กันไว้อยู่ที่ตัวเลข · ตัวเลือกใหม่ใส่ newNum: true
+    if (!spec.newNum) root.adoptedStyleSheets = [...root.adoptedStyleSheets, OLDNUM];
+    if (!spec.newNum || spec.msg12) root.adoptedStyleSheets = [...root.adoptedStyleSheets, MSG12];
+    if (!spec.flagNew) root.adoptedStyleSheets = [...root.adoptedStyleSheets, NOFLAG];
     if (it.apply) it.apply(root, box);
     // ตัดเฉพาะส่วน eGFR กับ BMI · วัดหลังฟอนต์โหลด (ตัวจับเวลา ไม่พึ่งจังหวะวาดจอ แท็บที่ซ่อนก็ทำงาน)
     if (spec.pairCrop || spec.cropSel) {
@@ -1089,8 +1708,8 @@ function buildOptions(fig, o, after, spec) {
         const top = spec.cropSel ? root.querySelector(spec.cropSel) : (root.querySelector('.opt-pairtop') || root.querySelector('.cx-pair'));
         const end = spec.cropEnd ? root.querySelector(spec.cropEnd) : spec.cropSel ? top : root.querySelector('.cx-pair');
         const hr = host.getBoundingClientRect();
-        const y0 = top.getBoundingClientRect().top - hr.top - 12;
-        const y1 = end.getBoundingClientRect().bottom - hr.top + 12;
+        const y0 = top.getBoundingClientRect().top - hr.top - (spec.padTop ?? 12);
+        const y1 = end.getBoundingClientRect().bottom - hr.top + (spec.padBottom ?? 12);
         host.style.marginTop = (-y0) + 'px';
         crop.style.height = (y1 - y0) + 'px';
         if (it.measure) it.measure(root, box, col);
@@ -1106,10 +1725,12 @@ const CG_SAID_H = 'รู้สึกแปลกๆ พอมี (Cockcroft-Gau
 const HEAD2_SAID_H = 'แบบนี้มั้ย เเบนเน้อก็ให้มันอยู่เเค่พวกปุ่มเเละ icon เเต่ชื่อหัวข้ออยู่เเถวถัดลงมา ลองทำมอคออัปมาที';
 const HISTORY = {
   '2.1': [
+    { date: '5 ต.ค. 2569', what: 'หน่วย mL/min ติดตัวเลข CrCl เสมอ ที่ที่กันไว้เท่าเลข 3 หลักย้ายไปอยู่หลังหน่วย กล่องบอกน้ำหนักทางขวายังอยู่ที่เดิม (ฉบับร่าง box.css · เดิมกันที่ไว้ที่ตัวเลข เลข 4 หลักอย่าง 57.2 หน่วยเลยห่าง)', said: 'อัน 57.2 เอา ml ติดกับเลขหน่อย ไปเว้นไว้หลังหน่วยจบ (ส่งภาพ 57.2 กับ 150.5)' },
     { date: '5 ต.ค. 2569', what: 'พี่กันเลือกแบบ 2.1-1 ข้อ 4 กล่องบอกน้ำหนักทางขวาตัวหนังสือ 11.5 จุด ช่องไฟระหว่างตัวเลขกับกล่อง 6 จุด ใช้ Ideal BW 65.9 kg อยู่บรรทัดเดียว · ตัวเลข CrCl ขนาดเท่าเดิม (ฉบับร่าง box.css)', said: 'เอาอันนี้  เราจะไม่ลดขนาดค่า Crcl (ส่งภาพแบบ 4 ตัวหนังสือในกล่องเล็กลง)' },
     { date: '5 ต.ค. 2569', what: 'ล็อกตัวเลขแล้วกล่องทางขวาแคบ ใช้ Ideal BW 65.9 kg ตก 2 บรรทัด · ทำตัวเลือก 5 แบบใต้แถวนี้', said: 'ทำตัวเลือกมาให้เลือกที' },
   ],
   1: [
+    { date: '5 ต.ค. 2569', what: 'ข้อความแทนตัวเลขตอนยังคำนวณไม่ได้ในส่วน CrCl eGFR BMI (กรุณากรอก … · คำนวณไม่ได้ เพราะ …) เป็น 10.5 ทุกภาพ (ภาพ 1 6 8 9 11 12 และแผงกว้าง) · กล่องแดง ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ ขนาดเท่าเดิม (ฉบับร่าง box.css · เดิม 12)', said: 'ปรับเป็น 10.5 ทั้งหมดเลย ยกเว้น ภาพ 11 ตามรูป เอาเท่าเดิม (ส่งภาพกล่องแดง ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ)' },
     { date: '5 ต.ค. 2569', what: 'กล่องหน่วยกับกล่อง ปี กว้างขึ้นเป็นครึ่งช่อง เส้นซ้ายตรงกับเส้นแบ่งปุ่มชายหญิง (ฉบับร่าง box.css · เดิมกว้าง 77 จุด) · ทุกภาพเปลี่ยนตาม', said: 'เธอลอง ขยายกรอบ ปี เเละหน่วย ให้ตรงกับ เพษหญิงหน่อย' },
     { date: '5 ต.ค. 2569', what: 'ค่าที่พิมพ์ในช่องเริ่มตรงตัว ช ของคำว่าชาย แบบเดียวกับคำว่าเช่นตอนช่องว่าง ไม่ชิดขวาแล้ว (ฉบับร่าง box.css) · ทุกภาพที่มีค่าในช่องเปลี่ยนตาม', said: 'ลองขยับตัวเลข ให้ตรงกับ ช ชาย หน่อย' },
     { date: '5 ต.ค. 2569', what: 'ค่าที่กรอกในช่องเป็นสีเขียวน้ำทะเล สีเดียวกับลูกศรบนปุ่มสลับหน่วย ข้อความตัวอย่างตอนช่องว่างยังเทาเหมือนเดิม (ฉบับร่าง box.css) · ทุกภาพที่มีค่าในช่องเปลี่ยนตาม · พี่กันบอกให้เกลาแผงแคบจนพอใจก่อน แล้วค่อยปรับแผงกว้างทีเดียว', said: '14 ค่อยไปแก้ทีหลัง เพราะเราจะขอเเก้เเนวตั้งจนพอใจก่อน เเล้วค่อยเอาไปปรับทีเดียว · ตามรูป ตอนกรอก ขอสิ่งที่กรอกเป็นสีเขียว เหมือนสี icon สลับหน่วยค่าเเลป' },
@@ -1146,6 +1767,26 @@ const HISTORY = {
     { date: '4 ต.ค. 2569', what: 'ค่าอ้างอิง Cr ตอนยังไม่เลือกเพศ "ค่าอ้างอิง Cr ชาย 0.7–1.2 และหญิง 0.5–1.0 mg/dL" (2 บรรทัด) เกลาเป็น "ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL" บรรทัดเดียว ตัวเลขเท่าเดิม (ฉบับร่าง render.js)', said: 'ยังอยู่ที่ภาพ 1  เกลาให้เหลือ 1 บรรทัด' },
     { date: '4 ต.ค. 2569', what: 'ข้อ 44 "ยังไม่ได้กรอก เพศกำเนิด อายุ BW และ Cr" เรียงใหม่เป็น "... อายุ Cr และ BW" ตามลำดับช่องกรอก (ฉบับร่าง calc.js)', said: 'อ๋อ เข้าใจละ มันคือคำอธิบาย งั้นเเก้ฃ' },
   ],
+  6: [
+    { date: '5 ต.ค. 2569', what: 'ตารางน้ำหนัก แถว Ideal BW กับ Adjusted BW ขึ้น กรุณากรอกส่วนสูง (ฉบับร่าง render.js · เดิม กรอกส่วนสูง) · ภาพตัวเลือกกลุ่ม 6-1 6-2 คงคำเดิม', said: 'กรุณา ด้วย (ส่งภาพแถวตารางที่ขึ้น กรอกส่วนสูง)' },
+    { date: '5 ต.ค. 2569', what: 'ตัวเลข CrCl อยู่กึ่งกลางความสูงของกล่องกับคำขอ กรุณากรอกส่วนสูง รวมกัน คำขอย้ายเข้าไปอยู่ใต้กล่องในคอลัมน์ขวา ยังเริ่มตรงคำว่าใช้ (ฉบับร่าง render.js box.css) · ภาพกลุ่ม 6-2 คงแบบตอนเลือก', said: 'เอา 58.6 ไปอยู่ตรงหลาง ตอนนี้มันอยู่บนน่ะ' },
+    { date: '5 ต.ค. 2569', what: 'คำขอให้กรอกเหลือ กรุณากรอกส่วนสูง (แบบ 6-2 ข้อ 4 · ฉบับร่าง render.js)', said: 'กรุณากรอกส่วนสูง เอาเเค่นี้' },
+    { date: '5 ต.ค. 2569', what: 'คำขอให้กรอกส่วนสูงเริ่มตรงคำว่าใช้แล้ว แผงแคบตก 2 บรรทัด (ที่เหลือ 146 จุด ข้อความ 148) ทำตัวเลือก 4 แบบใต้แถวนี้ (กลุ่ม 6-2)', said: NH2_SAID },
+    { date: '5 ต.ค. 2569', what: 'กล่องไม่กรอกส่วนสูงเหลือ ใช้ Actual BW 58.0 kg · คำขอ กรุณากรอกส่วนสูงเพื่อความแม่นยำ อยู่ใต้แถวตัวเลข ไม่มีไอคอน ขนาด 10.5 เริ่มตรงกับคำว่าใช้ในกล่องทางขวา (ฉบับร่าง render.js box.css) · ภาพในกลุ่ม 6-1 ย้อนเป็นกล่องแบบก่อนเลือก', said: 'เอา 7 เเละขยับ กรุณา... ไปฝั่งขวา ให้ตรงกัล ใช้ actual' },
+    { date: '5 ต.ค. 2569', what: 'กล่องไม่กรอกส่วนสูง ทางขวาตัวเลข ทำตัวเลือก 7 แบบใต้แถวนี้ (กลุ่ม 6-1) ตัดบรรทัดเหตุผล ขึ้นต้นด้วยกรุณา หรือย้ายคำเตือนไปใต้ตัวเลขแบบผอมกับเตี้ย', said: NH_SAID },
+  ],
+  5: [
+    { date: '5 ต.ค. 2569', what: 'หมายเหตุกรณีเตี้ยเป็น ส่วนสูง < 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง ตัดคำว่ามีภาวะ (ฉบับร่าง render.js)', said: 'เอา อาจหลังค่อม' },
+    { date: '5 ต.ค. 2569', what: 'หมายเหตุกรณีเตี้ยเป็น ส่วนสูง < 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง (แบบ 5-2 ข้อ 4 · ฉบับร่าง render.js) · ขนาด 10.5 ในแผงแคบตก 2 บรรทัด', said: 'ต่ำ่วาา เป็น < (อ่านได้ว่า ต่ำกว่า เป็น <)' },
+    { date: '5 ต.ค. 2569', what: 'ขึ้นต้นด้วย ส่วนสูง แล้วหมายเหตุตก 2 บรรทัดในแผงแคบ ทำตัวเลือก 5 แบบใต้แถวนี้ (กลุ่ม 5-2)', said: HT_SAID },
+    { date: '5 ต.ค. 2569', what: 'หมายเหตุใต้ตัวเลขกรณีเตี้ย ขึ้นต้นด้วย ส่วนสูงต่ำกว่า 152 cm: (ฉบับร่าง render.js · เดิม สูงต่ำกว่า 152 cm:)', said: 'ใช่คำว่า ส่วนสูง' },
+    { date: '5 ต.ค. 2569', what: 'กล่องเตี้ยเหลือ ใช้ Actual BW 52.0 kg · หมายเหตุใต้ตัวเลข สูงต่ำกว่า 152 cm: อาจมีภาวะหลังค่อม CrCl อาจต่ำเกินจริง มีไอคอนเตือน ขนาด 10.5 (ฉบับร่าง render.js) · ภาพในกลุ่ม 5-1 ย้อนเป็นกล่องแบบก่อนเลือก', said: 'เอาอันนี้ (ส่งภาพแบบ 5-1 ข้อ 5 สูงต่ำกว่า 152 cm:)' },
+    { date: '5 ต.ค. 2569', what: 'กล่องเตี้ยกว่า 152 cm ทางขวาตัวเลข ทำตัวเลือก 7 แบบใต้แถวนี้ (กลุ่ม 5-1) ตัดบรรทัดเหตุผล คำเตือนสั้นลง หรือย้ายคำเตือนไปใต้ตัวเลขแบบผอม พร้อมคำนำหน้า 4 แบบ', said: SH_SAID },
+  ],
+  4: [
+    { date: '5 ต.ค. 2569', what: 'กล่อง Obese ทางขวาตัวเลข เหลือ ใช้ Adjusted BW 74.8 kg ตัดคำ Obese กับบรรทัดเหตุผล ตัวหนังสือในกล่องนี้ 10.5 อยู่บรรทัดเดียว (ฉบับร่าง render.js box.css) · ภาพในกลุ่ม 4-1 ย้อนเป็นกล่องแบบก่อนเลือก', said: 'เอาข้อ 7' },
+    { date: '5 ต.ค. 2569', what: 'กล่อง Obese ทางขวาตัวเลข ทำตัวเลือก 6 แบบใต้แถวนี้ (กลุ่ม 4-1) ตัดคำ Obese ตัดบรรทัดเหตุผล หรือย้ายเหตุผลไปเป็นหมายเหตุใต้ตัวเลขแบบผอม', said: OB_SAID },
+  ],
   2: [
     { date: '5 ต.ค. 2569', what: 'ตัวเลข CrCl ชิดซ้าย ยังกันที่ไว้เท่าเลข 3 หลัก (ฉบับร่าง box.css · เดิมชิดขวา)', said: 'ให้ชิดขอบซ้าย เเม้จะกันที่ไว้ก็ตาม' },
     { date: '5 ต.ค. 2569', what: 'ตัวเลข CrCl ล็อกความกว้างเท่าเลข 3 หลัก (เช่น 120.5) ชิดขวา กล่องบอกน้ำหนักที่ใช้ทางขวาอยู่ที่เดิมไม่ว่าตัวเลขกี่หลัก (ฉบับร่าง box.css)', said: 'เเต่อย่าลืมล็อกขนาดของค่า CrCl ไว้นะ เพราะมันนเป็นเลขสามตำแหน่งได้ เช่น 120.5 ml/min' },
@@ -1166,6 +1807,20 @@ const HISTORY = {
     { date: '4 ต.ค. 2569', what: 'พี่กันเลือกแบบสองเพศ เน้นเพศที่เลือก "ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL" เพศที่เลือกตัวเข้ม อีกเพศจาง (ฉบับร่าง render.js box.css)', said: 'เอาอันนี้ละกัน ที่จะจางเข้ม (พิมพ์ตอนลืมเปลี่ยนแป้น gvkvyoouh]tdyo muj0t0k\'g-h,)' },
   ],
   3: [
+    { date: '5 ต.ค. 2569', what: 'บรรทัดหมายเหตุใต้ตารางขนาด 8.5 อยู่บรรทัดเดียว (แบบ 3-7 ข้อ 4) · ชี้หรือกด Tab มาที่ Devine Formula ขึ้นกล่องสูตรเหนือบรรทัด กว้างเต็มส่วน CrCl ตัวหนังสือ 10.5 บรรทัดละสูตร ชาย 50 หญิง 45.5 บวก 2.3 x (Height (in) - 60) และ Height (in) = Height (cm) / 2.54 ตรงกับ calc.js (ฉบับร่าง render.js box.css)', said: 'เอาอันนี้ (ส่งภาพแบบ 3-7 ข้อ 4 ขนาด 8.5) · เเละเราอยากให้พอเอาเมาส์ไปชี้ที่ devine มันจะมี popup สูตรขึ้นด้วย' },
+    { date: '5 ต.ค. 2569', what: 'ลดบรรทัดหมายเหตุใต้ตารางเป็น 10.5 ยังไม่พอบรรทัดเดียว วัดแล้วยาว 365 จาก 296 จุด ฉบับร่างยังไม่เปลี่ยน · ทำตัวเลือก 4 แบบใต้แถวนี้ (กลุ่ม 3-7)', said: SMALL_SAID },
+    { date: '5 ต.ค. 2569', what: 'พี่กันเลือกบรรทัดหมายเหตุใต้ตาราง IBW (Devine Formula) · Adjusted BW: IBW + 0.4 x (BW - IBW) รวม IBW จากข้อ 7 กับ Adjusted BW จากข้อ 4 ใส่เป็นข้อ 14 ในกลุ่ม 3-6 (ฉบับร่าง render.js) · ยังไม่วัด' , said: 'เอาอันีน้ (ส่งภาพ IBW (Devine Formula) กับภาพ Adjusted BW: IBW + 0.4 x (BW - IBW))' },
+    { date: '5 ต.ค. 2569', what: 'กลุ่ม 3-6 เพิ่มแบบมีวงเล็บอีก 6 ข้อ (ข้อ 8 ถึง 13) ให้เลือก ยังไม่วัดจำนวนบรรทัด · ก่อนหน้านี้แคลร์เพิ่มแบบวงเล็บแค่ข้อ 7 ข้อเดียว แล้วถามซ้ำแทนที่จะทำ', said: 'เพิ่มเเค่ข้อ 7 ข้อเดียวเองเหรอออออออ เเล้ว 6 ข้อที่เหลือล่ะ · ยังอีก ยังไม่เข้าใจอีก · เพิ่มอีก 6 ข้อที่เป้นวงเง็บ ให้เลือกสิวะะะะะะะะะะะะะะะะะ' },
+    { date: '5 ต.ค. 2569', what: 'บรรทัดหมายเหตุใต้ตารางน้ำหนักเป็น IBW (Devine Formula) · Adjusted BW (ตัวคูณ 0.4) ชื่อสูตรในวงเล็บเหมือนจุดอื่น (ฉบับร่าง render.js) · ขนาด 11 เท่าเดิม ตอนนี้ตก 2 บรรทัด รอวัดทีหลัง · ภาพตัวเลือกกลุ่ม 3-5 ยังใช้ข้อความเดิม', said: 'วงเล้บไหมนะ เพราะตามจุดอื่น ถ้าสูตร มันจะวงเล็บ · ไว้ค่อยวัด เอามาใส่เลย' },
+    { date: '5 ต.ค. 2569', what: 'ตัวเลือกกลุ่ม 3-6 แก้ให้เขียน Devine Formula เต็มทุกแบบ วัดจำนวนบรรทัดใหม่ · เอาแบบ IBW สูตร Devine Formula ออก เพราะคำว่าสูตรกับ Formula ซ้ำกัน · แคลร์แนะนำ IBW: Devine Formula · Adjusted BW: ตัวคูณ 0.4', said: FORMULA_SAID },
+    { date: '5 ต.ค. 2569', what: 'บรรทัดหมายเหตุใต้ตารางน้ำหนัก เกลาคำ ทำตัวเลือก 5 แบบใต้แถวนี้ (กลุ่ม 3-6) แคลร์แนะนำ IBW: Devine · Adjusted BW: ตัวคูณ 0.4', said: NOTE_SAID },
+    { date: '5 ต.ค. 2569', what: 'แผงกว้างตารางน้ำหนักใช้สูตรความกว้างคอลัมน์เดียวกับแผงแคบ คอลัมน์ BW 73 จุด คอลัมน์ CrCl ครึ่งหนึ่งของความกว้างส่วน CrCl ลบ 43.5 (ฉบับร่าง box.css) · แผงกว้างปุ่มชายหญิงอยู่คนละคอลัมน์กับตาราง เส้นจึงไม่อยู่แนวเดียวกัน · ภาพ 36 แผงข้าง 360 วัดใหม่แล้วเส้นตรงพอดีอยู่แล้ว ที่แคลร์บอกว่าห่าง 2 จุดเพราะวัดผิดรูป', said: 'อันนี้เเก้เลย (ตอบเรื่องภาพ 36 แผงข้าง 360 กับแผงกว้างที่ยังใช้สัดส่วนเดิม)' },
+    { date: '5 ต.ค. 2569', what: 'หัวคอลัมน์ตารางน้ำหนักกึ่งกลางเหมือนตัวเลข · เส้นแบ่งคอลัมน์ BW กับ CrCl ตรงกับเส้นแบ่งปุ่มชายหญิง คอลัมน์ CrCl กว้างเท่าปุ่มหญิง คอลัมน์ BW 73 จุด คอลัมน์ชื่อแถวได้ที่เหลือ (ฉบับร่าง box.css) · แผงกว้างยังใช้สัดส่วนเดิม', said: 'หัวคอลัมน์กึ่งกลางด้วย · เเละเธอเห็นเส้นเเบ่งครึ่งของ BW และ Crcl ไหม เราอยากให้เส้นนั้น ตรงกับเส้นเเบ่ง ชาย หญิง' },
+    { date: '5 ต.ค. 2569', what: 'ตัวเลขในตารางน้ำหนักกึ่งกลางช่อง (ฉบับร่าง box.css · เดิมชิดขวา) · หัวคอลัมน์ยังชิดขวา', said: 'ลองตัวเลข กึ่งกลาง (ส่งภาพคอลัมน์ BW กับ CrCl ในตาราง)' },
+    { date: '5 ต.ค. 2569', what: 'หัวคอลัมน์ตารางน้ำหนัก พื้นเทาอ่อน ตัวหนังสือเทา จางเท่าแบบ 8 ตารางในกรอบพื้นเทาอ่อน (ฉบับร่าง box.css · เดิมพื้นเขียว ตัวหนังสือเขียวเข้มแบบ 2) · กรอบ เส้นแบ่งคอลัมน์ เครื่องหมายถูก แถวอื่นจาง เท่าเดิม', said: 'ขอหัวคอลัมจางเท่านี้ (ส่งภาพแบบ 8 ตารางในกรอบพื้นเทาอ่อน)' },
+    { date: '5 ต.ค. 2569', what: 'ตารางน้ำหนักรวม 3 แบบที่เลือกจากกลุ่ม 3-5 · กรอบมุมมน หัวคอลัมน์พื้นเขียว เส้นแบ่งคอลัมน์ (แบบ 2) · แถวที่ใช้มีเครื่องหมายถูกแทนแถบซ้าย ทุกแถวจองที่หน้าชื่อไว้ ชื่อแถวตรงแนวกัน (แบบ 4) · แถวที่ไม่ได้ใช้ตัวหนังสือจาง (แบบ 5) · คอลัมน์แรกกว้างขึ้นเป็น 38% ให้พอที่เครื่องหมาย (ฉบับร่าง render.js box.css) · ทุกภาพที่มีตารางเปลี่ยนตาม ภาพในกลุ่ม 3-5 ย้อนเป็นแบบก่อนเลือก', said: 'กรอบแบบรูปแรก · ติ๊กแบบรูป 2 เเต่ต้องเว้นระยะให้เครื่องหมายด้วย · รูปสาม เเถวอื่นจางด้วย (ส่งภาพแบบ 2 แบบ 4 แบบ 5)' },
+    { date: '5 ต.ค. 2569', what: 'ตัวเลข eGFR สีเดียวกับระยะ CKD ตัวเลข BMI สีเดียวกับระดับ BMI หน่วยยังเทา (ฉบับร่าง render.js) · ทุกภาพที่มีตัวเลข eGFR BMI เปลี่ยนตาม', said: 'กับ เราขอสีของค่า eGFR BMI เปลี่ยนสีตามระบบหน่อย เช่นตามรูปมันจะเป้นเขียวกับส้ม (ส่งภาพ eGFR 75.4 CKD Stage 2 กับ BMI 16.4 Underweight)' },
+    { date: '5 ต.ค. 2569', what: 'ตารางน้ำหนักใต้ตัวเลข CrCl ทำตัวเลือกหน้าตา 9 แบบใต้แถวนี้ (กลุ่ม 3-5) แต่ละแบบเปลี่ยนเฉพาะที่เขียนไว้ ตัวเลขกับฟอนต์เท่าเดิม', said: TBL_SAID },
     { date: '5 ต.ค. 2569', what: 'หมายเหตุ Underweight ลดจาก 11 เป็น 10.5 จุด เท่ากับคำเตือนอายุ หมายเหตุใต้แถวตัวเลขทุกบรรทัดเป็น 10.5 จุด (ฉบับร่าง box.css)', said: 'ลดเป็น 10.5 ให้เท่ากัน' },
     { date: '5 ต.ค. 2569', what: 'หมายเหตุเป็น Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง ตัวหนังสือหมายเหตุใต้แถวตัวเลขเหลือ 11 จุด (เดิม 12) อยู่บรรทัดเดียว (ฉบับร่าง render.js box.css) · หมายเหตุใต้แถวตัวเลขทุกอันใช้ขนาดนี้ รวมเตือนอายุในภาพ 7', said: 'เอาอันนี้ เเต่ลดขนาดฟอนต์ ให้มันเหลือ 1 บรรทัด (ส่งภาพแบบ 3-4 ข้อ 1 ทวิภาค)' },
     { date: '5 ต.ค. 2569', what: 'พี่กันเลือกขึ้นต้นหมายเหตุด้วย Underweight (แบบ 3-3 ข้อ 2) และขอดูตัวคั่น ทำมอคอัป 4 แบบใต้แถวนี้ (กลุ่ม 3-4)', said: 'Underweight มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง เเละใส่ : เเบ้ง หรือจะ > ลองทำมอคมาดู' },
@@ -1175,7 +1830,29 @@ const HISTORY = {
     { date: '5 ต.ค. 2569', what: 'กล่องบอกน้ำหนักที่ใช้ย้ายไปขวาตัวเลขแล้ว ภาพนี้กล่องแคบ 168 จุด สูง 120 จุด · ทำตัวเลือก 3 แบบใต้แถวนี้', said: 'ย้ายจากที่อยู่บรรทัดล่าง ไปเป็นกรออกสี่เหลี่ยมขวา' },
   ],
   7: [
+    { date: '5 ต.ค. 2569', what: 'หมายเหตุอายุใต้ตัวเลขเป็น อายุนอกช่วง 18–92 ปี: CrCl อาจไม่แม่นยำ (แบบ 7-3 ข้อ 2 · ฉบับร่าง render.js) · ทุกภาพที่มีหมายเหตุอายุเปลี่ยนตาม', said: 'เอาอันนี้ (ส่งภาพแบบ 7-3 ข้อ 2 ขึ้นต้นด้วยกรณีแล้วทวิภาค)' },
+    { date: '5 ต.ค. 2569', what: 'ใต้ช่อง sCr ตอนสูงหรือต่ำกว่าค่าอ้างอิง คำว่า High อยู่หลังเลขบน Low อยู่หน้าเลขล่าง ของเพศที่เลือก สีเดียวกับบั้งคู่ บีบช่องว่างระหว่างคำ 1 จุดให้อยู่บรรทัดเดียว (แบบ 7-8 ข้อ 3 กับ 4 รวมกับ 7-11 ข้อ 1 กับ 2 · ฉบับร่าง render.js box.css) · บั้งคู่ในช่องยังอยู่ · ภาพ 10 23 26 เปลี่ยนตาม', said: 'เอาอันนี้ จบ เราเเค่ให้มันอย฿ูบันทัดเดียว (ตอบข้อ บีบให้อยู่บรรทัดเดียวในที่เดิม)' },
+    { date: '5 ต.ค. 2569', what: 'บีบบรรทัด High ให้อยู่บรรทัดเดียวโดยไม่ลดขนาดและไม่ตัดคำ ทำตัวเลือก 3 วิธี ชายกับหญิง (กลุ่ม 7-11) ช่องไฟระหว่างคำ · ระยะระหว่างตัวอักษร · ยื่นไปใต้ป้าย', said: SQZ_SAID },
+    { date: '5 ต.ค. 2569', what: 'มอคอัปกรณีผู้หญิง sCr 1.4 สูงกว่า กับ 0.4 ต่ำกว่าค่าอ้างอิง 0.5–1.0 แบบเดียวกับ 7-8 กับ 7-9 คู่สูงต่ำ (กลุ่ม 7-10)', said: FEM_SAID },
+    { date: '5 ต.ค. 2569', what: 'บรรทัด High ตก 2 บรรทัด ทำตัวเลือก 4 แบบให้อยู่บรรทัดเดียวโดยไม่ลดขนาด (กลุ่ม 7-9) ตัด mg/dL · ใช้ตัว H · โชว์เฉพาะเพศที่เลือก · ยื่นไปใต้ป้าย sCr', said: ONE_SAID },
+    { date: '5 ต.ค. 2569', what: 'ไอเดียพี่กัน High Low อยู่ข้างช่วงค่าอ้างอิงฝั่งที่ค่าหลุดออกไป ทำมอคอัปใต้แถวนี้ (กลุ่ม 7-8) แบบมีบั้งคู่ กับไม่มีบั้งคู่ คู่ High 1.6 กับ Low 0.6', said: RANGE_SAID },
+    { date: '5 ต.ค. 2569', what: 'sCr สูงหรือต่ำกว่าค่าอ้างอิง บอกด้วยบั้งคู่ต่อท้ายตัวเลขในช่อง สูงสีแดง #dc2626 ชี้ขึ้น ต่ำสีส้ม #ea580c ชี้ลง ตัวเลขไม่ขยับ · ใต้ช่องเป็นบรรทัดค่าอ้างอิงแบบปกติ เพศที่เลือกตัวเข้ม ข้อความเตือนเดิมเอาออก โปรแกรมอ่านจอยังได้ยินคำว่าสูงหรือต่ำ (แบบ 7-7 ข้อ 7 กับ 8 · ฉบับร่าง render.js box.js box.css) · ภาพ 10 เปลี่ยนตาม · ภาพตัวเลือกก่อนหน้าคงแบบเดิม', said: 'เอาอันนี้ (ส่งภาพแบบ 7-7 ข้อ 7 บั้งคู่ High กับข้อ 8 บั้งคู่ Low)' },
+    { date: '5 ต.ค. 2569', what: 'สัญลักษณ์ขึ้นลงต่อท้ายตัวเลข ทำชุดใหม่ 7 สัญลักษณ์ คู่ High กับ Low (กลุ่ม 7-7) · กลุ่ม 7-6 แบบอยู่ซ้ายตัวเลขยังเก็บไว้', said: SYM2_SAID },
+    { date: '5 ต.ค. 2569', what: 'ไอเดียพี่กัน สัญลักษณ์ขึ้นลงอยู่ในช่อง sCr ตัวเลขไม่ขยับ ทำตัวเลือก 7 สัญลักษณ์ คู่ High กับ Low (กลุ่ม 7-6) กับแบบลูกศรต่อท้ายตัวเลขอีกคู่', said: SYM_SAID },
+    { date: '5 ต.ค. 2569', what: 'เอากลุ่มรายการคำที่แคลร์คืนกลับมาเองออก (7-6 7-7 7-8 กับ 3-8)', said: 'เข้าใจตรงนี้มั้ย (ยก เราไม่ให้เธอบอกเอา7.5 .6 .7 กลับมา) · เอาออกก' },
+    { date: '5 ต.ค. 2569', what: 'เพิ่มกลุ่ม 7-5 แบบ Low ข้อต่อข้อกับ 7-4 ไว้ใต้ภาพเดียวกันให้เทียบ · แคลร์เข้าใจผิดว่าพี่กันถามเรื่องตัวเลือกที่ลบไป เลยคืนรายการคำ 3-6 ชุด Devine กับ 7-1 7-2 7-3 กลับมาเอง พี่กันสั่งเอาออกแล้ว', said: 'เข้าใจผิดละ เราไม่ให้เธอบอกเอา7.5 .6 .7 กลับมา · เราดู 7-4 อยู่ ดู high เเต่อยู่ๆเธอไปสร้าง 10-1 มาเเล้วพอเราดู 10-1 แล้วมันไม่มี high เราก็ตีควงามว่าเธอลบ high ออกทำไมมมมมม เข้าใจยังไ คือเรานึกว่าเธอจะสร้าง 7-5 ที่เป้น low ให้เทียบ' },
+    { date: '5 ต.ค. 2569', what: 'กลุ่ม 7-4 คำว่า High กับลูกศรเป็นสีแดง #dc2626 ตามป้าย H ในเว็บ HCV (Low จะเป็นส้ม #ea580c) · เพิ่มข้อ 7 แบบตัว H เหมือนเว็บ HCV', said: 'high low เอาสีตามเว็บ hcv หน่อย เเต่เว็บนั้นจะเป้น H L ลองไปหามา' },
+    { date: '5 ต.ค. 2569', what: 'ข้อความใต้ช่อง sCr เขียนใหม่ตามไอเดียพี่กัน โชว์ค่าอ้างอิงแล้วบอก High หรือ Low ทำตัวเลือก 7 แบบใต้แถวนี้ (กลุ่ม 7-4)', said: HL_SAID },
+    { date: '5 ต.ค. 2569', what: 'ข้อความใต้ช่องกรอกทุกข้อความ 10.5 (ค่าอ้างอิง sCr ข้อความผิด คำเตือนอายุ sCr สูงหรือต่ำกว่าค่าอ้างอิง ข้อความใต้ปุ่มเพศ) (ฉบับร่าง box.css · เดิม 12) · ทุกภาพเปลี่ยนตาม ภาพตัวเลือกที่ทำก่อนหน้าคงขนาด 12', said: 'ปรับให้หมายเหตุพวกนี้ 10.5 ทั้งหมด ทั้งหมดเลย เเก้เลย' },
+    { date: '5 ต.ค. 2569', what: 'ข้อความใต้ช่องอายุตัวหนังสือ 10.5 เท่าหมายเหตุใต้ตัวเลข (ฉบับร่าง box.css · เดิม 12) · ภาพกลุ่ม 7-1 คงขนาด 12', said: 'เอา 10.5 ด้วย' },
+    { date: '5 ต.ค. 2569', what: 'ข้อความใต้ช่องอายุเป็น เกินช่วงอายุที่สูตรรองรับ 18–92 ปี ไม่มีวงเล็บ อายุต่ำกว่า 18 ขึ้น ต่ำกว่าช่วงอายุที่สูตรรองรับ 18–92 ปี (แบบ 7-1 ข้อ 8 · ฉบับร่าง box.js)', said: 'เอาอันนี้ เเต่เอาวงเล้บออก (ส่งภาพแบบ 7-1 ข้อ 8)' },
+    { date: '5 ต.ค. 2569', what: 'กลุ่ม 7-1 เพิ่มคำใต้ช่องอายุอีก 6 แบบ (ข้อ 6 ถึง 11) แคลร์แนะนำ สูตรรองรับอายุ 18–92 ปี', said: '7-1 มีคำอื่นมั้ย ลองเเนะนำมาหน่อย' },
+    { date: '5 ต.ค. 2569', what: 'ตัวเลือก 7-1 7-2 7-3 เปลี่ยนจากรายการคำเป็นภาพกล่องจริง ตัดเฉพาะช่องอายุ ช่อง sCr และแถวตัวเลขกับหมายเหตุ · ข้อ คงไว้ เปลี่ยนเป็นภาพแบบตอนนี้', said: W7_PIC_SAID },
+    { date: '5 ต.ค. 2569', what: 'ข้อความเตือนสามที่ ทำตัวเลือกคำเป็นรายการใต้แถวนี้ ใต้ช่องอายุ (กลุ่ม 7-1) ใต้ช่อง sCr (กลุ่ม 7-2) หมายเหตุอายุใต้ตัวเลข (กลุ่ม 7-3) · จำนวนบรรทัดวัดในกล่องจริง', said: W7_SAID },
     { date: '5 ต.ค. 2569', what: 'คำเตือนอายุใต้แถวตัวเลข ตัวหนังสือ 10.5 จุด อยู่บรรทัดเดียว (11 จุดยังตก 2 บรรทัด) · หมายเหตุ Underweight ยัง 11 จุด (ฉบับร่าง render.js box.css)', said: 'ลดด้วยเลย (ตอบเรื่องคำเตือนอายุในภาพ 7 ที่ยังตก 2 บรรทัด)' },
+  ],
+  10: [
+    { date: '5 ต.ค. 2569', what: 'ข้อความใต้ช่อง sCr ตอนต่ำกว่าค่าอ้างอิง แบบ Low ทำตัวเลือก 8 แบบใต้แถวนี้ (กลุ่ม 10-1) คู่กับกลุ่ม 7-4 ข้อต่อข้อ สีส้ม #ea580c', said: LOW_SAID },
   ],
   8: [
     { date: '4 ต.ค. 2569', what: 'ค่าอ้างอิง Cr ตอนยังไม่เลือกเพศ เปลี่ยนตามภาพที่ 1 เหลือบรรทัดเดียว', said: '' },

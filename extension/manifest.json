@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "คำนวณ CrCl",
   "short_name": "CrCl",
-  "version": "0.1.3.0",
+  "version": "0.1.4.0",
   "description": "กล่องคำนวณ CrCl eGFR และ BMI ติดขอบจอ กรอกค่าเอง คำนวณในเครื่อง ไม่ส่งข้อมูลออกนอกเครื่อง",
   "minimum_chrome_version": "102",
   "permissions": ["scripting", "storage", "sidePanel"],
