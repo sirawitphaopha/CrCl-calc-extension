@@ -49,18 +49,38 @@
   .dx-none{color:#687874}
   .opts{max-width:1100px;margin-top:16px;padding:12px 14px 14px;border-radius:10px;background:#fffaf0;box-shadow:0 0 0 1px #efd18d}
   .opts-t{margin:0;color:#7a5106;font:700 14px/1.4 "CrClX Sarabun",sans-serif}
+  .opts-n{display:inline-grid;place-items:center;min-width:34px;height:22px;margin-right:8px;padding:0 7px;border-radius:999px;background:#9a6b00;color:#fff;font:700 12px/1 "CrClX Roboto Mono",sans-serif;vertical-align:1px}
+  .toc a.toc-sub{padding:1px 6px 1px 34px;color:#7a5106;font-size:11.5px}
+  .toc a.toc-sub .toc-sn{flex:none;margin-right:4px;font:700 11px/1.5 "CrClX Roboto Mono",sans-serif}
+  .toc a.toc-sub.on{background:#9a6b00;color:#fff}
   .opts-q{margin:2px 0 10px;color:#9a6b00;font:500 13px/1.4 "CrClX Sarabun",sans-serif}
   .opts-row{display:flex;flex-wrap:wrap;gap:16px 28px}
   .opts-list{margin:0;padding-left:20px;color:#7a5106}
   .opts-list li{margin:4px 0;font:500 14px/1.5 "CrClX Sarabun",sans-serif}
   .opts-list .ls-w{margin-right:10px;color:#1f2d2a;font:600 14px/1.5 "CrClX Roboto Mono","CrClX Sarabun",monospace}
   .opts-list .ls-r{color:#5b4a1f}
+  .kf-g{margin:12px 0 6px;color:#7a5106;font:700 13px/1.4 "CrClX Sarabun",sans-serif}
+  .kf-row{display:flex;flex-wrap:wrap;gap:12px}
+  .kf-card{flex:1 1 300px;max-width:520px;padding:12px 14px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px #d3e0dc}
+  .kf-card.chosen{box-shadow:0 0 0 3px #0f766e}
+  .kf-n{margin:0 0 8px;color:#1f2d2a;font:700 14px/1.4 "CrClX Sarabun",sans-serif}
+  .kf-n b{margin-left:6px;color:#0b5c55}
+  .kf-keys{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+  .kf-k{display:inline-flex;align-items:center;justify-content:center;min-width:24px;height:26px;padding:0 6px;border-radius:5px;background:#f5f9f8;box-shadow:inset 0 -2px 0 #c3d5d0,0 0 0 1px #c3d5d0;color:#687874;font:600 12px/1 "CrClX Roboto Mono","CrClX Sarabun",monospace}
+  .kf-k.ctl{background:#fff3d6;box-shadow:inset 0 -2px 0 #e0b25c,0 0 0 1px #e0b25c;color:#7a5106}
+  .kf-s{margin:8px 0 0;color:#687874;font:500 13px/1.5 "CrClX Sarabun",sans-serif}
+  .kf-list{margin:0;padding-left:20px}
+  .kf-list li{margin:6px 0;color:#5b4a1f;font:500 14px/1.6 "CrClX Sarabun",sans-serif}
+  .kf-list .kf-name{margin-right:8px;color:#1f2d2a;font-weight:700}
+  .kf-list .kf-keys{display:inline-flex;margin-right:8px;vertical-align:middle}
   .opt-sub{margin:0 0 6px;color:#687874;font:500 12.5px/1.4 "CrClX Sarabun",sans-serif}
   .opt-chosen .col-t{color:#0b5c55}
   .opt-chosen .opt-crop{box-shadow:0 0 0 3px #0f766e}
   .opts-row.full{flex-wrap:nowrap;overflow-x:auto;padding-bottom:10px}
   .opts-row.full>div{flex:none}
   .opt-full{position:relative;width:320px}
+  .opt-pair{position:relative;width:620px;overflow:hidden;border-radius:12px;background:#fff;box-shadow:0 0 0 1px #d3e0dc}
+  .opt-chosen .opt-pair{box-shadow:0 0 0 3px #0f766e}
   .opt-crop{position:relative;width:320px;height:330px;overflow:hidden;border-radius:12px;
     -webkit-mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent);mask-image:linear-gradient(to bottom,#000 calc(100% - 30px),transparent)}
   .hist{max-width:1040px;margin-top:14px;padding:10px 14px;border-radius:10px;background:#f5f9f8;box-shadow:0 0 0 1px #d3e0dc}
@@ -86,6 +106,33 @@
   td.t{font-weight:600}
   td.w{width:36%;color:#687874;font-size:13px}
   tr.grp td{background:#f5f9f8;color:#0b5c55;font:700 14px/1.4 "CrClX Sarabun",sans-serif}
+  /* สารบัญติดขวา กดแล้วค่อย ๆ เลื่อนไปภาพนั้น (พี่กันขอ 5 ต.ค. 2569 "เราขอวสรบีญที่กดเเล้วมันเลื่ิอนไปรูปนั้นหน่อย รู้สึกว่าต้องเลื่อนยาว") */
+  .page{padding-right:256px}
+  .toc{position:fixed;top:12px;right:12px;width:232px;max-height:calc(100vh - 24px);overflow:auto;overscroll-behavior:contain;padding:10px 8px 10px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px #d3e0dc,0 6px 18px rgba(31,45,42,.10);z-index:10}
+  .toc-h{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:0 2px 6px 6px}
+  .toc-t{margin:0;color:#0b5c55;font:700 13px/1.4 "CrClX Sarabun",sans-serif}
+  .toc-b{flex:none;margin:0;padding:3px 10px;border:0;border-radius:999px;background:#e4f3ef;color:#0b5c55;font:600 12px/1.4 "CrClX Sarabun",sans-serif;cursor:pointer;transition:background-color .15s ease,color .15s ease}
+  .toc-b:hover{background:#0f766e;color:#fff}
+  .toc-b:focus-visible{outline:2px solid #0f766e;outline-offset:2px}
+  /* ยุบแล้วเหลือปุ่มสารบัญปุ่มเดียวที่มุมขวาบน (พี่กันสั่ง "เเถบสารบัญ ต้องยุบได้" 5 ต.ค. 2569) */
+  .toc.mini{width:auto;padding:6px}
+  .toc.mini .toc-h{margin:0}
+  .toc.mini .toc-t,.toc.mini .toc-list{display:none}
+  .toc a{display:flex;align-items:flex-start;gap:6px;padding:3px 6px;border-radius:7px;color:#1f2d2a;text-decoration:none;font:500 12.5px/1.45 "CrClX Sarabun",sans-serif;transition:background-color .15s ease,color .15s ease}
+  .toc a:hover{background:#e4f3ef;color:#0b5c55}
+  .toc a:focus-visible{outline:2px solid #0f766e;outline-offset:-2px}
+  .toc a.on{background:#0f766e;color:#fff}
+  .toc a.on .toc-n{background:#fff;color:#0b5c55}
+  .toc a.on .toc-c{color:#cde9e1}
+  .toc-n{flex:none;display:inline-grid;place-items:center;min-width:22px;height:18px;margin-top:1px;padding:0 4px;border-radius:999px;background:#0f766e;color:#fff;font:700 11px/1 "CrClX Roboto Mono",sans-serif}
+  .toc-c{display:block;color:#9a6b00;font-size:11.5px}
+  .toc-g{margin:10px 6px 3px;color:#687874;font:700 11.5px/1.4 "CrClX Sarabun",sans-serif}
+  .toc-g:first-child{margin-top:2px}
+  .grp-h{width:100%;max-width:1100px;margin:30px 0 2px;padding:10px 16px;border-radius:10px;background:#0f766e;color:#fff}
+  .grp-h:first-child{margin-top:4px}
+  .grp-h h3{margin:0;font:700 17px/1.4 "CrClX Sarabun",sans-serif}
+  .grp-h p{margin:2px 0 0;color:#cde9e1;font:500 13px/1.45 "CrClX Sarabun",sans-serif}
+  .grp-h + .shot{border-top:0;padding-top:12px}
 </style>
 </head>
 <body>
@@ -95,7 +142,7 @@
   <ul class="howto">
     <li>แถวละสภาพ รูปแรก "ตอนนี้" คือรุ่น 0.1.2.0 ที่พุชแล้ว รูปที่สอง "แก้แล้ว" เปลี่ยนตามที่พี่กันสั่งแก้</li>
     <li>หน้านี้คือตัวหลัก ที่แก้อยู่ในฉบับร่างของหน้านี้ ยังไม่เข้าส่วนขยายที่ใช้ทำงาน เกลาครบแล้วแคลร์ค่อยยกไปใส่ส่วนขยายจริง · ใต้แต่ละแถวมีประวัติการแก้และการเลือก</li>
-    <li>รูปที่สาม "จุดที่แก้" ทำเครื่องหมายตรงที่ต่างจากรูปแรกให้เอง · <span class="key text">พื้นเหลือง</span> ข้อความที่เปลี่ยน · <span class="key look">กรอบเส้นประแดง</span> หน้าตาที่เปลี่ยน · ใต้รูปบอกจำนวนจุด ข้อความที่เอาออก และข้อความตอนชี้เมาส์ที่เปลี่ยน</li>
+    <li>รูปที่สาม "จุดที่แก้" ทำเครื่องหมายตรงที่ต่างจากรูปแรกให้เอง · ของที่เอาออกขีดฆ่าสีแดงไว้ตรงที่เดิม · <span class="key text">พื้นเหลือง</span> ข้อความที่เปลี่ยน · <span class="key look">กรอบเส้นประแดง</span> หน้าตาที่เปลี่ยน · ใต้รูปบอกจำนวนจุด ข้อความที่เอาออก และข้อความตอนชี้เมาส์ที่เปลี่ยน</li>
     <li>กล่องยืดเต็มความสูงให้เห็นข้อความครบ พิมพ์ เลือกเพศ สลับหน่วย ชี้ปุ่มได้ ไม่มีลาก พับ ย้ายขอบ</li>
     <li>ข้อความทุกข้อมีเลขอยู่ในตารางท้ายหน้า รวมข้อความที่ขึ้นตอนชี้เมาส์ ซึ่งในรูปมองไม่เห็น</li>
     <li>อยากเกลาข้อไหน บอกเลขข้อกับคำใหม่ได้เลย</li>
@@ -166,18 +213,23 @@ const LIB = [
    รูปที่สามวาดด้วยไฟล์ส่วนขยายตัวจริงเหมือนรูปที่สอง แล้วเทียบกับรูปแรกทีละชิ้น
    - ข้อความเปลี่ยน · พื้นเหลืองเฉพาะคำที่เปลี่ยน · ชิ้นใหม่ที่รูปแรกไม่มี พื้นเหลืองทั้งชิ้น
    - หน้าตาเปลี่ยน (สี ขนาดตัวหนังสือ ความหนา เส้นขอบ มุมโค้ง รูปทรง ขนาดชิ้นเล็ก ไอคอน) กรอบเส้นประสีแดง
-   - ข้อความที่เอาออก ข้อความตอนชี้เมาส์ ชื่อสำหรับโปรแกรมอ่านจอ เขียนไว้ใต้รูป เพราะในรูปมองไม่เห็น */
+   - ของที่เอาออก ขีดฆ่าสีแดงไว้ตรงตำแหน่งเดิมในรูป ทั้งคำในข้อความและทั้งชิ้น
+     (พี่กันสั่ง "อันไหนลบออก เธอขีดฆ่าทิ้งได้นะในรูปที่สาม" 5 ต.ค. 2569)
+   - ข้อความตอนชี้เมาส์ ชื่อสำหรับโปรแกรมอ่านจอ และของที่เอาออก เขียนไว้ใต้รูปด้วย */
 const DX = new CSSStyleSheet();
 DX.replaceSync(`
 mark.dx{background:#ffe066;color:inherit;border-radius:3px;box-shadow:0 0 0 2px #ffe066}
 .dx-new{background-color:#fff3b0 !important;box-shadow:0 0 0 2px #f2c200 !important}
 .dx-look{outline:2px dashed #e5484d !important;outline-offset:2px}
+del.dx-del,.dx-del{background:#fde8e7 !important;color:#b42318 !important;text-decoration:line-through 2px #e5484d !important;border-radius:3px;box-shadow:0 0 0 2px #fde8e7}
+.dx-del *{color:#b42318 !important;text-decoration:line-through 2px #e5484d !important}
 `);
 const COLS = [LIB[0], LIB[1], { name: 'จุดที่แก้', cls: 'mark', lib: NOW, sheets: [...LIB[1].sheets, DX] }];
 const pendingDiff = [];
 const topOf = (b) => b.dock || b.pane;
 const SIG_ATTR = ['data-k', 'data-act', 'data-edge', 'data-row', 'data-msg', 'data-sex', 'data-unit'];
-const STATE_CLS = ['is-hov', 'is-drag', 'is-scroll', 'is-warn', 'is-err', 'on', 'static'];
+// lt30 ge30 คือสีตัวเลข CrCl ไม่ใช่ชิ้นใหม่ ไม่เอามาแยกชิ้น (ไม่งั้นตัวเลขจะโดนขีดฆ่าแล้วขึ้นใหม่)
+const STATE_CLS = ['is-hov', 'is-drag', 'is-scroll', 'is-warn', 'is-err', 'on', 'static', 'lt30', 'ge30'];
 function sigOf(el, top) {
   const parts = [];
   for (let n = el; n && n !== top; n = n.parentElement) {
@@ -204,39 +256,38 @@ function indexTree(top) {
   return { map, order };
 }
 const directTexts = (el) => [...el.childNodes].filter((n) => n.nodeType === 3 && n.nodeValue.trim());
-/** ทำพื้นเหลืองเฉพาะคำที่ไม่อยู่ในข้อความเดิม (ลำดับร่วมยาวที่สุดของคำ) */
+/** ทำพื้นเหลืองเฉพาะคำที่ไม่อยู่ในข้อความเดิม คำเดิมที่หายไปขีดฆ่าไว้ตรงที่เดิม (ลำดับร่วมยาวที่สุดของคำ) */
 function markTokens(node, oldText) {
   const a = oldText.split(/\s+/).filter(Boolean);
-  const b = node.nodeValue.split(/(\s+)/);
-  const words = b.filter((t) => t && !/^\s+$/.test(t));
-  const L = Array.from({ length: a.length + 1 }, () => new Array(words.length + 1).fill(0));
-  for (let i = a.length - 1; i >= 0; i--) for (let j = words.length - 1; j >= 0; j--) L[i][j] = a[i] === words[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
-  const keep = new Set();
+  const words = node.nodeValue.split(/\s+/).filter(Boolean);
+  const ops = [];
   if (a.length === words.length) {
-    // จำนวนคำเท่าเดิม เทียบทีละตำแหน่ง คำที่สลับที่กันจะเหลืองทั้งสองคำ
-    words.forEach((t, j) => { if (a[j] === t) keep.add(j); });
+    // จำนวนคำเท่าเดิม เทียบทีละตำแหน่ง คำที่เปลี่ยนขีดฆ่าคำเดิมแล้วตามด้วยคำใหม่พื้นเหลือง
+    words.forEach((t, j) => { if (a[j] === t) ops.push(['=', t]); else { ops.push(['-', a[j]]); ops.push(['+', t]); } });
   } else {
-    for (let i = 0, j = 0; i < a.length && j < words.length;) {
-      if (a[i] === words[j]) { keep.add(j); i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
+    const L = Array.from({ length: a.length + 1 }, () => new Array(words.length + 1).fill(0));
+    for (let i = a.length - 1; i >= 0; i--) for (let j = words.length - 1; j >= 0; j--) L[i][j] = a[i] === words[j] ? L[i + 1][j + 1] + 1 : Math.max(L[i + 1][j], L[i][j + 1]);
+    let i = 0, j = 0;
+    while (i < a.length && j < words.length) {
+      if (a[i] === words[j]) { ops.push(['=', words[j]]); i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) ops.push(['-', a[i++]]); else ops.push(['+', words[j++]]);
     }
+    while (i < a.length) ops.push(['-', a[i++]]);
+    while (j < words.length) ops.push(['+', words[j++]]);
   }
   const frag = document.createDocumentFragment();
-  let w = 0;
-  for (const t of b) {
-    if (!t) continue;
-    if (/^\s+$/.test(t)) { frag.appendChild(document.createTextNode(t)); continue; }
-    if (keep.has(w)) frag.appendChild(document.createTextNode(t));
-    else { const m = document.createElement('mark'); m.className = 'dx'; m.textContent = t; frag.appendChild(m); }
-    w++;
-  }
+  if (/^\s/.test(node.nodeValue)) frag.appendChild(document.createTextNode(' '));
+  ops.forEach(([op, t], k) => {
+    if (k) frag.appendChild(document.createTextNode(' '));
+    if (op === '=') { frag.appendChild(document.createTextNode(t)); return; }
+    const m = document.createElement(op === '+' ? 'mark' : 'del');
+    m.className = op === '+' ? 'dx' : 'dx-del';
+    m.textContent = t;
+    frag.appendChild(m);
+  });
+  if (/\s$/.test(node.nodeValue)) frag.appendChild(document.createTextNode(' '));
   node.replaceWith(frag);
-  // คำเดิมที่ไม่มีในข้อความใหม่ คืนไปเขียนบอกใต้รูป (จำนวนคำเท่าเดิมคือสลับหรือเปลี่ยนคำ เหลืองอยู่แล้ว ไม่ต้องบอก)
-  if (a.length === words.length) return [];
-  const used = new Set();
-  for (let i = 0, j = 0; i < a.length && j < words.length;) {
-    if (a[i] === words[j]) { used.add(i); i++; j++; } else if (L[i + 1][j] >= L[i][j + 1]) i++; else j++;
-  }
-  return a.filter((t, i) => !used.has(i));
+  // คำเดิมที่ไม่มีในข้อความใหม่ คืนไปเขียนบอกใต้รูปด้วย (จำนวนคำเท่าเดิมคือเปลี่ยนคำ เห็นในรูปแล้ว ไม่ต้องบอก)
+  return a.length === words.length ? [] : ops.filter((o) => o[0] === '-').map((o) => o[1]);
 }
 const LOOK = ['color', 'backgroundColor', 'fontSize', 'fontWeight', 'fontStyle', 'borderTopColor', 'borderTopWidth', 'borderTopLeftRadius', 'clipPath', 'textAlign', 'display', 'visibility', 'opacity'];
 /** เทียบรูปแรก (before) กับรูปที่สาม (after) ทีละชิ้น ทำเครื่องหมายในรูปที่สาม คืนจำนวนจุดที่ต่าง */
@@ -291,8 +342,18 @@ function diffMark(beforeTop, afterTop, notes) {
     const parent = el.parentElement;
     if (parent && parent !== beforeTop && !A.map.has(keyOf.get(parent))) continue;
     const t = el.textContent.trim();
-    notes.push(t ? `เอาออก "${t.slice(0, 90)}"` : `เอาออก ชิ้น ${el.tagName.toLowerCase()} ที่ไม่มีตัวหนังสือ`);
+    notes.push(t ? `เอาออก "${t.slice(0, 90)}" (ขีดฆ่าไว้ในรูป)` : `เอาออก ชิ้น ${el.tagName.toLowerCase()} ที่ไม่มีตัวหนังสือ`);
     n++;
+    // วางสำเนาของชิ้นเดิมไว้ตรงที่เดิม ขีดฆ่าสีแดง · หาชิ้นก่อนหน้าที่ยังอยู่ในรูปที่สาม แล้ววางต่อจากชิ้นนั้น
+    const vis = el.checkVisibility ? el.checkVisibility({ checkVisibilityCSS: true, visibilityProperty: true }) : el.getClientRects().length > 0;
+    if (!t || !vis) continue;
+    const host = parent === beforeTop || !parent ? afterTop : A.map.get(keyOf.get(parent));
+    if (!host) continue;
+    const ghost = el.cloneNode(true);
+    ghost.classList.add('dx-del');
+    let prev = el.previousElementSibling;
+    while (prev && !A.map.has(keyOf.get(prev))) prev = prev.previousElementSibling;
+    if (prev) A.map.get(keyOf.get(prev)).after(ghost); else host.prepend(ghost);
   }
   return n;
 }
@@ -316,6 +377,8 @@ const S = {
   low: { sex: 'male', age: '10', w: '10', h: '50', scr: '0.05' },
   high: { sex: 'male', age: '120', w: '250', h: '250', scr: '40' },
   crlow: { sex: 'female', age: '40', w: '55', h: '160', scr: '0.3' },
+  // ภาพ 2.1 กรณีปกติที่ CrCl เป็นเลข 3 หลัก ไว้ดูความกว้างตัวเลขที่ล็อกไว้ (ค่าตัวอย่าง ไม่ใช่ผู้ป่วยจริง)
+  normal3: { sex: 'male', age: '25', w: '70', h: '170', scr: '0.7' },
 };
 
 /** กดได้เฉพาะที่ไม่ทำให้กล่องหลุดจากรูป · ลาก พับ ปิด ย้ายขอบ สลับแผง ใช้ไม่ได้ในหน้านี้ */
@@ -448,7 +511,407 @@ OPTIONS[1] = [
       { chosen: true, from: 'อายุ', to: 'Age', why: 'ภาษาอังกฤษทั้งคอลัมน์ คู่กับ Sex' },
     ],
   },
+  {
+    title: 'ตัวเลือก ใช้แป้นพิมพ์อย่างเดียว ไม่ต้องใช้เมาส์ · ตัวอย่างกรอกผู้ป่วยชาย อายุ 45 sCr 1.0 Weight 60 Height 165 · พี่กันว่ายังไม่เปลี่ยน แบบตอนนี้ใช้ได้แล้ว (เก็บไว้เป็นประวัติ)',
+    said: 'เธอว่า มันสามารถใช้เเป้นพิม กดเลือกกดพิม โดยไม่ต้องใช้เมาส์ได้ไหม ออกแบบมาให้เลือกที · เอ แบบ้ดิม กดเเทบ เเล้วเอนเท้อเปลี่ยนหน่วย ก็ ok เเล้วเเฮะ งั้นยังไม่เปลี่ยน เเต่มอคออัปไม่เอาออกนะ',
+    keyflow: [
+      {
+        label: 'กรอกค่าทั้งกล่อง (ปุ่มเหลือง = กดเพิ่มนอกจากตัวเลข · ตัวเลขต้องพิมพ์ 10 ครั้งเท่ากันทุกแบบ)',
+        cards: [
+          { name: 'แบบตอนนี้', sub: 'เปิดกล่องแล้วเคอร์เซอร์อยู่ที่ปุ่มพับ ต้อง Tab ผ่านปุ่มปิด เลือกชายด้วย Space แล้ว Tab ผ่านปุ่มหญิง และผ่านปุ่มหน่วยทุกปุ่ม', keys: ['Tab', 'Tab', 'Space', 'Tab', 'Tab', '4', '5', 'Tab', '1', '.', '0', 'Tab', 'Tab', '6', '0', 'Tab', 'Tab', '1', '6', '5'] },
+          { name: 'Tab ข้ามปุ่มหน่วย', sub: 'เปิดกล่องแล้วเคอร์เซอร์อยู่ที่ปุ่มเพศ ←→ หรือ Space เลือกเพศ · Tab ไปช่องถัดไป ไม่หยุดที่ปุ่มหน่วย', keys: ['Space', 'Tab', '4', '5', 'Tab', '1', '.', '0', 'Tab', '6', '0', 'Tab', '1', '6', '5'] },
+          { name: 'กดอักษรเลือกเพศ แล้ว Enter ไปช่องถัดไป', sub: 'เปิดกล่องแล้วเคอร์เซอร์อยู่ที่ปุ่มเพศ กด M หรือ F (แป้นไทยคือ ท กับ ด) เลือกเพศแล้วไปช่องอายุเอง · Enter ไปช่องถัดไป · Tab ก็ยังใช้ได้', keys: ['M', '4', '5', 'Enter', '1', '.', '0', 'Enter', '6', '0', 'Enter', '1', '6', '5'] },
+        ],
+      },
+      {
+        label: 'สลับหน่วยด้วยแป้นพิมพ์',
+        list: [
+          { chosen: true, name: 'แบบตอนนี้', keys: ['Tab', 'Enter'], why: 'Tab ไปหยุดที่ปุ่มหน่วย แล้วกด Enter หรือ Space · พี่กันว่าใช้ได้แล้ว' },
+          { name: 'กด U ในช่อง', keys: ['U'], why: 'เคอร์เซอร์อยู่ในช่องไหน กด U สลับหน่วยของช่องนั้น · ใช้ตำแหน่งแป้น แป้นไทยกดตัว ี ตัวเดียวกันได้ ไม่ต้องสลับภาษา' },
+          { name: 'ลูกศรขึ้นลงในช่อง', keys: ['↑', '↓'], why: 'เคอร์เซอร์อยู่ในช่องไหน กดลูกศรขึ้นหรือลง สลับหน่วยของช่องนั้น · ช่องตัวเลขของกล่องไม่ได้ใช้ลูกศรอยู่แล้ว' },
+        ],
+      },
+      {
+        label: 'เปิดและปิดกล่องด้วยแป้นพิมพ์',
+        list: [
+          { name: 'แบบตอนนี้', keys: [], why: 'ต้องใช้เมาส์กดไอคอนบนแถบ Chrome' },
+          { name: 'คีย์ลัดของ Chrome', keys: ['Alt + Shift + C'], why: 'กดแล้วเหมือนกดไอคอน เปิด กาง หรือปิดกล่อง และเคอร์เซอร์เข้ากล่องเลย · ตั้งเป็นปุ่มอื่นเองได้ที่ chrome://extensions/shortcuts · ต้องลองว่าไม่ชนคีย์ลัดของ paperless' },
+        ],
+      },
+      {
+        label: 'พิมพ์ตัวเลขตอนแป้นพิมพ์เป็นภาษาไทย',
+        list: [
+          { name: 'แบบตอนนี้', keys: ['ภ', 'ถ'], why: 'แป้นไทยกดแถวตัวเลข 4 5 ได้ ภ ถ กล่องตัดตัวอักษรทิ้ง ช่องว่างเปล่า ต้องสลับภาษาก่อน (แป้นตัวเลขด้านขวาของคีย์บอร์ดใช้ได้ทั้งสองภาษา)' },
+          { name: 'แปลงแป้นไทยเป็นตัวเลขให้เอง', keys: ['ภ', 'ถ'], why: 'กดแถวตัวเลขตอนแป้นเป็นไทย กล่องเปลี่ยนเป็น 4 5 ให้เอง (ๅ / - ภ ถ ุ ึ ค ต จ เป็น 1 ถึง 0) ไม่ต้องสลับภาษา' },
+        ],
+      },
+    ],
+  },
 ];
+
+// ภาพที่ 2 ตัวเลือกสีตัวเลข CrCl ต่อจากตัวเลือกค่าอ้างอิง
+const NUM_SAID = 'ค่าที่คำนวนได้ ถ้ามากกว่า 30 จะสีอำพันเข้ม เเต่ถ้าต่ำกส่า 30 จะสีโทนเเดงเลือดหมุ · เอาสีมาให้เราเลือกสิ จะเอาไปใส่ทำไม';
+OPTIONS[2] = [
+  OPTIONS[2],
+  {
+    title: 'ตัวเลือก สีตัวเลข CrCl ตั้งแต่ 30 ขึ้นไป (โทนอำพันเข้ม) กับต่ำกว่า 30 (โทนแดงเลือดหมู) · เลือกกลุ่มละสี',
+    said: NUM_SAID,
+    groups: [
+      {
+        label: 'ชุดแรก ตั้งแต่ 30 ขึ้นไป · พี่กันว่าไม่ใช่อำพัน ออกส้มกับน้ำตาล (เก็บไว้เป็นประวัติ) · อำพันส้มอิฐพี่กันเลือกไปเป็นสีต่ำกว่า 30',
+        items: [
+          { name: 'แบบรุ่น 0.1.2.1', sub: 'สีเดียวกับตัวหนังสือ', num: '57.2', color: '#1f2d2a' },
+          { name: 'อำพันเข้ม', sub: 'สีเดียวกับข้อความเตือนสีส้มในกล่อง', num: '57.2', color: '#b45309' },
+          { name: 'อำพันน้ำตาล', sub: 'เข้มกว่า ออกน้ำตาล', num: '57.2', color: '#92400e' },
+          { name: 'อำพันทอง', sub: 'ออกเหลืองทอง', num: '57.2', color: '#a16207' },
+          { name: 'อำพันส้มอิฐ', sub: 'ออกส้ม ใกล้สีปุ่มล้างค่า · พี่กันเลือกไปเป็นสีต่ำกว่า 30', num: '57.2', color: '#c2410c' },
+        ],
+      },
+      {
+        label: 'ชุดที่ 2 ตั้งแต่ 30 ขึ้นไป · พี่กันไม่เอา ไล่สีเดียวให้เข้มจนเกือบดำ (เก็บไว้เป็นประวัติ)',
+        items: [
+          { name: 'อำพันแท้', sub: 'สีอำพันมาตรฐาน อ่านยากบนพื้นขาว ไว้เทียบ', num: '57.2', color: '#ffbf00' },
+          { name: 'อำพันเข้ม', sub: 'เหลืองทองเข้ม', num: '57.2', color: '#c18a00' },
+          { name: 'อำพันเข้มขึ้น', sub: 'เข้มขึ้นอีกขั้น', num: '57.2', color: '#b07d00' },
+          { name: 'อำพันคล้ำ', sub: 'อ่านง่ายขึ้น เหลืองน้อยลง', num: '57.2', color: '#9e7000' },
+          { name: 'อำพันน้ำผึ้งเข้ม', sub: 'คล้ำที่สุดในชุดนี้', num: '57.2', color: '#966a00' },
+        ],
+      },
+      {
+        label: 'ชุดที่ 3 ตั้งแต่ 30 ขึ้นไป เฉดกลุ่มสีอำพันกับสีเหลือง สีสด ไม่ไล่ดำ',
+        items: [
+          { name: 'เหลืองอำพัน', sub: 'อำพันกลาง · ลองใส่แล้ว เปลี่ยนเป็นอำพันส้มอ่อน', num: '57.2', color: '#ffc107' },
+          { name: 'อำพันทอง', sub: 'ทองอมส้มนิด ๆ', num: '57.2', color: '#ffb300' },
+          { chosen: true, name: 'อำพันส้มอ่อน', sub: 'ส้มขึ้นมาหน่อย · พี่กันสั่งลองใส่', num: '57.2', color: '#ffa000' },
+          { name: 'อำพันส้ม', sub: 'ใกล้สีของค่าต่ำกว่า 30', num: '57.2', color: '#ff8f00' },
+          { name: 'เหลืองทานตะวัน', sub: 'เหลืองสด', num: '57.2', color: '#fbc02d' },
+          { name: 'เหลืองดาวเรือง', sub: 'เหลืองอมส้ม', num: '57.2', color: '#f9a825' },
+          { name: 'เหลืองหญ้าฝรั่น', sub: 'เหลืองอุ่น', num: '57.2', color: '#f4c430' },
+          { name: 'เหลืองมัสตาร์ด', sub: 'เหลืองอมเขียวนิด ๆ', num: '57.2', color: '#e1ad01' },
+        ],
+      },
+      {
+        label: 'ต่ำกว่า 30 โทนแดงเลือดหมู · พี่กันเลือกอำพันส้มอิฐจากชุดแรกแทน',
+        items: [
+          { name: 'แบบรุ่น 0.1.2.1', sub: 'สีเดียวกับตัวหนังสือ', num: '19.5', color: '#1f2d2a' },
+          { name: 'แดงเลือดหมู', sub: 'แดงคล้ำ', num: '19.5', color: '#8b1c1c' },
+          { name: 'แดงเลือดหมูเข้ม', sub: 'คล้ำกว่า เกือบน้ำตาลแดง', num: '19.5', color: '#7f1d1d' },
+          { name: 'แดงเลือดนก', sub: 'สดกว่า', num: '19.5', color: '#991b1b' },
+          { name: 'แดงอมม่วง', sub: 'แดงไวน์', num: '19.5', color: '#881337' },
+          { chosen: true, name: 'อำพันส้มอิฐ', sub: 'ยกมาจากชุดอำพันชุดแรก', num: '19.5', color: '#c2410c' },
+        ],
+      },
+    ],
+  },
+];
+
+// ภาพที่ 1 ชื่อสูตร CrCl ใต้หัวข้อดูแปลก ตัวเลือกวาดส่วนผลทั้งก้อน (CrCl eGFR BMI) แผงแคบ
+const CG_SAID = 'รู้สึกแปลกๆ พอมี (Cockcroft-Gault) เธอมีไอเดียเสนอมั้ย';
+// ฉบับร่างเปลี่ยนหัวข้อ CrCl เป็นชื่อสั้นแล้ว ภาพตัวเลือกชื่อสูตรแบบเดิมย้อนหัวข้อเป็นชื่อเต็มกับบรรทัดชื่อสูตร
+const oldCrclHead = (root, f) => {
+  const t = root.querySelector('.cx-crcl .cx-sec-t');
+  if (t) t.textContent = 'Creatinine Clearance (CrCl)';
+  const h = root.querySelector('.cx-crcl .cx-sec-h');
+  if (h && f !== null) { h.insertAdjacentHTML('afterend', '<p class="cx-formula" style="display:block"></p>'); h.nextElementSibling.textContent = f; }
+};
+OPTIONS[1].push({
+  title: 'ตัวเลือก ชื่อสูตร Cockcroft-Gault ของ CrCl · ตอนนี้เป็นวงเล็บลอยอีกบรรทัดใต้หัวข้อที่มีวงเล็บ (CrCl) อยู่แล้ว · หัวข้อ CrCl ชื่อเต็มคงไว้ตามสกิล working-with-gun ข้อ 2',
+  said: CG_SAID,
+  cropSel: '.cx-results',
+  cropW: 320,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: '(Cockcroft-Gault) มีวงเล็บ บรรทัดเล็กใต้หัวข้อ', apply: (root) => oldCrclHead(root, '(Cockcroft-Gault)') },
+    {
+      name: 'ไม่มีวงเล็บ', sub: 'Cockcroft-Gault บรรทัดเล็กใต้หัวข้อ ไม่มีวงเล็บ แบบเดียวกับชื่อสูตรของ eGFR กับ BMI ในแผงกว้าง',
+      apply: (root) => oldCrclHead(root, 'Cockcroft-Gault'),
+    },
+    {
+      name: 'ทั้งสามส่วนเหมือนกัน', sub: 'ชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ ไม่มีวงเล็บ ทุกส่วน ทั้งแผงแคบแผงกว้าง · eGFR กับ BMI หัวข้อเหลือชื่อสั้น · ส่วนผลสูงขึ้นอีกส่วนละบรรทัด',
+      apply: (root) => {
+        oldCrclHead(root, 'Cockcroft-Gault');
+        addCss(root, '.cx-egfr .cx-sec-t .cx-f,.cx-bmi .cx-sec-t .cx-f{display:none}.cx-egfr .cx-formula,.cx-bmi .cx-formula{display:block}');
+      },
+    },
+    {
+      name: 'ไว้ท้ายบรรทัดตัวเลข ไม่มีคำว่าสูตร', sub: 'ที่เดิมก่อนย้าย แต่เหลือแค่ Cockcroft-Gault สีจาง ชิดขวาบรรทัดเดียวกับตัวเลขหรือคำว่ายังคำนวณไม่ได้',
+      apply: (root) => {
+        oldCrclHead(root, null);
+        const big = root.querySelector('.cx-crcl .cx-big');
+        if (big) big.insertAdjacentHTML('beforeend', '<em>Cockcroft-Gault</em>');
+      },
+    },
+    { chosen: true, name: 'หัวข้อชื่อสั้น CrCl (Cockcroft-Gault)', sub: 'แบบเดียวกับ eGFR กับ BMI ชื่อสูตรในวงเล็บสีจางต่อท้ายหัวข้อ · ชื่อเต็มย้ายไปหัวกล่อง (ตัวเลือกถัดไป) · อยู่ในฉบับร่างแล้ว' },
+  ],
+});
+// ชื่อเต็มบนหัวกล่อง · วาดเฉพาะหัวกล่องของกล่องจริงแผงแคบ วัดว่าชื่อล้นที่ว่างไหม (ไม่พิมพ์มือ)
+const titleFit = (root, col) => {
+  const t = root.querySelector('.cx-title');
+  const sub = col.querySelector('.opt-sub');
+  if (!t || !sub) return;
+  const over = Math.round(t.scrollWidth - t.clientWidth);
+  sub.textContent += over > 0 ? ` · ล้นที่ว่าง ${over} จุด ไปทับปุ่ม` : ' · อยู่ในที่ว่างพอดี';
+};
+const setTitle = (txt) => (root) => { const t = root.querySelector('.cx-title'); if (t) t.textContent = txt; };
+OPTIONS[1].push({
+  title: 'ตัวเลือก ชื่อบนหัวกล่อง ใส่ชื่อเต็ม Creatinine Clearance · หัวกล่องแผงแคบมีปุ่ม 5 ปุ่ม ที่ว่างให้ชื่อราว 112 จุด',
+  said: 'จริงๆเอาอันนี้ก็ได้นะ ส่วนชื่อเต็ม อาจจะเอาไว้ที่เเบนเน้อบนสุด เพราะอย่างที่เราบอก เค้า exten ตัวนี้ สุดท้ายเเล้วมันจะเหมือนสารานุกรม ที่กดมาหน้าเเรกมันจะคล้ยหน้าเเอบมือถือที่จะมีเลือกปุ่มว่าปุ่มนี้คำนวน CrCl ปุ่มนี้ขนาดยาเด็ก บลาๆ อะไรพวกนี้',
+  cropSel: '.cx-head',
+  cropW: 320,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'คำนวณ CrCl', apply: (root) => oldHead(root), measure: (root, box, col) => titleFit(root, col) },
+    { name: 'ชื่อเต็มอย่างเดียว', sub: 'Creatinine Clearance', apply: (root) => { oldHead(root); setTitle('Creatinine Clearance')(root); }, measure: (root, box, col) => titleFit(root, col) },
+    { name: 'ชื่อเต็มกับตัวย่อ', sub: 'Creatinine Clearance (CrCl)', apply: (root) => { oldHead(root); setTitle('Creatinine Clearance (CrCl)')(root); }, measure: (root, box, col) => titleFit(root, col) },
+  ],
+});
+
+// ฉบับร่างเปลี่ยนหัวกล่องแล้ว ภาพตัวเลือกเรื่องหัวกล่องย้อนเป็นหัวกล่องแบบก่อนเลือก
+// (จุดจับลาก ชื่อ คำนวณ CrCl ปุ่มแผงข้าง สลับแผง เลือกขอบ พับ ปิด · ไม่มีไอคอน ไม่มีแถวชื่อ)
+const oldHead = (root) => {
+  const head = root.querySelector('.cx-head');
+  if (!head) return;
+  const t = root.querySelector('.cx-title');
+  const row = root.querySelector('.cx-trow');
+  head.querySelectorAll('.cx-ic,.cx-head-gap').forEach((e) => e.remove());
+  const grip = head.querySelector('.cx-grip');
+  const edge = head.querySelector('[data-act="edge"]');
+  const layout = head.querySelector('[data-act="layout"]');
+  if (t) { t.textContent = 'คำนวณ CrCl'; if (grip) grip.after(t); else head.prepend(t); }
+  if (edge && layout) layout.after(edge);
+  if (grip) head.prepend(grip);
+  if (row) row.remove();
+};
+// ภาพที่ 1 หัวกล่องมีแค่ปุ่มกับไอคอน ชื่อเต็มอยู่แถวถัดลงมา · วาดจากกล่องจริงแผงแคบ ตัดตั้งแต่หัวกล่องถึงแถว Sex
+const HEAD2_SAID = 'แบบนี้มั้ย เเบนเน้อก็ให้มันอยู่เเค่พวกปุ่มเเละ icon เเต่ชื่อหัวข้ออยู่เเถวถัดลงมา ลองทำมอคออัปมาที';
+const titleRow = (where, txt) => (root) => {
+  const head = root.querySelector('.cx-head');
+  const t = root.querySelector('.cx-title');
+  if (!head || !t) return;
+  t.textContent = txt;
+  const grip = head.querySelector('.cx-grip');
+  const ic = document.createElement('span');
+  ic.className = 'opt-ic';
+  ic.innerHTML = (NOW.render && NOW.render.ICON && NOW.render.ICON.calc) || '';
+  const gap = document.createElement('span');
+  gap.style.flex = '1';
+  (grip || head.firstChild).after(ic, gap);
+  const row = document.createElement('div');
+  row.className = 'opt-trow ' + where;
+  row.appendChild(t);
+  head.after(row);
+  addCss(root, '.opt-ic{display:inline-flex;color:var(--accent-ink);margin-left:2px}'
+    + '.opt-trow{padding:6px 12px 7px}.opt-trow .cx-title{display:block;white-space:normal;line-height:1.3}'
+    + '.opt-trow.head{background:var(--accent-soft);border-bottom:1px solid var(--line)}'
+    + (where === 'head' ? '.cx-head{border-bottom:0}' : '.opt-trow.body{border-bottom:1px solid var(--line-2)}'));
+};
+OPTIONS[1].push({
+  title: 'ตัวเลือก หัวกล่องมีแค่ปุ่มกับไอคอน ชื่อเต็มอยู่แถวถัดลงมา',
+  said: HEAD2_SAID,
+  cropSel: '.cx-head',
+  cropEnd: '.cx-row[data-row="sex"]',
+  cropW: 320,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'ชื่อ "คำนวณ CrCl" อยู่ในหัวกล่องแถวเดียวกับปุ่ม', apply: (root) => oldHead(root) },
+    { name: 'แถวชื่อต่อจากหัวกล่อง พื้นเขียวอ่อน', sub: 'หัวกล่องสองแถว แถวบนจุดจับลาก ไอคอนเครื่องคิดเลข ปุ่ม · แถวล่างชื่อเต็ม พื้นสีเดียวกับหัวกล่อง', apply: (root) => { oldHead(root); titleRow('head', 'Creatinine Clearance (CrCl)')(root); } },
+    { chosen: true, name: 'แถวชื่อบนพื้นขาว', sub: 'หัวกล่องมีแค่จุดจับลาก ไอคอน ปุ่ม · ชื่อเต็มอยู่บนพื้นขาวเหนือช่องกรอก มีเส้นคั่นบาง ๆ · พี่กันสั่งย้ายปุ่มเลือกขอบไปซ้ายสุดเพิ่ม อยู่ในฉบับร่างแล้ว', apply: (root) => { oldHead(root); titleRow('body', 'Creatinine Clearance (CrCl)')(root); } },
+    { name: 'แถวชื่อต่อจากหัวกล่อง ชื่อเต็มอย่างเดียว', sub: 'แบบพื้นเขียวอ่อน แต่ชื่อเหลือ Creatinine Clearance ไม่มีตัวย่อ เพราะหัวข้อในกล่องเขียน CrCl อยู่แล้ว', apply: (root) => { oldHead(root); titleRow('head', 'Creatinine Clearance')(root); } },
+  ],
+});
+
+// ภาพที่ 18 แผงกว้าง หัวข้อ eGFR กับ BMI ตกบรรทัด (การ์ดคู่กันกว้างการ์ดละราว 150 จุด)
+// ฉบับร่างใส่แบบที่เลือกแล้ว ภาพแบบอื่นย้อนหัวข้อเป็นแบบก่อนเลือก (ชื่อสูตรในหัวข้อ สีเดียวกับหัวข้อ)
+const oldPairHead = (root) => addCss(root, '.wide .cx-pair .cx-sec-t .cx-f{display:inline;color:inherit;font:inherit}.wide .cx-pair .cx-formula{display:none}');
+OPTIONS[18] = {
+  title: 'ตัวเลือก หัวข้อ eGFR กับ BMI ในแผงกว้าง · การ์ดสองใบวางคู่กัน กว้างใบละราว 150 จุด หัวข้อจึงตกบรรทัด · แผงแคบไม่เปลี่ยน',
+  said: 'ทำตัวเลือกแผงกว้างหัวข้อ eGFR BMI ให้เลือกที',
+  pairCrop: true,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'หัวข้อตกเป็น 3 บรรทัด ป้ายแสดงผลเท่านั้นตกลงไปบรรทัดล่าง', apply: (root) => oldPairHead(root) },
+    {
+      name: 'ป้ายลงไปใต้หัวข้อ', sub: 'หัวข้อได้ทั้งความกว้างการ์ด ป้ายแสดงผลเท่านั้นอยู่บรรทัดถัดไปชิดซ้าย',
+      apply: (root) => { oldPairHead(root); addCss(root, '.wide .cx-pair .cx-sec-h{display:block}.wide .cx-pair .cx-sec-h .cx-tag{display:inline-block;margin-top:3px}'); },
+    },
+    {
+      chosen: true,
+      name: 'ชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ', sub: 'หัวข้อเหลือ eGFR กับ BMI คู่กับป้ายบรรทัดเดียว ชื่อสูตรกับเกณฑ์ตัวเล็กสีเทาอยู่ใต้หัวข้อ · อยู่ในฉบับร่างแล้ว',
+      apply: () => {},
+      oldApply: (root) => {
+        addCss(root, '.opt-formula{margin:1px 0 0;color:var(--ink-3);font:500 11px/1.4 var(--font-en),var(--font-sarabun),sans-serif}');
+        [['.cx-egfr', 'eGFR', 'CKD-EPI 2021'], ['.cx-bmi', 'BMI', 'WHO Asia-Pacific']].forEach(([sel, t, f]) => {
+          const sec = root.querySelector('.cx-pair ' + sel);
+          if (!sec) return;
+          sec.querySelector('.cx-sec-t').textContent = t;
+          sec.querySelector('.cx-sec-h').insertAdjacentHTML('afterend', '<p class="opt-formula"></p>');
+          sec.querySelector('.opt-formula').textContent = f;
+        });
+      },
+    },
+    {
+      name: 'eGFR กับ BMI เรียงลงมา', sub: 'ไม่วางคู่กัน หัวข้อกับป้ายอยู่บรรทัดเดียวเหมือนแผงแคบ แต่กล่องสูงขึ้น',
+      apply: (root) => { oldPairHead(root); addCss(root, '.wide .cx-pair{display:block}'); },
+      measure: (root, box, col) => {
+        // บอกว่ากล่องสูงขึ้นเท่าไหร่ เทียบกับกล่องแผงกว้างแบบตอนนี้ในแถวเดียวกัน (วัดจริง ไม่พิมพ์มือ)
+        const me = root.querySelector('.cx-body');
+        const first = col.parentNode.querySelector('.opt-pair .host');
+        const base = first && first.shadowRoot && first.shadowRoot.querySelector('.cx-body');
+        if (!me || !base) return;
+        const d = Math.round(me.getBoundingClientRect().height - base.getBoundingClientRect().height);
+        const sub = col.querySelector('.opt-sub');
+        if (sub && d > 0) sub.textContent = `ไม่วางคู่กัน หัวข้อกับป้ายอยู่บรรทัดเดียวเหมือนแผงแคบ แต่กล่องสูงขึ้น ${d} จุด`;
+      },
+    },
+  ],
+};
+
+// ภาพที่ 2 บรรทัดเหตุผลในกล่องบอกน้ำหนักที่ใช้
+OPTIONS[2].push({
+  title: 'ตัวเลือก บรรทัดเหตุผลใต้ "ใช้ Ideal BW 65.9 kg" ในกล่องเขียวที่บอกน้ำหนักที่ใช้ · แคลร์แนะนำ เอาออกเฉพาะกรณี Normal',
+  said: 'พราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW อาออกดีมั้ย',
+  list: [
+    { chosen: true, from: 'เพราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW', to: '(เอาออก เฉพาะ Normal)', why: 'Normal คือกรณีปกติที่ใช้ IBW อยู่แล้ว บรรทัดนี้แค่ทวนเกณฑ์ที่พี่กันรู้อยู่ · กรณีอื่นยังมีเหตุผล เพราะบอกว่าทำไมไม่ใช้ IBW (แคลร์แนะนำ)' },
+    { from: 'เหตุผลทุกกรณี', to: '(เอาออกทั้งหมด)', why: 'กล่องเหลือบรรทัดเดียว · แต่กรณี ผอม อ้วน เตี้ย ไม่กรอกส่วนสูง จะไม่บอกว่าทำไมเลือกน้ำหนักนั้น ต้องดูเอาจากตารางน้ำหนักข้างล่างเอง' },
+    { from: 'เหตุผลทุกกรณี', to: '(คงไว้)', why: 'ทุกกรณีบอกเหตุผลเหมือนกัน ช่วยเห็นเร็วถ้ากรอกน้ำหนักหรือส่วนสูงผิดจนเข้ากรณีที่ไม่ควรเป็น' },
+  ],
+});
+
+// ภาพที่ 2 คำว่า Normal ในกล่องบอกน้ำหนักที่ใช้
+OPTIONS[2].push({
+  title: 'ตัวเลือก คำว่า Normal ใน "Normal ใช้ Ideal BW 65.9 kg" · Normal ตรงนี้คือ BW อยู่ระหว่าง IBW ถึง 1.2 เท่า ไม่ใช่ BMI · ภาพนี้ BMI 24.2 ขึ้น Overweight (น้ำหนักเกิน) ในขณะที่กล่องนี้เขียน Normal · แคลร์แนะนำแบบแรก',
+  said: 'Normal ใช้ Ideal BW 65.9 kg เราอ่านเเล้ว คนอ่านจะสงสัย อะไร normal',
+  list: [
+    { chosen: true, from: 'Normal ใช้ Ideal BW 65.9 kg', to: 'ใช้ Ideal BW 65.9 kg', why: 'ตัดคำ Normal ออก เหมือนกรณีเตี้ยกับไม่กรอกส่วนสูงที่ขึ้นต้นด้วยคำว่าใช้ · ไม่มีคำให้ชนกับ BMI · สีเขียวของกล่องบอกว่าเป็นกรณีปกติอยู่แล้ว (แคลร์แนะนำ)' },
+    { from: 'Normal ใช้ Ideal BW 65.9 kg', to: 'Normal weight ใช้ Ideal BW 65.9 kg', why: 'บอกชัดว่าปกติเรื่องน้ำหนัก แต่ยังชนกับ BMI ที่อาจขึ้น Overweight ในกล่องเดียวกัน' },
+    { from: 'Normal ใช้ Ideal BW 65.9 kg', to: 'BW ไม่เกิน 1.2 เท่าของ IBW ใช้ Ideal BW 65.9 kg', why: 'บอกเกณฑ์ตรง ๆ ไม่ต้องสงสัย แต่ยาว อาจตกเป็น 2 บรรทัด' },
+  ],
+});
+
+// ภาพที่ 3 กล่องบอกน้ำหนักที่ใช้ อยู่ขวาตัวเลขแล้วกรณีที่มีเหตุผลกับคำเตือนสูงมาก
+const BASIS_SAID = 'ย้ายจากที่อยู่บรรทัดล่าง ไปเป็นกรออกสี่เหลี่ยมขวา';
+// แบบที่ 2 บรรทัดแรกอยู่ขวาตัวเลข เหตุผลกับคำเตือนลงไปเป็นกล่องสีเดียวกันเต็มความกว้างใต้ตัวเลข
+const splitBasis = (root) => {
+  const top = root.querySelector('.cx-crcl .cx-top');
+  const bx = top && top.querySelector('.cx-basis');
+  if (!bx) return;
+  const rest = [...bx.querySelectorAll('.cx-basis-why,.cx-warnline')];
+  if (!rest.length) return;
+  const low = document.createElement('div');
+  low.className = bx.className;
+  low.style.marginTop = '6px';
+  rest.forEach((e) => low.appendChild(e));
+  top.after(low);
+};
+// แบบที่ 3 กรณีที่มีเหตุผล กล่องกลับไปอยู่ใต้ตัวเลขเต็มความกว้างเหมือนเดิม กรณีปกติยังอยู่ขวา
+const basisBelowIfLong = (root) => {
+  const top = root.querySelector('.cx-crcl .cx-top');
+  const bx = top && top.querySelector('.cx-basis');
+  if (!bx || !bx.querySelector('.cx-basis-why')) return;
+  bx.style.marginTop = '6px';
+  top.after(bx);
+};
+OPTIONS[3] = {
+  title: 'ตัวเลือก กล่องบอกน้ำหนักที่ใช้ ตอนอยู่ขวาตัวเลข · กรณีปกติบรรทัดเดียวพอดี แต่กรณีที่มีเหตุผลกับคำเตือน กล่องกว้างแค่ราว 168 จุด เลยสูงมาก',
+  said: BASIS_SAID,
+  cropSel: '.cx-top',
+  cropEnd: '.cx-bw',
+  cropW: 320,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'ทั้งกล่องอยู่ขวาตัวเลขทุกกรณี · ภาพนี้กล่องสูง 120 จุด บรรทัดแรกตกเป็น 2 บรรทัด', apply: (root) => oldUnder(root) },
+    { name: 'บรรทัดแรกอยู่ขวา ที่เหลือลงล่าง', sub: 'ขวาตัวเลขเหลือ Underweight ใช้ Actual BW 41.0 kg · เหตุผลกับคำเตือนเป็นกล่องสีเดียวกันเต็มความกว้างใต้ตัวเลข', apply: (root) => { oldUnder(root); splitBasis(root); } },
+    { name: 'อยู่ขวาเฉพาะกรณีปกติ', sub: 'กรณีปกติบรรทัดเดียวอยู่ขวาตัวเลข · กรณีที่มีเหตุผลกล่องอยู่ใต้ตัวเลขเต็มความกว้างเหมือนเดิม', apply: (root) => { oldUnder(root); basisBelowIfLong(root); } },
+  ],
+};
+
+// ภาพ 2.1 ล็อกตัวเลขเลข 3 หลักแล้ว กล่องทางขวาเหลือ 149 จุด "ใช้ Ideal BW 65.9 kg" ตก 2 บรรทัด
+// วัดจากกล่องจริงว่าบรรทัดแรกในกล่องได้กี่บรรทัด แล้วเขียนต่อท้ายคำอธิบาย (ไม่พิมพ์มือ)
+const fitNote = (root, box, col) => {
+  const main = root.querySelector('.cx-top .cx-basis-main');
+  const bx = root.querySelector('.cx-top .cx-basis');
+  const sub = col.querySelector('.opt-sub');
+  if (!main || !bx || !sub) return;
+  const lh = parseFloat(getComputedStyle(main).lineHeight) || 18;
+  const lines = Math.round(main.getBoundingClientRect().height / lh);
+  sub.textContent += ` · วัดแล้ว ${lines === 1 ? 'บรรทัดเดียว' : lines + ' บรรทัด'} กล่องกว้าง ${Math.round(bx.getBoundingClientRect().width)} จุด`;
+};
+OPTIONS['2.1'] = {
+  title: 'ตัวเลือก ให้ "ใช้ Ideal BW 65.9 kg" อยู่บรรทัดเดียว หลังล็อกตัวเลข CrCl ให้กว้างพอเลข 3 หลัก',
+  said: 'ทำตัวเลือกมาให้เลือกที',
+  cropSel: '.cx-top',
+  cropW: 320,
+  items: [
+    { name: 'แบบตอนนี้ (ฉบับร่าง)', sub: 'ตัวเลข 28 จุด หน่วยอยู่ขวาตัวเลข กล่องตัวหนังสือ 12.5 จุด', measure: fitNote },
+    { name: 'หน่วยลงไปใต้ตัวเลข', sub: 'mL/min ตัวเล็กอยู่ใต้ตัวเลข ช่องตัวเลขแคบลง กล่องได้ที่เพิ่ม', apply: (root) => addCss(root, '.cx-top .cx-big{flex-direction:column;align-items:flex-end;gap:0}.cx-top .cx-big span{margin-top:-2px}'), measure: fitNote },
+    { name: 'ตัวเลขเล็กลง', sub: 'ตัวเลข CrCl จาก 28 เหลือ 24 จุด หน่วยอยู่ขวาเหมือนเดิม', apply: (root) => addCss(root, '.cx-top .cx-big b{font-size:24px}'), measure: fitNote },
+    { chosen: true, name: 'ตัวหนังสือในกล่องเล็กลง', sub: 'กล่องบอกน้ำหนักจาก 12.5 เหลือ 11.5 จุด และช่องไฟระหว่างตัวเลขกับกล่องแคบลง', apply: (root) => addCss(root, '.cx-top{gap:6px}.cx-top .cx-basis{font-size:11.5px;padding:5px 6px}'), measure: fitNote },
+    { name: 'ใช้ตัวย่อ IBW', sub: 'ข้อความเหลือ ใช้ IBW 65.9 kg ตัวย่อเดียวกับตารางน้ำหนักข้างล่าง', apply: (root) => { const m = root.querySelector('.cx-top .cx-basis-main'); if (m) m.textContent = m.textContent.replace('Ideal BW', 'IBW'); }, measure: fitNote },
+  ],
+};
+
+// ภาพที่ 3 กล่อง Underweight ทางขวาตัวเลข ตัดทอนหรือลดอะไรดี · วัดความสูงกล่องจากกล่องจริงแล้วเขียนต่อท้าย
+const boxH = (root, box, col) => {
+  const bx = root.querySelector('.cx-top .cx-basis');
+  const main = root.querySelector('.cx-top .cx-basis-main');
+  const sub = col.querySelector('.opt-sub');
+  if (!bx || !main || !sub) return;
+  const lines = Math.round(main.getBoundingClientRect().height / (parseFloat(getComputedStyle(main).lineHeight) || 17));
+  sub.textContent += ` · วัดแล้ว กล่องสูง ${Math.round(bx.getBoundingClientRect().height)} จุด บรรทัดแรก${lines === 1 ? 'บรรทัดเดียว' : ' ' + lines + ' บรรทัด'}`;
+};
+const noLabel = (root) => { const m = root.querySelector('.cx-top .cx-basis-main'); if (m) m.textContent = m.textContent.replace(/^Underweight\s+/, ''); };
+const noWhy = (root) => { const w = root.querySelector('.cx-top .cx-basis-why'); if (w) w.remove(); };
+const shortWarn = (root) => { const w = root.querySelector('.cx-top .cx-warnline span'); if (w) w.textContent = 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง'; };
+// ฉบับร่างเปลี่ยนกล่อง Underweight แล้ว ภาพตัวเลือก 3-1 กับ 3-2 ย้อนเป็นกล่องแบบก่อนเลือก
+const oldUnder = (root) => {
+  const top = root.querySelector('.cx-crcl .cx-top');
+  const bx = top && top.querySelector('.cx-basis.under');
+  if (!bx) return;
+  const m = bx.querySelector('.cx-basis-main');
+  m.textContent = 'Underweight ' + m.textContent;
+  m.insertAdjacentHTML('afterend', '<div class="cx-basis-why">เพราะ BW น้อยกว่า IBW</div>');
+  let n = top.nextElementSibling;
+  while (n && n.classList.contains('cx-warnline')) { const nx = n.nextElementSibling; bx.appendChild(n); n = nx; }
+  const w = bx.querySelector('.cx-warnline span');
+  if (w && w.textContent.startsWith('มวลกล้ามเนื้อน้อย')) w.textContent = 'มวลกล้ามเนื้อน้อย ค่า CrCl อาจสูงกว่าความเป็นจริง';
+};
+OPTIONS[3] = [OPTIONS[3], {
+  title: 'ตัวเลือก กล่อง Underweight ทางขวาตัวเลข ตัดหรือย่ออะไรดี · แต่ละแบบเปลี่ยนเฉพาะที่เขียนไว้',
+  said: 'เกลาต่อ ตัดทอนอันไหนดี ลดขนาดอันไหนเี ทพมอคเเยกมาเลย (ส่งภาพกล่อง Underweight ภาพที่ 3)',
+  cropSel: '.cx-top',
+  cropW: 320,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'Underweight ใช้ Actual BW 41.0 kg · เพราะ BW น้อยกว่า IBW · มวลกล้ามเนื้อน้อย ค่า CrCl อาจสูงกว่าความเป็นจริง', apply: (root) => oldUnder(root), measure: boxH },
+    { name: 'ตัดคำ Underweight', sub: 'เหลือ ใช้ Actual BW 41.0 kg ขึ้นต้นด้วยคำว่าใช้ เหมือนกรณีปกติ สีเหลืองของกล่องบอกว่าไม่ปกติ', apply: (root) => { oldUnder(root); noLabel(root); }, measure: boxH },
+    { name: 'ตัดบรรทัดเหตุผล', sub: 'เอา เพราะ BW น้อยกว่า IBW ออก คำเตือนข้างล่างบอกเรื่องกล้ามเนื้อน้อยอยู่แล้ว', apply: (root) => { oldUnder(root); noWhy(root); }, measure: boxH },
+    { name: 'คำเตือนสั้นลง', sub: 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง (เดิม มวลกล้ามเนื้อน้อย ค่า CrCl อาจสูงกว่าความเป็นจริง)', apply: (root) => { oldUnder(root); shortWarn(root); }, measure: boxH },
+    { name: 'ตัดคำ Underweight กับบรรทัดเหตุผล', sub: 'ใช้ Actual BW 41.0 kg แล้วตามด้วยคำเตือนเดิม', apply: (root) => { oldUnder(root); noLabel(root); noWhy(root); }, measure: boxH },
+    { chosen: true, name: 'ตัดทั้งสามอย่าง', sub: 'ใช้ Actual BW 41.0 kg แล้วตามด้วยคำเตือนแบบสั้น', apply: (root) => { oldUnder(root); noLabel(root); noWhy(root); shortWarn(root); }, measure: boxH },
+  ],
+}];
+
+// ภาพที่ 3 หมายเหตุใต้ตัวเลข บอกแค่ผล ไม่บอกเหตุ (คำว่า Underweight กับบรรทัดเหตุผลเอาออกไปแล้ว)
+OPTIONS[3].push({
+  title: 'ตัวเลือก หมายเหตุใต้ตัวเลข ให้บอกเหตุด้วย · ตอนนี้บนจอไม่มีคำไหนบอกว่าน้ำหนักน้อย มีแค่สีเหลืองของกล่อง · แคลร์แนะนำแบบแรก',
+  said: 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง เธอว่าสื่อยัง ต้องใส่ว่า underเวทบอกมั้ย',
+  list: [
+    { from: 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', to: 'BW น้อยกว่า IBW มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', why: 'บอกเกณฑ์ที่ระบบใช้ตรง ๆ ไม่ชนกับ BMI · ตัวย่อเดียวกับตารางน้ำหนักข้างล่าง (แคลร์แนะนำ)' },
+    { chosen: true, from: 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', to: 'Underweight มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', why: 'สั้นกว่า แต่เป็นคำเดียวกับระดับ BMI ถ้า BMI ขึ้น Normal Weight สองที่จะดูขัดกัน แบบที่เคยเจอกับคำว่า Normal' },
+    { from: 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', to: 'น้ำหนักน้อยกว่า IBW มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', why: 'ภาษาไทยทั้งประโยค ความหมายเดียวกับแบบแรก' },
+    { from: 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', to: '(คงไว้)', why: 'สีเหลืองของกล่องกับคำว่า Actual BW พอบอกแล้ว ดูตารางน้ำหนักข้างล่างประกอบ' },
+  ],
+});
+
+// ภาพที่ 3 หมายเหตุใต้ตัวเลข ขึ้นต้นด้วย Underweight แล้วคั่นด้วยเครื่องหมาย · วาดจากกล่องจริง ตัดถึงหมายเหตุ
+const setNote = (html) => (root) => { const sp = root.querySelector('.cx-crcl .cx-top + .cx-warnline span'); if (sp) sp.innerHTML = html; };
+OPTIONS[3].push({
+  title: 'ตัวเลือก ตัวคั่นหลังคำว่า Underweight ในหมายเหตุใต้ตัวเลข',
+  said: 'Underweight มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง เเละใส่ : เเบ้ง หรือจะ > ลองทำมอคมาดู',
+  cropSel: '.cx-top',
+  cropEnd: '.cx-crcl .cx-top + .cx-warnline',
+  cropW: 320,
+  items: [
+    { chosen: true, name: 'ทวิภาค', sub: 'Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', apply: setNote('Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง') },
+    { name: 'มากกว่า', sub: 'Underweight > มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', apply: setNote('Underweight &gt; มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง') },
+    { name: 'จุดกลาง', sub: 'Underweight · มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง (แบบเดียวกับตัวคั่นที่ใช้ในหน้านี้)', apply: setNote('Underweight · มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง') },
+    { name: 'ไม่มีตัวคั่น ตัวหนาแทน', sub: 'Underweight ตัวหนา แล้วตามด้วยข้อความ', apply: setNote('<b>Underweight</b> มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง') },
+  ],
+});
 
 // ตัวเลือกที่ดูแค่สัญลักษณ์ ไม่วาดทั้งกล่อง · ปุ่มหน่วยขนาดจริงจากสไตล์ฉบับร่าง กับสัญลักษณ์ขยาย
 const ICO = new CSSStyleSheet();
@@ -456,6 +919,7 @@ ICO.replaceSync('.ico-g{margin:0 0 6px;color:#7a5106;font:700 13px/1.4 var(--fon
   + '.ico-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:14px}'
   + '.ico{width:176px;padding:14px 12px 12px;border-radius:12px;background:#fff;box-shadow:0 0 0 1px var(--line);display:flex;flex-direction:column;align-items:center;gap:10px}'
   + '.ico.chosen{box-shadow:0 0 0 3px var(--accent)}'
+  + '.ico-c{margin:-4px 0 0;color:var(--ink-2);font:600 12px/1.35 var(--font-en),monospace;letter-spacing:.5px}'
   + '.ico .cx-field{width:100%}'
   + '.ico .cx-unit.chev{gap:2px;padding:0 4px}'
   + '.ico-big{display:flex;align-items:center;gap:4px;height:40px;color:var(--ink-2);font:600 15px/1 var(--font-en),sans-serif}'
@@ -476,6 +940,19 @@ function iconOptions(blk, spec) {
     if (g.label) root.append(h);
     root.append(rowEl);
     for (const it of g.items) {
+      // การ์ดตัวเลข CrCl ขนาดจริง สีตามตัวเลือก
+      if (it.num) {
+        const nc = document.createElement('div');
+        nc.className = 'ico' + (it.chosen ? ' chosen' : '');
+        nc.innerHTML = '<div class="cx-big"><b></b><span>mL/min</span></div><p class="ico-n"></p><p class="ico-s"></p><p class="ico-c"></p>';
+        nc.querySelector('.ico-c').textContent = it.color.toUpperCase();
+        nc.querySelector('b').textContent = it.num;
+        nc.querySelector('b').style.color = it.color;
+        nc.querySelector('.ico-n').textContent = it.name + (it.chosen ? ' · พี่กันเลือกแบบนี้' : '');
+        nc.querySelector('.ico-s').textContent = it.sub;
+        rowEl.appendChild(nc);
+        continue;
+      }
       const small = it.left ? svgOf(12, 2.4, it.left) + '<span>mg/dL</span>' + svgOf(12, 2.4, it.right) : '<span>mg/dL</span>' + svgOf(12, 2.4, it.paths);
       const big = it.left ? svgOf(28, 2, it.left) + 'mg/dL' + svgOf(28, 2, it.right) : svgOf(40, 2, it.paths);
       const card = document.createElement('div');
@@ -488,12 +965,79 @@ function iconOptions(blk, spec) {
   }
 }
 
+// ตัวเลือกเรื่องใช้แป้นพิมพ์ · การ์ดลำดับการกดแป้น กับรายการ (ไม่วาดกล่อง)
+// ปุ่มที่เป็นตัวเลขกับจุดคือค่าที่พิมพ์ (สีเทา) ปุ่มอื่นคือการกดเพิ่ม (สีเหลือง)
+const keyChips = (keys) => keys.map((k) => `<span class="kf-k${/^[0-9.]$/.test(k) ? '' : ' ctl'}"></span>`).join('');
+function fillKeys(el, keys) { el.innerHTML = keyChips(keys); [...el.children].forEach((c, i) => { c.textContent = keys[i]; }); }
+function keyOptions(blk, spec) {
+  for (const g of spec.keyflow) {
+    const h = document.createElement('p');
+    h.className = 'kf-g';
+    h.textContent = g.label;
+    blk.appendChild(h);
+    if (g.cards) {
+      const row = document.createElement('div');
+      row.className = 'kf-row';
+      for (const c of g.cards) {
+        const card = document.createElement('div');
+        card.className = 'kf-card' + (c.chosen ? ' chosen' : '');
+        card.innerHTML = '<p class="kf-n"></p><div class="kf-keys"></div><p class="kf-s"></p>';
+        const extra = c.keys.filter((k) => !/^[0-9.]$/.test(k)).length;
+        card.querySelector('.kf-n').textContent = c.name + (c.chosen ? ' · พี่กันเลือกแบบนี้' : '');
+        card.querySelector('.kf-n').insertAdjacentHTML('beforeend', '<b></b>');
+        card.querySelector('.kf-n b').textContent = `กด ${c.keys.length} ครั้ง (เพิ่มจากตัวเลข ${extra})`;
+        fillKeys(card.querySelector('.kf-keys'), c.keys);
+        card.querySelector('.kf-s').textContent = c.sub;
+        row.appendChild(card);
+      }
+      blk.appendChild(row);
+    }
+    if (g.list) {
+      const ul = document.createElement('ul');
+      ul.className = 'kf-list';
+      for (const it of g.list) {
+        const li = document.createElement('li');
+        li.innerHTML = '<span class="kf-name"></span><span class="kf-keys"></span><span class="kf-why"></span>';
+        li.children[0].textContent = it.name + (it.chosen ? ' · พี่กันเลือก' : '');
+        fillKeys(li.children[1], it.keys || []);
+        li.children[2].textContent = it.why;
+        ul.appendChild(li);
+      }
+      blk.appendChild(ul);
+    }
+  }
+}
+
+/* เลขย่อยของกลุ่มตัวเลือก (พี่กันขอ "เธอ ใส่หมายเลขย่อยที เพราะยิ่งมีมอคอัปเลือกเยอะ มันยิ่งต้องเลื่อนหา ถ้าใส่เลขหมวดย่อย เเล้วกดดูได้เลย จะง่าย" 5 ต.ค. 2569)
+   กลุ่มตัวเลือกใต้ภาพ N เป็น N-1 N-2 ... (ใช้ขีด เพราะจุดใช้กับภาพเสริมอย่าง 2.1 แล้ว) · แบบในกลุ่มมีเลข 1 2 3 นำหน้า · สารบัญมีเลขกลุ่มให้กดไปได้ */
 function options(fig, o, after, spec) {
+  buildOptions(fig, o, after, spec);
+  const blocks = fig.querySelectorAll('.opts');
+  const blk = blocks[blocks.length - 1];
+  const lbl = fig.querySelector('figcaption b').textContent;
+  const num = `${lbl}-${blocks.length}`;
+  blk.id = 'opt-' + num.replace('.', '_');
+  blk.dataset.num = num;
+  blk.querySelector('.opts-t').insertAdjacentHTML('afterbegin', `<span class="opts-n">${num}</span>`);
+  // เลข 1 2 3 นำหน้าแต่ละแบบในกลุ่ม ทั้งแบบวาดกล่อง การ์ด และรายการ (การ์ดบางแบบอยู่ใน Shadow DOM)
+  const SEL = '.col-t, .kf-n, .kf-list .kf-name, .opts-list .ls-w';
+  let names = [...blk.querySelectorAll(SEL)];
+  const sh = [...blk.querySelectorAll('div')].filter((d) => d.shadowRoot && d.shadowRoot.querySelector('.ico-n'));
+  sh.forEach((d) => { names = names.concat([...d.shadowRoot.querySelectorAll('.ico-n')]); });
+  names.forEach((el, i) => el.insertAdjacentText('afterbegin', `${i + 1}. `));
+}
+function buildOptions(fig, o, after, spec) {
   const blk = document.createElement('div');
   blk.className = 'opts';
   blk.innerHTML = `<p class="opts-t"></p><p class="opts-q"></p><div class="opts-row${spec.full ? ' full' : ''}"></div>`;
   blk.querySelector('.opts-t').textContent = spec.title;
   blk.querySelector('.opts-q').textContent = `พี่กันว่า "${spec.said}"`;
+  if (spec.keyflow) {
+    blk.querySelector('.opts-row').remove();
+    keyOptions(blk, spec);
+    fig.insertBefore(blk, fig.querySelector('.hist'));
+    return;
+  }
   if (spec.list) {
     const ul = document.createElement('ul');
     ul.className = 'opts-list';
@@ -522,7 +1066,8 @@ function options(fig, o, after, spec) {
     if (it.chosen) col.classList.add('opt-chosen');
     col.children[1].textContent = it.sub;
     const crop = document.createElement('div');
-    crop.className = spec.full ? 'opt-full' : 'opt-crop';
+    crop.className = (spec.pairCrop || spec.cropSel) ? 'opt-pair' : spec.full ? 'opt-full' : 'opt-crop';
+    if (spec.cropW) crop.style.width = spec.cropW + 'px';
     const host = document.createElement('div');
     host.className = 'host';
     crop.appendChild(host);
@@ -538,13 +1083,46 @@ function options(fig, o, after, spec) {
     const span = root.querySelector('[data-msg="scrref"] span');
     if (span && it.html) span.innerHTML = it.html;
     if (it.apply) it.apply(root, box);
+    // ตัดเฉพาะส่วน eGFR กับ BMI · วัดหลังฟอนต์โหลด (ตัวจับเวลา ไม่พึ่งจังหวะวาดจอ แท็บที่ซ่อนก็ทำงาน)
+    if (spec.pairCrop || spec.cropSel) {
+      const fit = () => {
+        const top = spec.cropSel ? root.querySelector(spec.cropSel) : (root.querySelector('.opt-pairtop') || root.querySelector('.cx-pair'));
+        const end = spec.cropEnd ? root.querySelector(spec.cropEnd) : spec.cropSel ? top : root.querySelector('.cx-pair');
+        const hr = host.getBoundingClientRect();
+        const y0 = top.getBoundingClientRect().top - hr.top - 12;
+        const y1 = end.getBoundingClientRect().bottom - hr.top + 12;
+        host.style.marginTop = (-y0) + 'px';
+        crop.style.height = (y1 - y0) + 'px';
+        if (it.measure) it.measure(root, box, col);
+      };
+      (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(fit, 60));
+    }
   }
   fig.insertBefore(blk, fig.querySelector('.hist'));
 }
 
 /* ประวัติการแก้และการเลือก แยกตามเลขภาพ · แก้ข้อไหนเพิ่มบรรทัดที่นี่ทุกครั้ง (วันที่ · แก้อะไร · คำพี่กันคำต่อคำ) */
+const CG_SAID_H = 'รู้สึกแปลกๆ พอมี (Cockcroft-Gault) เธอมีไอเดียเสนอมั้ย';
+const HEAD2_SAID_H = 'แบบนี้มั้ย เเบนเน้อก็ให้มันอยู่เเค่พวกปุ่มเเละ icon เเต่ชื่อหัวข้ออยู่เเถวถัดลงมา ลองทำมอคออัปมาที';
 const HISTORY = {
+  '2.1': [
+    { date: '5 ต.ค. 2569', what: 'พี่กันเลือกแบบ 2.1-1 ข้อ 4 กล่องบอกน้ำหนักทางขวาตัวหนังสือ 11.5 จุด ช่องไฟระหว่างตัวเลขกับกล่อง 6 จุด ใช้ Ideal BW 65.9 kg อยู่บรรทัดเดียว · ตัวเลข CrCl ขนาดเท่าเดิม (ฉบับร่าง box.css)', said: 'เอาอันนี้  เราจะไม่ลดขนาดค่า Crcl (ส่งภาพแบบ 4 ตัวหนังสือในกล่องเล็กลง)' },
+    { date: '5 ต.ค. 2569', what: 'ล็อกตัวเลขแล้วกล่องทางขวาแคบ ใช้ Ideal BW 65.9 kg ตก 2 บรรทัด · ทำตัวเลือก 5 แบบใต้แถวนี้', said: 'ทำตัวเลือกมาให้เลือกที' },
+  ],
   1: [
+    { date: '5 ต.ค. 2569', what: 'กล่องหน่วยกับกล่อง ปี กว้างขึ้นเป็นครึ่งช่อง เส้นซ้ายตรงกับเส้นแบ่งปุ่มชายหญิง (ฉบับร่าง box.css · เดิมกว้าง 77 จุด) · ทุกภาพเปลี่ยนตาม', said: 'เธอลอง ขยายกรอบ ปี เเละหน่วย ให้ตรงกับ เพษหญิงหน่อย' },
+    { date: '5 ต.ค. 2569', what: 'ค่าที่พิมพ์ในช่องเริ่มตรงตัว ช ของคำว่าชาย แบบเดียวกับคำว่าเช่นตอนช่องว่าง ไม่ชิดขวาแล้ว (ฉบับร่าง box.css) · ทุกภาพที่มีค่าในช่องเปลี่ยนตาม', said: 'ลองขยับตัวเลข ให้ตรงกับ ช ชาย หน่อย' },
+    { date: '5 ต.ค. 2569', what: 'ค่าที่กรอกในช่องเป็นสีเขียวน้ำทะเล สีเดียวกับลูกศรบนปุ่มสลับหน่วย ข้อความตัวอย่างตอนช่องว่างยังเทาเหมือนเดิม (ฉบับร่าง box.css) · ทุกภาพที่มีค่าในช่องเปลี่ยนตาม · พี่กันบอกให้เกลาแผงแคบจนพอใจก่อน แล้วค่อยปรับแผงกว้างทีเดียว', said: '14 ค่อยไปแก้ทีหลัง เพราะเราจะขอเเก้เเนวตั้งจนพอใจก่อน เเล้วค่อยเอาไปปรับทีเดียว · ตามรูป ตอนกรอก ขอสิ่งที่กรอกเป็นสีเขียว เหมือนสี icon สลับหน่วยค่าเเลป' },
+    { date: '5 ต.ค. 2569', what: 'ปุ่มเลือกขอบย้ายจากซ้ายสุดของหัวกล่อง ไปซ้ายสุดของกลุ่มปุ่ม ติดกับปุ่มแผงข้าง · หัวกล่องเรียงจากซ้าย จุดจับลาก ไอคอน แล้วกลุ่มปุ่มชิดขวา เลือกขอบ แผงข้าง สลับแผง พับ ปิด (ฉบับร่าง box.js) · แคลร์อ่านคำว่าซ้ายสุดผิดเป็นซ้ายสุดของหัวกล่อง', said: 'แปปปๆๆๆ 8e;jkl6f:hkp-v\'gik 8nv9jv0kd  รูปนี้ (พิมพ์ตอนลืมเปลี่ยนแป้น อ่านได้ว่า คำว่าสุดซ้ายของเรา คือต่อจาก รูปนี้ · ส่งภาพปุ่มแผงข้าง)' },
+    { date: '5 ต.ค. 2569', what: 'หัวกล่องมีแค่ปุ่มกับไอคอน เรียงจากซ้าย ปุ่มเลือกขอบ จุดจับลาก ไอคอนเครื่องคิดเลข แล้วปุ่มแผงข้าง สลับแผง พับ ปิด ชิดขวา · ชื่อเต็ม Creatinine Clearance (CrCl) อยู่แถวถัดลงมาบนพื้นขาว มีเส้นคั่นบาง (ฉบับร่าง box.js box.css) · ติดขอบซ้ายหัวกล่องยังกลับด้าน แต่แถวชื่อชิดซ้ายเหมือนเดิม · ภาพตัวเลือกเรื่องหัวกล่องย้อนเป็นหัวกล่องแบบก่อนเลือก', said: 'เอาอันนี้ (ส่งภาพแบบแถวชื่อบนพื้นขาว) · เเละย้ายปุ่ม ตามรูป ไปอยู่ฝั่งซ้ายสุด (ส่งภาพปุ่มเลือกขอบ)' },
+    { date: '5 ต.ค. 2569', what: 'หัวกล่องมีแค่ปุ่มกับไอคอน ชื่อเต็มอยู่แถวถัดลงมา ทำมอคอัป 4 แบบใต้แถวนี้ (แบบตอนนี้ · แถวชื่อพื้นเขียวอ่อน · แถวชื่อบนพื้นขาว · ชื่อเต็มอย่างเดียว)', said: HEAD2_SAID_H },
+    { date: '5 ต.ค. 2569', what: 'หัวข้อ CrCl เปลี่ยนเป็น CrCl (Cockcroft-Gault) ชื่อสูตรในวงเล็บสีจางต่อท้าย แบบเดียวกับ eGFR กับ BMI เอาบรรทัดชื่อสูตรใต้หัวข้อออก (ฉบับร่าง render.js box.css) · พี่กันเลือกเอง แม้สกิลให้หัวข้อเป็นชื่อเต็ม · ทำตัวเลือกชื่อเต็มบนหัวกล่อง 3 แบบ · จดไอเดียหน้าแรกแบบแอปมือถือลงโรดแมป', said: 'จริงๆเอาอันนี้ก็ได้นะ ส่วนชื่อเต็ม อาจจะเอาไว้ที่เเบนเน้อบนสุด เพราะอย่างที่เราบอก เค้า exten ตัวนี้ สุดท้ายเเล้วมันจะเหมือนสารานุกรม ที่กดมาหน้าเเรกมันจะคล้ยหน้าเเอบมือถือที่จะมีเลือกปุ่มว่าปุ่มนี้คำนวน CrCl ปุ่มนี้ขนาดยาเด็ก บลาๆ อะไรพวกนี้' },
+    { date: '5 ต.ค. 2569', what: 'ชื่อสูตร (Cockcroft-Gault) ใต้หัวข้อ CrCl ดูแปลก ทำตัวเลือก 4 แบบใต้แถวนี้ (แบบตอนนี้ · ไม่มีวงเล็บ · ทั้งสามส่วนเหมือนกัน · ไว้ท้ายบรรทัดตัวเลข) · ไม่เสนอย่อหัวข้อ CrCl เพราะสกิลกำหนดให้หัวข้อเป็นชื่อเต็มตามด้วยวงเล็บ', said: CG_SAID_H },
+    { date: '5 ต.ค. 2569', what: 'CrCl ข้อความกรอกไม่ครบเปลี่ยนจาก ยังไม่ได้กรอก เป็น กรุณากรอก เหมือน eGFR กับ BMI · ชื่อสูตร Cockcroft-Gault ย้ายจากข้างตัวเลขไปใต้หัวข้อ เอาคำว่าสูตรออก ใส่วงเล็บ สีจาง ทั้งแผงแคบแผงกว้าง (ฉบับร่าง render.js box.css) · ทุกภาพที่มี CrCl เปลี่ยนตาม', said: 'ตรง CrCl เขียนว่า ยังไม่ได้กรอก ตรง eGFR BMI เขียนว่า กรุณา เปลี่ยนเป็นกรุณาให้หมด เเละเอาที่เขียนว่า สูตร Cockcroft-Gault เอามาใส่ใต้คำว่า Creatinine Clearance (CrCl) เเต่เอาคำว่าสูตรออก เเละใส่วงเล็บ ให้เหมือนกับของ eGFR BMI' },
+    { date: '5 ต.ค. 2569', what: 'หัวข้อ eGFR กับ BMI ชื่อสูตรในวงเล็บเป็นสีจาง ตัวบางลง ตามแบบที่เลือกให้แผงกว้าง (ดูภาพที่ 18) (ฉบับร่าง render.js box.css)', said: 'เเลละในเเบบเเนวตั้ง สูตรเอาสีจางเหมือนกันด้วย' },
+    { date: '5 ต.ค. 2569', what: 'eGFR กับ BMI ย้ายสูตรกับป้ายแสดงผลเท่านั้นขึ้นไปบรรทัดหัวข้อ "eGFR (CKD-EPI 2021)" "BMI (WHO Asia-Pacific)" ป้ายแสดงผลเท่านั้นอยู่ท้ายบรรทัด เหมือนหัวข้อ CrCl · บรรทัดสูตรใต้ตัวเลขเอาออก (ฉบับร่าง render.js) · ทุกภาพที่มี eGFR กับ BMI เปลี่ยนตาม', said: 'ย้ายสูตรมาข้างบน เป็น eGFR (ฉษฏ ฎญณ 2021 clf\'z]gmjkoyho (พิมพ์ตอนลืมเปลี่ยนแป้น อ่านได้ว่า eGFR (CKD EPI 2021 แสดงผลเท่านั้น) · BMI เหมือนกัน' },
+    { date: '5 ต.ค. 2569', what: 'ใช้แป้นพิมพ์อย่างเดียว ยังไม่เปลี่ยน แบบตอนนี้ (Tab ไปปุ่มหน่วยแล้ว Enter สลับหน่วย) ใช้ได้แล้ว · ตัวเลือกเก็บไว้ในหน้า ไม่เอาออก', said: 'เอ แบบ้ดิม กดเเทบ เเล้วเอนเท้อเปลี่ยนหน่วย ก็ ok เเล้วเเฮะ งั้นยังไม่เปลี่ยน เเต่มอคออัปไม่เอาออกนะ' },
+    { date: '5 ต.ค. 2569', what: 'ใช้แป้นพิมพ์อย่างเดียว ทำตัวเลือกใต้แถวนี้ · กรอกทั้งกล่อง 3 แบบ (ตอนนี้ 20 ครั้ง · Tab ข้ามปุ่มหน่วย 15 · กดอักษรเลือกเพศแล้ว Enter 14) · สลับหน่วย 3 แบบ · เปิดปิดกล่องด้วยคีย์ลัด · พิมพ์ตัวเลขตอนแป้นเป็นไทย', said: 'เธอว่า มันสามารถใช้เเป้นพิม กดเลือกกดพิม โดยไม่ต้องใช้เมาส์ได้ไหม ออกแบบมาให้เลือกที' },
     { date: '4 ต.ค. 2569', what: 'ประโยคที่ยังใช้ BW กับอายุ (คำนวณไม่ได้เพราะเกินขอบเขต · เหตุผลที่เลือกน้ำหนัก · ประโยคเรื่องอายุ · ตารางน้ำหนัก) เก็บไว้ตามเดิม ไม่เปลี่ยนเป็น Weight Age', said: 'เอาไว้ (ตอบรายการข้อความที่ยังใช้คำเดิม)' },
     { date: '4 ต.ค. 2569', what: 'Cr ทุกที่ในระบบเป็น sCr ตัว s เล็ก ป้ายช่อง ข้อความผิดใต้ช่อง ค่าต่ำกว่าและสูงกว่าค่าอ้างอิง คำนวณไม่ได้เพราะค่า sCr ยังไม่ได้กรอก กรุณากรอก (ฉบับร่าง calc.js render.js box.js) · CrCl ไม่เปลี่ยน · ทุกภาพที่มีคำนี้เปลี่ยนตาม', said: 'แก้ให้หมดละกัน เป็น sCr ตัวเอาตัวเล็ก แก้ให้หมดทั้งระบบ (ตอบข้อความ ใต้ช่อง SCr: ค่า Cr ต่ำเกินไป · ค่า Cr สูงเกินไป · Cr ต่ำกว่าค่าอ้างอิง · Cr สูงกว่าค่าอ้างอิง)' },
     { date: '4 ต.ค. 2569', what: 'พี่กันเลือกทั้ง 4 คำ ป้ายเป็น Sex · Age · SCr · Weight · Height · ข้อความที่บอกให้กรอกช่องไหนเปลี่ยนชื่อช่องตาม ยังไม่ได้กรอก Sex Age SCr และ Weight · กรุณากรอก Sex Age และ SCr · กรุณากรอก Weight และ Height (ฉบับร่าง box.js calc.js render.js) · ทุกภาพที่เห็นป้ายเปลี่ยนตาม', said: 'แก้ ให้หมด (ส่งภาพรายการ Cr → SCr · BW → Weight · เพศกำเนิด → Sex · อายุ → Age)' },
@@ -569,24 +1147,56 @@ const HISTORY = {
     { date: '4 ต.ค. 2569', what: 'ข้อ 44 "ยังไม่ได้กรอก เพศกำเนิด อายุ BW และ Cr" เรียงใหม่เป็น "... อายุ Cr และ BW" ตามลำดับช่องกรอก (ฉบับร่าง calc.js)', said: 'อ๋อ เข้าใจละ มันคือคำอธิบาย งั้นเเก้ฃ' },
   ],
   2: [
+    { date: '5 ต.ค. 2569', what: 'ตัวเลข CrCl ชิดซ้าย ยังกันที่ไว้เท่าเลข 3 หลัก (ฉบับร่าง box.css · เดิมชิดขวา)', said: 'ให้ชิดขอบซ้าย เเม้จะกันที่ไว้ก็ตาม' },
+    { date: '5 ต.ค. 2569', what: 'ตัวเลข CrCl ล็อกความกว้างเท่าเลข 3 หลัก (เช่น 120.5) ชิดขวา กล่องบอกน้ำหนักที่ใช้ทางขวาอยู่ที่เดิมไม่ว่าตัวเลขกี่หลัก (ฉบับร่าง box.css)', said: 'เเต่อย่าลืมล็อกขนาดของค่า CrCl ไว้นะ เพราะมันนเป็นเลขสามตำแหน่งได้ เช่น 120.5 ml/min' },
+    { date: '5 ต.ค. 2569', what: 'กล่องบอกน้ำหนักที่ใช้ ย้ายจากบรรทัดใต้ตัวเลข CrCl ขึ้นไปอยู่ทางขวาของตัวเลข บรรทัดเดียวกัน ทุกกรณี (ฉบับร่าง render.js box.css)', said: 'ย้ายจากที่อยู่บรรทัดล่าง ไปเป็นกรออกสี่เหลี่ยมขวา' },
+    { date: '5 ต.ค. 2569', what: 'กล่องเขียวกรณีปกติ ตัดคำ Normal ออก เหลือ "ใช้ Ideal BW 65.9 kg" (ฉบับร่าง render.js)', said: 'เอาแบบตัดคำ Normal ออก' },
+    { date: '5 ต.ค. 2569', what: 'คำว่า Normal ในกล่องบอกน้ำหนักที่ใช้ อ่านแล้วสงสัยว่าปกติอะไร และภาพนี้ BMI ขึ้น Overweight ชนกัน · ทำตัวเลือก 3 แบบใต้แถวนี้ แคลร์แนะนำตัดคำ Normal ออก', said: 'Normal ใช้ Ideal BW 65.9 kg เราอ่านเเล้ว คนอ่านจะสงสัย อะไร normal' },
+    { date: '5 ต.ค. 2569', what: 'เอาบรรทัดเหตุผล "เพราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW" ออกเฉพาะกรณี Normal กรณีอื่นยังมีเหตุผล (ฉบับร่าง render.js)', said: 'เอาออกเลย (ตอบข้อ เอาออกเฉพาะ Normal)' },
+    { date: '5 ต.ค. 2569', what: 'บรรทัดเหตุผลใต้น้ำหนักที่ใช้ ทำตัวเลือก 3 แบบใต้แถวนี้ (เอาออกเฉพาะ Normal · เอาออกทั้งหมด · คงไว้) แคลร์แนะนำเอาออกเฉพาะ Normal', said: 'พราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW อาออกดีมั้ย' },
+    { date: '5 ต.ค. 2569', what: 'ลองใส่อำพันส้มอ่อน #FFA000 เป็นสีตัวเลข CrCl ตั้งแต่ 30 ขึ้นไป แทนเหลืองอำพัน (ฉบับร่าง box.css) · ต่ำกว่า 30 ยังเป็นอำพันส้มอิฐ #C2410C', said: 'ลองออันนี้ (ส่งภาพการ์ดอำพันส้มอ่อน #FFA000)' },
+    { date: '4 ต.ค. 2569', what: 'ลองใส่เหลืองอำพัน #FFC107 เป็นสีตัวเลข CrCl ตั้งแต่ 30 ขึ้นไป (ฉบับร่าง render.js box.css) · ต่ำกว่า 30 ยังเป็นอำพันส้มอิฐ #C2410C · 30.0 พอดีเป็นเหลืองอำพัน', said: 'ลองเอาใส่ (ส่งภาพการ์ดเหลืองอำพัน #FFC107)' },
+    { date: '4 ต.ค. 2569', what: 'การ์ดสีทุกใบเพิ่มรหัสสีใต้คำอธิบาย', said: 'ใส่ code สัีด้วย' },
+    { date: '4 ต.ค. 2569', what: 'สีอำพันชุดที่ 2 ไล่สีเดียวให้เข้มจนเกือบดำ พี่กันไม่เอา เก็บไว้เป็นประวัติ · เพิ่มชุดที่ 3 เฉดกลุ่มสีอำพันกับสีเหลือง สีสด 8 แบบ', said: 'ไม่เอาอำพันเเบบดำลงไปเรื่อยๆสิ โอ้ยยยย เอาเฉดกลุ่มสีอำพัน สีเหลืองมา เข้าใจไหมมม' },
+    { date: '4 ต.ค. 2569', what: 'พี่กันเลือกอำพันส้มอิฐเป็นสีตัวเลข CrCl ต่ำกว่า 30 (ฉบับร่าง render.js box.css) ภาพที่ 7 ได้ 19.5 ขึ้นสีนี้ · ตั้งแต่ 30 ขึ้นไปยังเป็นสีตัวหนังสือ รอเลือกจากชุดอำพันแท้', said: 'เเต่เอาออันนี้เป้นน้อยกว่าสามสิบ (ส่งภาพการ์ดอำพันส้มอิฐ)' },
+    { date: '4 ต.ค. 2569', what: 'สีอำพันชุดแรกออกส้มกับน้ำตาล ไม่ใช่อำพัน เก็บไว้เป็นประวัติ · เพิ่มชุดที่ 2 อำพันแท้สีเหลืองทอง 5 แบบ จากสีอำพันมาตรฐานไล่เข้มลง', said: 'มันอำพันตรงไหน' },
+    { date: '4 ต.ค. 2569', what: 'สีตัวเลข CrCl เอาออกจากฉบับร่าง แคลร์เลือกเฉดเองแล้วใส่เลย ทั้งที่พี่กันบอกแค่โทน · ทำตัวเลือกใต้แถวนี้แทน อำพันเข้ม 4 แบบ แดงเลือดหมู 4 แบบ เทียบกับแบบรุ่น 0.1.2.1 · ตัวอย่าง 57.2 จากภาพนี้ 19.5 จากภาพที่ 7', said: 'เอาสีมาให้เราเลือกสิ จะเอาไปใส่ทำไม' },
+    { date: '4 ต.ค. 2569', what: 'ตัวเลข CrCl ตั้งแต่ 30 ขึ้นไปสีอำพันเข้ม ต่ำกว่า 30 สีแดงเลือดหมู ตัดสินจากเลขที่โชว์ ทศนิยม 1 ตำแหน่ง ค่า 30.0 พอดีเป็นสีอำพัน (ฉบับร่าง render.js box.css) · ทุกภาพที่มีตัวเลข CrCl เปลี่ยนตาม · ตัวเลขในแถบตอนพับยังไม่เปลี่ยน', said: 'เเทรกนะ อันนี้ทำหลังพุชเสร็จ ค่าที่คำนวนได้ ถ้ามากกว่า 30 จะสีอำพันเข้ม เเต่ถ้าต่ำกส่า 30 จะสีโทนเเดงเลือดหมุ (ส่งภาพตัวเลข 57.2 mL/min)' },
     { date: '4 ต.ค. 2569', what: 'บรรทัดค่าอ้างอิง Cr ตอนเลือกเพศแล้ว "ค่าอ้างอิง Cr ชาย 0.7–1.2 mg/dL" ไม่เข้ากับภาพที่ 1 · ทำตัวเลือก 3 แบบใต้แถวนี้', said: 'ภาพสองพอมันเขียนงี้ เเล้วมันไม่เข้ากับภาพเเรกเเฮะ ลองปรับดู เอาให้เลือกที' },
     { date: '4 ต.ค. 2569', what: 'พี่กันเลือกแบบสองเพศ เน้นเพศที่เลือก "ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL" เพศที่เลือกตัวเข้ม อีกเพศจาง (ฉบับร่าง render.js box.css)', said: 'เอาอันนี้ละกัน ที่จะจางเข้ม (พิมพ์ตอนลืมเปลี่ยนแป้น gvkvyoouh]tdyo muj0t0k\'g-h,)' },
+  ],
+  3: [
+    { date: '5 ต.ค. 2569', what: 'หมายเหตุ Underweight ลดจาก 11 เป็น 10.5 จุด เท่ากับคำเตือนอายุ หมายเหตุใต้แถวตัวเลขทุกบรรทัดเป็น 10.5 จุด (ฉบับร่าง box.css)', said: 'ลดเป็น 10.5 ให้เท่ากัน' },
+    { date: '5 ต.ค. 2569', what: 'หมายเหตุเป็น Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง ตัวหนังสือหมายเหตุใต้แถวตัวเลขเหลือ 11 จุด (เดิม 12) อยู่บรรทัดเดียว (ฉบับร่าง render.js box.css) · หมายเหตุใต้แถวตัวเลขทุกอันใช้ขนาดนี้ รวมเตือนอายุในภาพ 7', said: 'เอาอันนี้ เเต่ลดขนาดฟอนต์ ให้มันเหลือ 1 บรรทัด (ส่งภาพแบบ 3-4 ข้อ 1 ทวิภาค)' },
+    { date: '5 ต.ค. 2569', what: 'พี่กันเลือกขึ้นต้นหมายเหตุด้วย Underweight (แบบ 3-3 ข้อ 2) และขอดูตัวคั่น ทำมอคอัป 4 แบบใต้แถวนี้ (กลุ่ม 3-4)', said: 'Underweight มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง เเละใส่ : เเบ้ง หรือจะ > ลองทำมอคมาดู' },
+    { date: '5 ต.ค. 2569', what: 'หมายเหตุมวลกล้ามเนื้อน้อย บอกแค่ผลไม่บอกเหตุ ทำตัวเลือกคำ 4 แบบใต้แถวนี้ (กลุ่ม 3-3) แคลร์แนะนำ BW น้อยกว่า IBW', said: 'มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง เธอว่าสื่อยัง ต้องใส่ว่า underเวทบอกมั้ย' },
+    { date: '5 ต.ค. 2569', what: 'กล่อง Underweight เหลือ ใช้ Actual BW 41.0 kg (ตัดคำ Underweight กับบรรทัดเหตุผล) · คำเตือนสั้นลงเป็น มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง ย้ายออกจากกล่องไปเป็นหมายเหตุใต้แถวตัวเลข ไม่มีกรอบ (ฉบับร่าง render.js) · ภาพ 7 ที่เป็น Underweight มีเตือนอายุ ย้ายลงไปเป็นหมายเหตุด้วย', said: 'เอาอันนี้ เเต่ย้าย **มวลกล้ามเนื้อxx ไปไว้เป็นหใายใเหตุด้านล่างเลย โดยไม่มีกรอบ (ส่งภาพแบบ 3-2 ข้อ 6 ตัดทั้งสามอย่าง)' },
+    { date: '5 ต.ค. 2569', what: 'กล่อง Underweight ทางขวาตัวเลข ตัดหรือย่ออะไรดี ทำมอคอัป 6 แบบใต้แถวนี้ (กลุ่ม 3-2)', said: 'เกลาต่อ ตัดทอนอันไหนดี ลดขนาดอันไหนเี ทพมอคเเยกมาเลย (ส่งภาพกล่อง Underweight ภาพที่ 3)' },
+    { date: '5 ต.ค. 2569', what: 'กล่องบอกน้ำหนักที่ใช้ย้ายไปขวาตัวเลขแล้ว ภาพนี้กล่องแคบ 168 จุด สูง 120 จุด · ทำตัวเลือก 3 แบบใต้แถวนี้', said: 'ย้ายจากที่อยู่บรรทัดล่าง ไปเป็นกรออกสี่เหลี่ยมขวา' },
+  ],
+  7: [
+    { date: '5 ต.ค. 2569', what: 'คำเตือนอายุใต้แถวตัวเลข ตัวหนังสือ 10.5 จุด อยู่บรรทัดเดียว (11 จุดยังตก 2 บรรทัด) · หมายเหตุ Underweight ยัง 11 จุด (ฉบับร่าง render.js box.css)', said: 'ลดด้วยเลย (ตอบเรื่องคำเตือนอายุในภาพ 7 ที่ยังตก 2 บรรทัด)' },
   ],
   8: [
     { date: '4 ต.ค. 2569', what: 'ค่าอ้างอิง Cr ตอนยังไม่เลือกเพศ เปลี่ยนตามภาพที่ 1 เหลือบรรทัดเดียว', said: '' },
   ],
   18: [
+    { date: '5 ต.ค. 2569', what: 'พี่กันเลือกชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ แผงกว้างหัวข้อเหลือ eGFR กับ BMI คู่กับป้ายบรรทัดเดียว ชื่อสูตรกับเกณฑ์ตัวเล็กสีจางใต้หัวข้อ · แผงแคบชื่อสูตรยังอยู่ในวงเล็บต่อท้ายหัวข้อ แต่เป็นสีจางแบบเดียวกัน (ฉบับร่าง render.js box.css) · ภาพแบบอื่นในตัวเลือกย้อนหัวข้อเป็นแบบก่อนเลือก', said: 'เอาอันนี้ (ส่งภาพแบบชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ) · เเลละในเเบบเเนวตั้ง สูตรเอาสีจางเหมือนกันด้วย' },
+    { date: '5 ต.ค. 2569', what: 'หัวข้อ eGFR กับ BMI ในแผงกว้างตกบรรทัด ทำตัวเลือก 4 แบบใต้แถวนี้ (แบบตอนนี้ · ป้ายลงใต้หัวข้อ · ชื่อสูตรบรรทัดเล็กใต้หัวข้อ · เรียงลงมา)', said: 'ทำตัวเลือกแผงกว้างหัวข้อ eGFR BMI ให้เลือกที' },
+  ],
+  34: [
     { date: '4 ต.ค. 2569', what: 'ข้อ 44 กับค่าอ้างอิง Cr เปลี่ยนตามภาพที่ 1 อยู่ในกล่องที่พับซ่อนอยู่', said: '' },
   ],
 };
 let no = 0;
 /** หนึ่งแถว หนึ่งสภาพ สองรูป · kind 'still' กล่องนิ่งเต็มความสูง · kind 'frame' กล่องในกรอบขอบจอจำลอง (แถบตอนพับ แผงข้าง) */
-function row(title, sub, o, after, frame) {
+function row(title, sub, o, after, frame, label) {
   const fig = document.createElement('figure');
   fig.className = 'shot';
-  fig.innerHTML = `<figcaption><b>${++no}</b>${title}<span>${sub || ''}</span></figcaption><div class="pair"></div>`;
+  fig.innerHTML = `<figcaption><b>${label || ++no}</b>${title}<span>${sub || ''}</span></figcaption><div class="pair"></div>`;
   // ประวัติการแก้และการเลือกของภาพนี้ ต่อท้ายใต้แถว
-  const hist = HISTORY[no] || [];
+  const key = label || no;   // ภาพเสริมอย่าง 2.1 ใช้เลขของตัวเอง ไม่นับต่อ เลขภาพอื่นจึงไม่เลื่อน
+  const hist = HISTORY[key] || [];
   const hb = document.createElement('div');
   hb.className = 'hist';
   hb.innerHTML = '<p class="hist-t">ประวัติการแก้และการเลือก</p>';
@@ -630,7 +1240,7 @@ function row(title, sub, o, after, frame) {
   }
   // รูปที่สาม จุดที่แก้ เป็นภาพนิ่ง เทียบกับรูปแรกหลังฟอนต์โหลดเสร็จ แล้วทำเครื่องหมายตรงที่ต่าง
   fig.__made = made;   // ไว้ให้สคริปต์ตรวจเรียกเทียบซ้ำได้
-  if (OPTIONS[no]) [].concat(OPTIONS[no]).forEach((spec) => options(fig, o, after, spec));
+  if (OPTIONS[key]) [].concat(OPTIONS[key]).forEach((spec) => options(fig, o, after, spec));
   const mark = made[2];
   (frame ? mark.host.parentNode : mark.host).inert = true;
   const note = document.createElement('div');
@@ -644,38 +1254,72 @@ function row(title, sub, o, after, frame) {
   });
 }
 const open = (b) => b.show();
+/** หัวกลุ่มในหน้า (สารบัญอ่านหัวกลุ่มนี้ไปทำหัวข้อด้วย) */
+function group(title, sub) {
+  const h = document.createElement('div');
+  h.className = 'grp-h';
+  h.innerHTML = '<h3></h3><p></p>';
+  h.children[0].textContent = title;
+  h.children[1].textContent = sub || '';
+  shots.appendChild(h);
+}
 
-row('เปิดครั้งแรก ยังไม่กรอก', '', { state: S.empty }, open);
-row('ปกติ', 'ชาย 65 ปี 70 kg 170 cm Cr 1.2', { state: S.normal }, open);
-row('ผอม ใช้ Actual BW', 'หญิง 78 ปี 41 kg', { state: S.under }, open);
-row('อ้วน ใช้ Adjusted BW', 'ชาย 55 ปี 95 kg 165 cm', { state: S.obese }, open);
-row('เตี้ยกว่า 152 cm', 'หญิง 72 ปี 148 cm', { state: S.short }, open);
-row('ไม่กรอกส่วนสูง', '', { state: S.noht }, open);
-row('เตือนหลายอย่าง', 'อายุ 95 ปี Cr สูงกว่าค่าอ้างอิง', { state: S.multi }, open);
-row('ยังไม่เลือกเพศ', '', { state: S.nosex }, open);
-row('Cr เกินขอบเขต', 'Cr 45 mg/dL', { state: S.crerr }, open);
-row('Cr ต่ำกว่าค่าอ้างอิง', 'หญิง Cr 0.3', { state: S.crlow }, open);
-row('ทุกช่องต่ำเกินขอบเขต', '', { state: S.low }, open);
-row('ทุกช่องสูงเกินขอบเขต', '', { state: S.high }, open);
-row('หน่วย lb in μmol/L', '', { state: S.units }, open);
-row('แผงกว้าง', 'กรณีปกติ', { state: S.normal, layout: 'wide' }, open);
-row('กดปุ่มเลือกขอบ', 'แผงเลือกขอบเปิดอยู่', { state: S.normal }, (b) => {
+// จัดเป็น 4 กลุ่ม (พี่กันถาม "14 มันอยู่เดี๋ยวๆทำไมนะ" แล้วสั่ง "ต้องย้าย จัดกลุ่มให้มันไไม่งง" 5 ต.ค. 2569)
+// กลุ่มแผงกว้างเรียงสภาพเหมือนกลุ่มแผงแคบทุกภาพ เลขภาพแผงกว้าง = เลขแผงแคบ + 16
+// ย้ายแล้วเลขภาพเปลี่ยน ประวัติ (HISTORY) กับตารางข้อความแก้เลขตามแล้ว · เดิม 14 แผงกว้างปกติ อยู่กลางกลุ่มแผงแคบ
+const edgeOpen = (b) => {
   b.show();
   b.edgePop(true);
   // กดที่อื่นในหน้านี้แล้วแผงไม่ปิด
   window.removeEventListener('pointerdown', b.offPop, true);
   if (b.o.root.activeElement) b.o.root.activeElement.blur();
+};
+const barFloat = (b) => { b.show(); b.showBar(BAR_FLOAT, 'ยกเลิก'); };
+const barOrphan = (b) => { b.show(); b.showBar(BAR_ORPHAN, 'ปิดข้อความ'); };
+const STATES = [
+  ['เปิดครั้งแรก ยังไม่กรอก', '', S.empty, open],
+  ['ปกติ', 'ชาย 65 ปี 70 kg 170 cm sCr 1.2', S.normal, open],
+  ['ผอม ใช้ Actual BW', 'หญิง 78 ปี 41 kg', S.under, open],
+  ['อ้วน ใช้ Adjusted BW', 'ชาย 55 ปี 95 kg 165 cm', S.obese, open],
+  ['เตี้ยกว่า 152 cm', 'หญิง 72 ปี 148 cm', S.short, open],
+  ['ไม่กรอกส่วนสูง', '', S.noht, open],
+  ['เตือนหลายอย่าง', 'อายุ 95 ปี sCr สูงกว่าค่าอ้างอิง', S.multi, open],
+  ['ยังไม่เลือกเพศ', '', S.nosex, open],
+  ['sCr เกินขอบเขต', 'sCr 45 mg/dL', S.crerr, open],
+  ['sCr ต่ำกว่าค่าอ้างอิง', 'หญิง sCr 0.3', S.crlow, open],
+  ['ทุกช่องต่ำเกินขอบเขต', '', S.low, open],
+  ['ทุกช่องสูงเกินขอบเขต', '', S.high, open],
+  ['หน่วย lb in μmol/L', '', S.units, open],
+  ['กดปุ่มเลือกขอบ', 'แผงเลือกขอบเปิดอยู่', S.normal, edgeOpen],
+  ['แถบบอกวิธีเปิดแผงข้าง', 'ขึ้นเมื่อ Chrome ไม่ยอมเปิดแผงข้าง', S.normal, barFloat],
+  ['แถบบอกว่าส่วนขยายถูกโหลดใหม่', 'กล่องเก่าที่ค้างบนหน้าเว็บ หลังรีโหลดส่วนขยาย', S.normal, barOrphan],
+];
+const dot = (a, b) => [a, b].filter(Boolean).join(' · ');
+group('แผงแคบ', `กล่องกว้าง 320 จุด · ภาพ 1 ถึง ${STATES.length}`);
+STATES.forEach(([t, sub, st, fn], i) => {
+  row(t, dot(sub, `แผงกว้างอยู่ภาพที่ ${i + 1 + STATES.length}`), { state: st }, fn);
+  // ภาพเสริม 2.1 ต่อจากภาพปกติ (พี่กันสั่ง "สร้างอีห sinario นึงเพิ่ม เป็น 2.1" 5 ต.ค. 2569) · แผงแคบอย่างเดียว แผงกว้างไว้ปรับทีหลัง
+  if (i === 1) row('ปกติ CrCl เลข 3 หลัก', 'ชาย 25 ปี 70 kg 170 cm sCr 0.7 · ภาพเสริมของภาพที่ 2 ไว้ดูความกว้างตัวเลขที่ล็อกไว้', { state: S.normal3 }, open, undefined, '2.1');
 });
-row('แถบบอกวิธีเปิดแผงข้าง', 'ขึ้นเมื่อ Chrome ไม่ยอมเปิดแผงข้าง', { state: S.normal }, (b) => { b.show(); b.showBar(BAR_FLOAT, 'ยกเลิก'); });
+group('แผงกว้าง', `กล่องกว้าง 620 จุด · ภาพ ${STATES.length + 1} ถึง ${STATES.length * 2} · เรียงสภาพเหมือนกลุ่มแผงแคบ`);
+STATES.forEach(([t, sub, st, fn], i) => row('แผงกว้าง · ' + t, dot(sub, `แผงแคบอยู่ภาพที่ ${i + 1}`), { state: st, layout: 'wide' }, fn));
+group('แถบตอนพับ', 'แถบมีแบบเดียว ไม่มีแผงแคบแผงกว้าง');
 row('แถบตอนพับ ขอบขวา', 'มีค่า CrCl', { state: S.normal, side: 'right', top: 50 }, (b) => b.show({ folded: true }), [200, 190]);
 row('แถบตอนพับ ยังไม่มีค่า', '', { state: S.empty, side: 'right', top: 50 }, (b) => b.show({ folded: true }), [200, 190]);
 row('แถบตอนพับ ขอบบน', 'ขอบบนกับล่างเป็นแถบแนวนอน', { state: S.normal, side: 'top', top: 60 }, (b) => b.show({ folded: true }), [330, 100]);
-row('แผงข้างของ Chrome', 'มีแถบบอกว่าใช้กล่องลอยไม่ได้', { state: S.normal, mode: 'panel' }, (b) => b.showBar(BAR_PANEL, 'ปิดข้อความ'), [360, 640]);
-row('แถบบอกว่าส่วนขยายถูกโหลดใหม่', 'กล่องเก่าที่ค้างบนหน้าเว็บ หลังรีโหลดส่วนขยาย', { state: S.normal }, (b) => { b.show(); b.showBar(BAR_ORPHAN, 'ปิดข้อความ'); });
+group('แผงข้างของ Chrome', 'แผงข้างกว้างตั้งแต่ 620 จุดเป็นแผงกว้างเอง');
+row('แผงข้างของ Chrome กว้าง 360 จุด', 'แผงแคบ · มีแถบบอกว่าใช้กล่องลอยไม่ได้', { state: S.normal, mode: 'panel' }, (b) => b.showBar(BAR_PANEL, 'ปิดข้อความ'), [360, 640]);
+row('แผงข้างของ Chrome กว้าง 700 จุด', 'แผงกว้าง · มีแถบบอกว่าใช้กล่องลอยไม่ได้', { state: S.normal, mode: 'panel' }, (b) => b.showBar(BAR_PANEL, 'ปิดข้อความ'), [700, 640]);
 
 // เทียบหลังฟอนต์โหลดครบ ขนาดตัวหนังสือจะได้นิ่งก่อน
 if (document.fonts && document.fonts.ready) await document.fonts.ready;
-await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+// แท็บที่ถูกซ่อน Chrome ไม่เดินจังหวะวาดจอ จึงมีตัวจับเวลาสำรอง ไม่งั้นหน้าค้างตรงนี้ ไม่มีรูปที่สาม ตารางข้อความ และสารบัญ
+await new Promise((r) => {
+  let done = false;
+  const go = () => { if (!done) { done = true; r(); } };
+  requestAnimationFrame(() => requestAnimationFrame(go));
+  setTimeout(go, 150);
+});
 pendingDiff.forEach((f) => f());
 window.__dx = { diffMark, topOf };   // ไว้ตรวจตัวเทียบ ไม่ได้ใช้ในหน้า
 
@@ -683,13 +1327,13 @@ window.__dx = { diffMark, topOf };   // ไว้ตรวจตัวเที�
 
 const T = [
   ['หัวกล่อง ปุ่ม และแถบตอนพับ'],
-  ['คำนวณ CrCl', 'ชื่อบนหัวกล่อง ทุกภาพ'],
+  ['Creatinine Clearance (CrCl)', 'ชื่อกล่อง แถวใต้หัวกล่อง พื้นขาว ทุกภาพที่กล่องกางอยู่ · เดิม คำนวณ CrCl อยู่ในหัวกล่อง'],
   ['ตอนนี้เป็นกล่องลอยบนหน้าเว็บ กดเพื่อย้ายไปแผงข้างของ Chrome', 'ชี้เมาส์ที่ปุ่มที่ 1 บนหัวกล่อง'],
-  ['ตอนนี้อยู่ในแผงข้างของ Chrome กดเพื่อกลับเป็นกล่องลอยบนหน้าเว็บ', 'ชี้เมาส์ที่ปุ่มบนหัวแผงข้าง (ภาพ 20)'],
+  ['ตอนนี้อยู่ในแผงข้างของ Chrome กดเพื่อกลับเป็นกล่องลอยบนหน้าเว็บ', 'ชี้เมาส์ที่ปุ่มบนหัวแผงข้าง (ภาพ 36 37)'],
   ['ตอนนี้เป็นแผงแคบ กดเพื่อสลับเป็นแผงกว้าง', 'ชี้เมาส์ที่ปุ่มที่ 2'],
-  ['ตอนนี้เป็นแผงกว้าง กดเพื่อสลับเป็นแผงแคบ', 'ชี้เมาส์ที่ปุ่มที่ 2 ตอนเป็นแผงกว้าง (ภาพ 14)'],
+  ['ตอนนี้เป็นแผงกว้าง กดเพื่อสลับเป็นแผงแคบ', 'ชี้เมาส์ที่ปุ่มที่ 2 ตอนเป็นแผงกว้าง (ภาพ 17 ถึง 32)'],
   ['ตอนนี้ติดขอบขวา กดเพื่อเลือกขอบที่จะย้ายไป', 'ชื่อปุ่มที่ 3 สำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ (ชี้ปุ่มนี้แล้วแผงเลือกขอบขึ้นแทน) · คำว่าขอบขวาเปลี่ยนตามขอบที่ติดอยู่'],
-  ['ย้ายกล่องไปติดขอบ', 'หัวแผงเลือกขอบ (ภาพ 15)'],
+  ['ย้ายกล่องไปติดขอบ', 'หัวแผงเลือกขอบ (ภาพ 14 30)'],
   ['ย้ายไปติดขอบบน · ขอบล่าง · ขอบซ้าย · ขอบขวา', 'ชี้เมาส์ที่ขอบในแผงเลือกขอบ'],
   ['ติดขอบขวาอยู่ตอนนี้', 'ชี้เมาส์ที่ขอบที่ติดอยู่ในแผงเลือกขอบ'],
   ['เลือกขอบที่จะย้ายกล่องไปติด', 'ชื่อแผงเลือกขอบสำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ'],
@@ -697,7 +1341,7 @@ const T = [
   ['ปิดกล่อง ค่าที่กรอกยังอยู่', 'ชี้เมาส์ที่ปุ่มที่ 5'],
   ['พับกล่องเก็บไว้ที่ขอบจอ', 'ชี้เมาส์ที่ลำต้นตอนกล่องกาง'],
   ['กางกล่องคำนวณ CrCl', 'ชี้เมาส์ที่แถบตอนพับ'],
-  ['CrCl · ค่า · mL/min', 'ในแถบตอนพับ (ภาพ 17 18 19)'],
+  ['CrCl · ค่า · mL/min', 'ในแถบตอนพับ (ภาพ 33 34 35)'],
   ['กล่องคำนวณ CrCl', 'ชื่อกล่องสำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ'],
   ['ช่องกรอก'],
   ['Sex', 'ป้ายช่องเพศ'],
@@ -724,15 +1368,15 @@ const T = [
   ['sCr ต่ำกว่าค่าอ้างอิง (หญิง 0.5–1.0 mg/dL) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง', 'ใต้ช่อง sCr สีส้ม (ภาพ 10)'],
   ['sCr สูงกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด', 'ใต้ช่อง sCr สีเหลืองเข้ม (ภาพ 7)'],
   ['ส่วน CrCl'],
-  ['Creatinine Clearance (CrCl)', 'หัวข้อ'],
+  ['CrCl (Cockcroft-Gault)', 'หัวข้อ ชื่อสูตรในวงเล็บสีจาง · เดิม Creatinine Clearance (CrCl) กับชื่อสูตรบรรทัดใต้หัวข้อ'],
   ['ใช้ปรับขนาดยา', 'ป้ายข้างหัวข้อ'],
-  ['สูตร Cockcroft-Gault', 'ข้างตัวเลข'],
+  ['(Cockcroft-Gault)', 'ใต้หัวข้อ CrCl สีจาง ทั้งสองแผง · เดิม สูตร Cockcroft-Gault ข้างตัวเลข'],
   ['ยังคำนวณไม่ได้', 'แทนตัวเลขตอนกรอกไม่ครบ (ภาพ 1 8)'],
-  ['ยังไม่ได้กรอก Sex Age sCr และ Weight', 'ใต้คำว่ายังคำนวณไม่ได้ · รายการเปลี่ยนตามช่องที่ขาด (ภาพ 1)'],
+  ['กรุณากรอก Sex Age sCr และ Weight', 'ใต้คำว่ายังคำนวณไม่ได้ · รายการเปลี่ยนตามช่องที่ขาด (ภาพ 1)'],
   ['ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ', 'กล่องแดงตอนมีช่องเกินขอบเขต (ภาพ 9 11 12)'],
-  ['Normal ใช้ Ideal BW 65.9 kg · เพราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW', 'กล่องเขียว (ภาพ 2)'],
-  ['Underweight ใช้ Actual BW 41.0 kg · เพราะ BW น้อยกว่า IBW', 'กล่องเหลือง (ภาพ 3)'],
-  ['มวลกล้ามเนื้อน้อย ค่า CrCl อาจสูงกว่าความเป็นจริง', 'บรรทัดเตือนในกล่องเหลือง (ภาพ 3)'],
+  ['ใช้ Ideal BW 65.9 kg (ตัดคำ Normal ออก บรรทัดเหตุผลเอาออก)', 'กล่องเขียว (ภาพ 2)'],
+  ['ใช้ Actual BW 41.0 kg (ตัดคำ Underweight กับบรรทัดเหตุผล)', 'กล่องเหลือง (ภาพ 3)'],
+  ['Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', 'หมายเหตุใต้แถวตัวเลข CrCl ไม่มีกรอบ ตัวหนังสือ 10.5 จุด บรรทัดเดียว (ภาพ 3)'],
   ['Obese ใช้ Adjusted BW 74.8 kg · เพราะ BW มากกว่า 1.2 เท่าของ IBW', 'กล่องแดงอ่อน (ภาพ 4)'],
   ['ใช้ Actual BW 52.0 kg · เพราะสูงต่ำกว่า 152 cm', 'กล่องส้ม (ภาพ 5)'],
   ['อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง', 'บรรทัดเตือนในกล่องส้ม (ภาพ 5)'],
@@ -746,29 +1390,29 @@ const T = [
   ['IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4', 'ใต้ตาราง'],
   ['ใช้ค่านี้ · ชนิดน้ำหนัก', 'สำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ'],
   ['ส่วน eGFR'],
-  ['eGFR', 'หัวข้อ'],
+  ['eGFR (CKD-EPI 2021)', 'หัวข้อ · แผงแคบชื่อสูตรในวงเล็บสีจาง · แผงกว้างหัวข้อเหลือ eGFR ชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ'],
   ['mL/min/1.73m²', 'หน่วยข้างตัวเลข'],
   ['CKD Stage 1 · Stage 2 · Stage 3a · Stage 3b · Stage 4 · Stage 5 (ESRD)', 'ระยะ CKD ข้างตัวเลข'],
   ['กรุณากรอก Sex Age และ sCr', 'ตอนกรอกไม่ครบ (ภาพ 1 8)'],
   ['คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต', 'ตอนช่องเกินขอบเขต (ภาพ 9 11 12)'],
-  ['สูตร CKD-EPI 2021', 'ใต้ตัวเลข'],
-  ['แสดงผลเท่านั้น', 'ป้ายใต้ eGFR กับ BMI'],
+  ['(เอาออก ย้ายไปอยู่ในหัวข้อ eGFR)', 'เดิม สูตร CKD-EPI 2021 ใต้ตัวเลข'],
+  ['แสดงผลเท่านั้น', 'ป้ายท้ายบรรทัดหัวข้อ eGFR กับ BMI'],
   ['ส่วน BMI'],
-  ['BMI', 'หัวข้อ'],
+  ['BMI (WHO Asia-Pacific)', 'หัวข้อ · แผงแคบชื่อเกณฑ์ในวงเล็บสีจาง · แผงกว้างหัวข้อเหลือ BMI ชื่อเกณฑ์เป็นบรรทัดเล็กใต้หัวข้อ'],
   ['kg/m²', 'หน่วยข้างตัวเลข'],
   ['Underweight (ผอม) · Normal Weight (ปกติ) · Overweight (น้ำหนักเกิน) · Obese I (อ้วนระดับ 1) · Obese II (อ้วนระดับ 2) · Obese III (อ้วนระดับ 3)', 'ระดับ BMI ข้างตัวเลข'],
   ['กรุณากรอก Weight และ Height', 'ตอนกรอกไม่ครบ (ภาพ 1 6)'],
   ['คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต', 'ตอนช่องเกินขอบเขต (ภาพ 11 12)'],
-  ['เกณฑ์ WHO Asia-Pacific', 'ใต้ตัวเลข'],
+  ['(เอาออก ย้ายไปอยู่ในหัวข้อ BMI)', 'เดิม เกณฑ์ WHO Asia-Pacific ใต้ตัวเลข'],
   ['ท้ายกล่อง'],
   ['เปลี่ยนผู้ป่วย กดล้างค่าก่อนทุกครั้ง', 'ท้ายกล่อง'],
   ['ล้างค่า', 'ปุ่มสีแดงอิฐ'],
   ['ข้อความอื่น'],
-  [BAR_FLOAT, 'แถบสีครีมในกล่องลอย (ภาพ 16)'],
+  [BAR_FLOAT, 'แถบสีครีมในกล่องลอย (ภาพ 15 31)'],
   ['ยกเลิก', 'ปุ่มบนแถบนั้น'],
-  [BAR_PANEL, 'แถบในแผงข้าง (ภาพ 20)'],
+  [BAR_PANEL, 'แถบในแผงข้าง (ภาพ 36 37)'],
   ['ปิดข้อความ', 'ปุ่มบนแถบนั้น'],
-  [BAR_ORPHAN, 'แถบสีครีมในกล่องเก่าที่ค้างบนหน้าเว็บ ขึ้นตอนกรอกค่าหลังรีโหลดส่วนขยาย (ภาพ 21)'],
+  [BAR_ORPHAN, 'แถบสีครีมในกล่องเก่าที่ค้างบนหน้าเว็บ ขึ้นตอนกรอกค่าหลังรีโหลดส่วนขยาย (ภาพ 16 32)'],
   ['ปิดข้อความ', 'ปุ่มบนแถบนั้น'],
   ['คำนวณ CrCl ใช้กับหน้านี้ไม่ได้ หน้าของ Chrome เองและ Chrome Web Store ไม่อนุญาตให้ส่วนขยายทำงาน', 'ชี้เมาส์ที่ไอคอนส่วนขยายตอนขึ้นป้าย !'],
   ['คำนวณ CrCl', 'ชี้เมาส์ที่ไอคอนส่วนขยายตอนปกติ · ชื่อในหน้า chrome://extensions'],
@@ -790,6 +1434,107 @@ for (const row of T) {
   }
   tbody.appendChild(tr);
 }
+
+/* ══════════ สารบัญ ══════════
+   พี่กันขอ "เราขอวสรบีญที่กดเเล้วมันเลื่ิอนไปรูปนั้นหน่อย รู้สึกว่าต้องเลื่อนยาว" (5 ต.ค. 2569)
+   ติดขวาของหน้า กดแล้วค่อย ๆ เลื่อนไปภาพนั้นทีละเฟรม (ไม่กระโดด) · ภาพที่ดูอยู่ขึ้นแถบเขียว
+   บอกจำนวนกลุ่มตัวเลือกใต้ภาพ · แท็บถูกซ่อนหรือตั้งลดการเคลื่อนไหว ไปถึงทันที */
+const glide = (y) => {
+  const max = document.documentElement.scrollHeight - innerHeight;
+  y = Math.max(0, Math.min(Math.round(y), max));
+  const from = scrollY, d = y - from;
+  cancelAnimationFrame(glide.raf);
+  if (!d) return;
+  if (document.hidden || matchMedia('(prefers-reduced-motion: reduce)').matches) { scrollTo(0, y); return; }
+  const dur = Math.min(700, 260 + Math.abs(d) / 25), t0 = performance.now();
+  const step = (t) => {
+    const k = Math.min(1, (t - t0) / dur);
+    scrollTo(0, from + d * (1 - Math.pow(1 - k, 3)));
+    if (k < 1) glide.raf = requestAnimationFrame(step);
+  };
+  glide.raf = requestAnimationFrame(step);
+};
+const toc = document.createElement('nav');
+toc.className = 'toc';
+toc.setAttribute('aria-label', 'สารบัญ');
+toc.innerHTML = '<div class="toc-h"><p class="toc-t">สารบัญ</p><button type="button" class="toc-b"></button></div><div class="toc-list"></div>';
+const tocList = toc.querySelector('.toc-list');
+const targets = [];
+let fi = 0;
+for (const el of [...shots.children]) {
+  if (el.classList.contains('grp-h')) {
+    const g = document.createElement('p');
+    g.className = 'toc-g';
+    g.textContent = el.querySelector('h3').textContent;
+    tocList.appendChild(g);
+    continue;
+  }
+  if (!el.matches('figure.shot')) continue;
+  const f = el, i = fi++;
+  const lbl = f.querySelector('figcaption b').textContent;
+  f.id = 'shot-' + lbl.replace('.', '-');
+  const cap = f.querySelector('figcaption');
+  const a = document.createElement('a');
+  a.href = '#' + f.id;
+  a.innerHTML = '<span class="toc-n"></span><span><span class="toc-x"></span><span class="toc-c"></span></span>';
+  a.querySelector('.toc-n').textContent = lbl;
+  a.querySelector('.toc-x').textContent = cap.childNodes[1] ? cap.childNodes[1].textContent : '';
+  tocList.appendChild(a);
+  f.querySelectorAll('.opts').forEach((b) => {
+    const sa = document.createElement('a');
+    sa.className = 'toc-sub';
+    sa.href = '#' + b.id;
+    sa.innerHTML = '<span class="toc-sn"></span><span></span>';
+    sa.children[0].textContent = b.dataset.num;
+    const t = b.querySelector('.opts-t').textContent.replace(b.dataset.num, '').replace(/^\s*ตัวเลือก\s*/, '').split('·')[0].trim();
+    sa.children[1].textContent = t;   // ไม่ตัดท้ายเป็นจุดไข่ปลา (สกิล web-craft) ยาวก็ตกบรรทัด
+    tocList.appendChild(sa);
+  });
+  targets.push([f, a]);
+}
+const textSec = document.getElementById('texts').closest('section');
+textSec.id = 'texts-sec';
+const aText = document.createElement('a');
+aText.href = '#texts-sec';
+aText.innerHTML = '<span class="toc-n">ก</span><span><span class="toc-x">ข้อความทั้งหมด</span></span>';
+tocList.appendChild(aText);
+targets.push([textSec, aText]);
+document.body.appendChild(toc);
+// ยุบเหลือปุ่มสารบัญปุ่มเดียว กดอีกทีกาง · จำไว้ในเบราว์เซอร์ เปิดหน้าใหม่หรือหน้าโหลดเองก็ยังยุบอยู่
+const KEY_TOC = 'crcl-states-toc';
+const tocBtn = toc.querySelector('.toc-b');
+const setMini = (mini) => {
+  toc.classList.toggle('mini', mini);
+  tocBtn.textContent = mini ? 'สารบัญ' : 'ยุบ';
+  tocBtn.setAttribute('aria-expanded', String(!mini));
+  tocBtn.setAttribute('aria-label', mini ? 'กางสารบัญ' : 'ยุบสารบัญ');
+  try { localStorage.setItem(KEY_TOC, mini ? 'mini' : 'open'); } catch (_) { /* ไม่มีที่เก็บ ก็แค่ไม่จำ */ }
+  if (!mini) spy();
+};
+tocBtn.addEventListener('click', () => setMini(!toc.classList.contains('mini')));
+toc.addEventListener('click', (e) => {
+  const a = e.target.closest('a');
+  if (!a) return;
+  e.preventDefault();
+  const el = document.querySelector(a.getAttribute('href'));
+  if (el) glide(el.getBoundingClientRect().top + scrollY - 8);
+});
+// ภาพที่ดูอยู่ = ภาพสุดท้ายที่หัวผ่านขอบบนจอลงมาแล้ว
+let spyRaf = 0;
+const spy = () => {
+  spyRaf = 0;
+  let cur = targets[0];
+  for (const t of targets) if (t[0].getBoundingClientRect().top <= 120) cur = t;
+  for (const t of targets) t[1].classList.toggle('on', t === cur);
+  const a = cur[1], top = a.offsetTop, bottom = top + a.offsetHeight;
+  if (top < toc.scrollTop + 30) toc.scrollTop = top - 30;
+  else if (bottom > toc.scrollTop + toc.clientHeight - 8) toc.scrollTop = bottom - toc.clientHeight + 8;
+};
+addEventListener('scroll', () => { if (!spyRaf) spyRaf = requestAnimationFrame(spy); }, { passive: true });
+let startMini = false;
+try { startMini = localStorage.getItem(KEY_TOC) === 'mini'; } catch (_) { /* ไม่มีที่เก็บ เริ่มแบบกาง */ }
+setMini(startMini);
+spy();
 
 /* ══════════ แก้แล้วเห็นเอง ไม่ต้องรีเฟรช ══════════
    พี่กันถาม "คือเราต้องรีเฟรชเว้บทุกครั้งเหรอ" แล้วสั่ง "ใส่เลย" (4 ต.ค. 2569)

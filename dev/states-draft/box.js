@@ -96,15 +96,20 @@
       const sexId = `${this.id}-sex`;
       const float = this.mode === 'float';
       return `
+        <!-- หัวกล่องมีแค่ปุ่มกับไอคอน ชื่อเต็มอยู่แถวถัดลงมาบนพื้นขาว · ปุ่มเลือกขอบอยู่ซ้ายสุดของกลุ่มปุ่ม ติดกับปุ่มแผงข้าง
+             (พี่กันเลือก "เอาอันนี้" แบบแถวชื่อบนพื้นขาว แล้วสั่ง "ย้ายปุ่ม ตามรูป ไปอยู่ฝั่งซ้ายสุด"
+              แล้วบอกเพิ่ม "คำว่าสุดซ้ายของเรา คือต่อจาก รูปนี้" ส่งภาพปุ่มแผงข้าง 5 ต.ค. 2569) -->
         <div class="cx-head">
           ${float ? `<span class="cx-grip" aria-hidden="true">${ICON.grip}</span>` : ''}
-          <h2 class="cx-title">คำนวณ CrCl</h2>
+          <span class="cx-ic" aria-hidden="true">${ICON.calc}</span>
+          <span class="cx-head-gap"></span>
+          ${float ? `<button type="button" class="cx-ib" data-act="edge" aria-haspopup="true" aria-expanded="false"></button>` : ''}
           <button type="button" class="cx-ib" data-act="mode"${this.canPanel ? '' : ' hidden'}></button>
           ${float ? `<button type="button" class="cx-ib" data-act="layout"></button>
-          <button type="button" class="cx-ib" data-act="edge" aria-haspopup="true" aria-expanded="false"></button>
           <button type="button" class="cx-ib" data-act="fold"></button>
           <button type="button" class="cx-ib" data-act="close" aria-label="ปิดกล่อง ค่าที่กรอกยังอยู่" title="ปิดกล่อง ค่าที่กรอกยังอยู่">${ICON.close}</button>` : ''}
         </div>
+        <div class="cx-trow"><h2 class="cx-title">Creatinine Clearance (CrCl)</h2></div>
         ${float ? `<div class="cx-pop" data-pop hidden role="group" aria-label="เลือกขอบที่จะย้ายกล่องไปติด">
           <p class="cx-pop-t">ย้ายกล่องไปติดขอบ</p>
           <div class="cx-scr">${EDGES.map((e) => `<button type="button" class="cx-edge" data-edge="${e}"></button>`).join('')}<svg class="cx-scr-gap" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L37.5 37.5M100 0L62.5 37.5M100 100L62.5 62.5M0 100L37.5 62.5"/></svg></div>

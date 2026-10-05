@@ -50,11 +50,13 @@
     if (list.length <= 1) return list.join('');
     return list.slice(0, -1).join(' ') + ' และ ' + list[list.length - 1];
   }
-  function warnLine(t) { return `<div class="cx-warnline">${ICON.alertSm}<span>${t}</span></div>`; }
+  function warnLine(t, cls) { return `<div class="cx-warnline${cls ? ' ' + cls : ''}">${ICON.alertSm}<span>${t}</span></div>`; }
 
   /** กล่องบอกน้ำหนักที่ใช้และเหตุผล */
-  function basisHTML(c, r) {
+  /** below คือรายการที่จะไปเป็นหมายเหตุใต้แถวตัวเลข ไม่มีกรอบ (กรณีที่พี่กันเกลาแล้ว) */
+  function basisHTML(c, r, below) {
     const lines = [];
+    let toBelow = false;
     let cls, main, why;
     if (c.state === 'noheight') {
       cls = 'noht'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะยังไม่ได้กรอกส่วนสูง';
@@ -63,15 +65,22 @@
       cls = 'short'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะสูงต่ำกว่า 152 cm';
       lines.push('อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง');
     } else if (c.kind === 'under') {
-      cls = 'under'; main = `Underweight ใช้ Actual BW ${f1(c.w)} kg`; why = 'เพราะ BW น้อยกว่า IBW';
-      lines.push('มวลกล้ามเนื้อน้อย ค่า CrCl อาจสูงกว่าความเป็นจริง');
+      // ตัดคำ Underweight ตัดบรรทัดเหตุผล คำเตือนแบบสั้น แล้วย้ายคำเตือนไปเป็นหมายเหตุใต้แถวตัวเลขไม่มีกรอบ
+      // (พี่กันเลือกแบบ 3-2 ข้อ 6 "เอาอันนี้ เเต่ย้าย มวลกล้ามเนื้อ ไปไว้เป็นหมายเหตุด้านล่างเลย โดยไม่มีกรอบ" 5 ต.ค. 2569)
+      cls = 'under'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = '';
+      // ขึ้นต้นด้วย Underweight ตามด้วยทวิภาค (พี่กันเลือกแบบ 3-3 ข้อ 2 แล้วเลือกตัวคั่นแบบ 3-4 ข้อ 1 5 ต.ค. 2569)
+      lines.push('Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง');
+      toBelow = true;
     } else if (c.kind === 'obese') {
       cls = 'obese o' + c.obLevel; main = `Obese ใช้ Adjusted BW ${f1(c.adj)} kg`; why = 'เพราะ BW มากกว่า 1.2 เท่าของ IBW';
     } else {
-      cls = 'normal'; main = `Normal ใช้ Ideal BW ${f1(c.ibw)} kg`; why = 'เพราะ BW อยู่ระหว่าง IBW ถึง 1.2 เท่าของ IBW';
+      // กรณีปกติไม่มีบรรทัดเหตุผล กรณีอื่นยังบอกว่าทำไมไม่ใช้ IBW (พี่กันเลือก "เอาออกเฉพาะ Normal" แล้วสั่ง "เอาออกเลย" 5 ต.ค. 2569)
+      // ไม่มีคำว่า Normal อ่านแล้วสงสัยว่าปกติอะไร และชนกับ BMI ที่อาจขึ้น Overweight (พี่กันสั่ง "เอาแบบตัดคำ Normal ออก" 5 ต.ค. 2569)
+      cls = 'normal'; main = `ใช้ Ideal BW ${f1(c.ibw)} kg`; why = '';
     }
     if (r.ageWarn) lines.push('อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ');
-    return `<div class="cx-basis ${cls}"><div class="cx-basis-main">${main}</div><div class="cx-basis-why">${why}</div>${lines.map(warnLine).join('')}</div>`;
+    if (toBelow && below) { below.push(...lines); lines.length = 0; }
+    return `<div class="cx-basis ${cls}"><div class="cx-basis-main">${main}</div>${why ? `<div class="cx-basis-why">${why}</div>` : ''}${lines.map(warnLine).join('')}</div>`;
   }
 
   /** ตารางน้ำหนักสามแบบ เป็นตารางจริง */
@@ -91,19 +100,33 @@
   /** ส่วน CrCl — ตัวนี้ใช้ปรับขนาดยา */
   function crclHTML(r) {
     const c = r.crcl;
-    let h = '<div class="cx-sec cx-crcl"><div class="cx-sec-h"><h3 class="cx-sec-t">Creatinine Clearance (CrCl)</h3><span class="cx-tag use">ใช้ปรับขนาดยา</span></div>';
+    // หัวข้อ CrCl ชื่อสูตรในวงเล็บสีจางต่อท้าย แบบเดียวกับ eGFR กับ BMI · เดิม "Creatinine Clearance (CrCl)" กับชื่อสูตรเป็นบรรทัดใต้หัวข้อ
+    // พี่กันเลือกเอง แม้สกิลจะให้หัวข้อเป็นชื่อเต็ม ชื่อเต็มจะไปอยู่บนหัวกล่องแทน (กำลังเลือกในหน้าเกลาคำ)
+    // "จริงๆเอาอันนี้ก็ได้นะ ส่วนชื่อเต็ม อาจจะเอาไว้ที่เเบนเน้อบนสุด" 5 ต.ค. 2569
+    let h = '<div class="cx-sec cx-crcl"><div class="cx-sec-h"><h3 class="cx-sec-t">CrCl<span class="cx-f"> (Cockcroft-Gault)</span></h3><span class="cx-tag use">ใช้ปรับขนาดยา</span></div>';
     if (c.state === 'error') {
       h += `<div class="cx-alert err">${ICON.alert}<span>ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ</span></div>`;
     } else if (c.state === 'incomplete') {
-      h += `<div class="cx-big"><span class="cx-none">ยังคำนวณไม่ได้</span><em>สูตร Cockcroft-Gault</em></div><p class="cx-hint">ยังไม่ได้กรอก ${joinThai(c.missing)}</p>`;
+      // ขึ้นต้นด้วย กรุณากรอก เหมือนข้อความใน eGFR กับ BMI (พี่กันสั่ง "เปลี่ยนเป็นกรุณาให้หมด" 5 ต.ค. 2569)
+      h += `<div class="cx-big"><span class="cx-none">ยังคำนวณไม่ได้</span></div><p class="cx-hint">กรุณากรอก ${joinThai(c.missing)}</p>`;
       if (r.ageWarn) h += warnLine('อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ');
     } else {
-      h += `<div class="cx-big"><b>${f1(c.value)}</b><span>mL/min</span><em>สูตร Cockcroft-Gault</em></div>`
-        + basisHTML(c, r) + tableHTML(c)
+      // ค่า CrCl ต่ำกว่า 30 สีอำพันส้มอิฐ ตั้งแต่ 30 ขึ้นไปสีอำพันส้มอ่อน ตัดสินจากเลขที่โชว์ (ทศนิยม 1 ตำแหน่ง) 30.0 พอดีเป็นอำพันส้มอ่อน
+      // (พี่กันสั่ง "ค่าที่คำนวนได้ ถ้ามากกว่า 30 จะสีอำพันเข้ม เเต่ถ้าต่ำกส่า 30 จะสีโทนเเดงเลือดหมุ" แล้วเลือก "เเต่เอาออันนี้เป้นน้อยกว่าสามสิบ" 4 ต.ค. 2569)
+      // ตั้งแต่ 30 ขึ้นไป พี่กันสั่ง "ลองออันนี้" (ส่งภาพการ์ดอำพันส้มอ่อน #FFA000 · ก่อนหน้านี้ลองเหลืองอำพัน #FFC107)
+      const below = [];   // หมายเหตุใต้แถวตัวเลข basisHTML ใส่ให้
+      // กล่องบอกน้ำหนักที่ใช้ อยู่ทางขวาของตัวเลข บรรทัดเดียวกัน (พี่กันสั่ง "ย้ายจากที่อยู่บรรทัดล่าง ไปเป็นกรออกสี่เหลี่ยมขวา" 5 ต.ค. 2569 · เดิมอยู่บรรทัดใต้ตัวเลข)
+      h += `<div class="cx-top"><div class="cx-big"><b class="${Number(f1(c.value)) < 30 ? 'lt30' : 'ge30'}">${f1(c.value)}</b><span>mL/min</span></div>${basisHTML(c, r, below)}</div>${below.map((t) => warnLine(t, t.startsWith('อายุนอกช่วง') ? 'age' : '')).join('')}`
+        + tableHTML(c)
         + '<p class="cx-note">IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4</p>';
     }
     return h + '</div>';
   }
+
+  /** หัวข้อ eGFR กับ BMI · ชื่อสูตรอยู่สองที่ box.css เลือกโชว์ตามแผง
+   *  แผงแคบโชว์ในวงเล็บต่อท้ายหัวข้อ สีจาง · แผงกว้างโชว์เป็นบรรทัดเล็กใต้หัวข้อ เพราะการ์ดคู่กันกว้างแค่ราว 150 จุด
+   *  (พี่กันเลือก "เอาอันนี้" จากตัวเลือกใต้ภาพที่ 18 แล้วสั่ง "ในเเบบเเนวตั้ง สูตรเอาสีจางเหมือนกันด้วย" 5 ต.ค. 2569) */
+  const secHead = (t, f) => `<div class="cx-sec-h"><h3 class="cx-sec-t">${t}<span class="cx-f"> (${f})</span></h3><span class="cx-tag info">แสดงผลเท่านั้น</span></div><p class="cx-formula">${f}</p>`;
 
   /** ส่วน eGFR — แสดงผลเท่านั้น ห้ามเอาไปปรับขนาดยา */
   function egfrHTML(r) {
@@ -116,7 +139,9 @@
     } else {
       b = '<p class="cx-hint">กรุณากรอก Sex Age และ sCr</p>';
     }
-    return `<div class="cx-sec cx-egfr"><h3 class="cx-sec-t">eGFR</h3>${b}<div class="cx-meta"><span>สูตร CKD-EPI 2021</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>`;
+    // สูตรกับป้ายแสดงผลเท่านั้นอยู่บรรทัดหัวข้อ (พี่กันสั่ง "ย้ายสูตรมาข้างบน เป็น eGFR (CKD-EPI 2021) แสดงผลเท่านั้น" 5 ต.ค. 2569)
+    // แผงแคบ ชื่อสูตรในวงเล็บต่อท้ายหัวข้อ สีจาง · แผงกว้าง หัวข้อเหลือ eGFR ชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ (box.css .cx-f .cx-formula)
+    return `<div class="cx-sec cx-egfr">${secHead('eGFR', 'CKD-EPI 2021')}${b}</div>`;
   }
 
   /** ส่วน BMI — แสดงผลเท่านั้น */
@@ -129,7 +154,8 @@
     } else {
       b = '<p class="cx-hint">กรุณากรอก Weight และ Height</p>';
     }
-    return `<div class="cx-sec cx-bmi"><h3 class="cx-sec-t">BMI</h3>${b}<div class="cx-meta"><span>เกณฑ์ WHO Asia-Pacific</span><span class="cx-tag info">แสดงผลเท่านั้น</span></div></div>`;
+    // เกณฑ์กับป้ายแสดงผลเท่านั้นอยู่บรรทัดหัวข้อ เหมือน eGFR (พี่กันสั่ง "BMI เหมือนกัน" 5 ต.ค. 2569)
+    return `<div class="cx-sec cx-bmi">${secHead('BMI', 'WHO Asia-Pacific')}${b}</div>`;
   }
 
   function resultsHTML(r, layout) {
