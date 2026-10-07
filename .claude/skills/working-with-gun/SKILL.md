@@ -250,6 +250,7 @@ description: คู่มือกฎการทำงานกับพี่�
 | หน้าจอที่ต้องรอข้อมูล | `loading-skeleton` · `offline-resilience` |
 | แตะฐานข้อมูล · เพิ่มช่อง · ลบข้อมูล | `db-safety` · `data-integrity` |
 | **ข้อมูลยา ขนาดยา เกณฑ์ทางคลินิก** | `medical-data-safety` 🔴 ห้ามเดาเด็ดขาด · `pharmacy-web-logic` |
+| **คำนวณ CrCl · eGFR · BMI · น้ำหนักที่ใช้คิดยา** (IBW · Adjusted BW) | **`crcl-calc`** + `medical-data-safety` 🔴 ← ตั้ง 6 ต.ค. 2569 · `pharmacy-web-logic` |
 | หน้าจอมือถือ | `mobile-web-app` |
 | ดูรูป · อัปโหลดรูป | `image-viewer` |
 | เริ่มเว็บใหม่ | `new-web-checklist` |

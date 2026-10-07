@@ -56,17 +56,29 @@
     return list.slice(0, -1).join(' ') + ' และ ' + list[list.length - 1];
   }
   function warnLine(t, cls) { return `<div class="cx-warnline${cls ? ' ' + cls : ''}">${ICON.alertSm}<span>${t}</span></div>`; }
+  /** กล่องแดงตอนช่องที่ใช้คิดเกินขอบเขต บอกชื่อช่องที่เกินจริง เรียงตามช่องกรอก ชื่อเดียวกับป้ายช่อง · keys = ช่องที่ส่วนนั้นใช้คิด
+   *  ส่วน CrCl แบบ 9-3 ข้อ 2 · eGFR กับ BMI แบบ 9-4 ข้อ 3 กล่องแดงคำเดียวกัน (พี่กันเลือก 7 ต.ค. 2569) */
+  const FIELD_NAME = [['age', 'Age'], ['scr', 'sCr'], ['w', 'Weight'], ['h', 'Height']];
+  function errBox(r, keys) {
+    const bad = FIELD_NAME.filter(([k]) => keys.includes(k) && r.err[k]).map(([, n]) => n);
+    return `<div class="cx-alert err">${ICON.alert}<span>คำนวณไม่ได้ เพราะ ${joinThai(bad)} เกินขอบเขต</span></div>`;
+  }
+
+  /** น้ำหนักบนจอตามหน่วยของช่อง Weight · ระบบคิดเป็น kg เสมอ ตอนช่องเป็น lb แปลงตอนแสดง × 2.20462 (ตัวคูณเดียวกับปุ่มสลับหน่วย) ทศนิยม 1 ตำแหน่ง
+   *  (พี่กันเลือกแบบ ก กลุ่ม 13-2 lb อย่างเดียว "ก ไม่เอาวงเล็บ" 7 ต.ค. 2569 · เดิมกล่องกับตารางเป็น kg ทุกหน่วย) · r.units ใส่มาจาก box.js */
+  const wOut = (r) => (r && r.units && r.units.wu === 'lb' ? { f: (kg) => f1(kg * 2.20462), u: 'lb' } : { f: f1, u: 'kg' });
 
   /** กล่องบอกน้ำหนักที่ใช้และเหตุผล */
   /** below คือรายการที่จะไปเป็นหมายเหตุใต้แถวตัวเลข ไม่มีกรอบ (กรณีที่พี่กันเกลาแล้ว) */
   function basisHTML(c, r, below) {
+    const W = wOut(r);
     const lines = [];
     let toBelow = false;
     let cls, main, why, ask = '';
     if (c.state === 'noheight') {
       // ตัดบรรทัดเหตุผล คำขอให้กรอกไปอยู่ใต้แถวตัวเลข ไม่มีไอคอน เพราะเป็นคำขอ ไม่ใช่คำเตือน · เริ่มตรงกับคำว่าใช้ในกล่อง (box.css .nh)
       // (พี่กันเลือกแบบ 6-1 ข้อ 7 "เอา 7 เเละขยับ กรุณา... ไปฝั่งขวา ให้ตรงกัล ใช้ actual" 5 ต.ค. 2569 · เดิม เพราะยังไม่ได้กรอกส่วนสูง กับ กรอกส่วนสูงเพื่อความแม่นยำ อยู่ในกล่อง)
-      cls = 'noht'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = '';
+      cls = 'noht'; main = `ใช้ Actual BW ${W.f(c.w)} ${W.u}`; why = '';
       // เหลือแค่ กรุณากรอกส่วนสูง ให้อยู่บรรทัดเดียวในแผงแคบ (พี่กันสั่ง "กรุณากรอกส่วนสูง เอาเเค่นี้" 5 ต.ค. 2569)
       // คำขออยู่ใต้กล่องในคอลัมน์ขวา ตัวเลข CrCl จึงอยู่กึ่งกลางความสูงของกล่องกับคำขอรวมกัน
       // (พี่กันสั่ง "เอา 58.6 ไปอยู่ตรงหลาง ตอนนี้มันอยู่บนน่ะ" 5 ต.ค. 2569 · เดิมคำขออยู่ใต้แถวตัวเลข ตัวเลขกึ่งกลางเฉพาะกล่อง)
@@ -75,27 +87,30 @@
     } else if (c.kind === 'short') {
       // ตัดบรรทัดเหตุผล คำเตือนสั้นลง ย้ายไปเป็นหมายเหตุใต้แถวตัวเลข ขึ้นต้นด้วย สูงต่ำกว่า 152 cm: แนวเดียวกับผอม
       // (พี่กันเลือกแบบ 5-1 ข้อ 5 "เอาอันนี้" 5 ต.ค. 2569 · เดิม เพราะสูงต่ำกว่า 152 cm กับ อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง อยู่ในกล่อง)
-      cls = 'short'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = '';
+      cls = 'short'; main = `ใช้ Actual BW ${W.f(c.w)} ${W.u}`; why = '';
       // คำนำหน้าใช้คำว่าส่วนสูง แล้วเปลี่ยนต่ำกว่าเป็นเครื่องหมายน้อยกว่า (พี่กันสั่ง "ใช่คำว่า ส่วนสูง" "ต่ำกว่า เป็น <" 5 ต.ค. 2569 · เดิม สูงต่ำกว่า 152 cm:)
       // ข้อความนี้ลง innerHTML จึงเขียน < เป็น &lt;
       // ตัดคำว่ามีภาวะ ให้อยู่บรรทัดเดียวในแผงแคบ (พี่กันสั่ง "เอา อาจหลังค่อม" 5 ต.ค. 2569)
-      lines.push('ส่วนสูง &lt; 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง');
+      // ช่อง Height เป็น in เกณฑ์บอกเป็น in ด้วย 152 ÷ 2.54 = 59.8 เครื่องหมายน้อยกว่าเหมือนเกณฑ์ต้นฉบับ · ระบบยังตัดสินจาก cm < 152
+      // (พี่กันให้เลือกแบบที่ใช้กันปกติ "13-3 เอาอันไหนดี 2 หรือ 3 ที่ต่างเเค่เครื่องหมาย ปกติเขาใช้อันไหน เอาอันนั้น" 7 ต.ค. 2569 แคลร์เลือกแบบ 2)
+      const inch = r && r.units && r.units.hu === 'inch';
+      lines.push(`ส่วนสูง &lt; ${inch ? `${(152 / 2.54).toFixed(1)} in` : '152 cm'}: อาจหลังค่อม CrCl อาจต่ำเกินจริง`);
       toBelow = true;
     } else if (c.kind === 'under') {
       // ตัดคำ Underweight ตัดบรรทัดเหตุผล คำเตือนแบบสั้น แล้วย้ายคำเตือนไปเป็นหมายเหตุใต้แถวตัวเลขไม่มีกรอบ
       // (พี่กันเลือกแบบ 3-2 ข้อ 6 "เอาอันนี้ เเต่ย้าย มวลกล้ามเนื้อ ไปไว้เป็นหมายเหตุด้านล่างเลย โดยไม่มีกรอบ" 5 ต.ค. 2569)
-      cls = 'under'; main = `ใช้ Actual BW ${f1(c.w)} kg`; why = '';
+      cls = 'under'; main = `ใช้ Actual BW ${W.f(c.w)} ${W.u}`; why = '';
       // ขึ้นต้นด้วย Underweight ตามด้วยทวิภาค (พี่กันเลือกแบบ 3-3 ข้อ 2 แล้วเลือกตัวคั่นแบบ 3-4 ข้อ 1 5 ต.ค. 2569)
       lines.push('Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง');
       toBelow = true;
     } else if (c.kind === 'obese') {
       // ตัดคำ Obese กับบรรทัดเหตุผล เหมือนกรณีปกติกับผอม · ตัวหนังสือในกล่องนี้ 10.5 ให้อยู่บรรทัดเดียว (box.css)
       // (พี่กันเลือกแบบ 4-1 ข้อ 7 "เอาข้อ 7" 5 ต.ค. 2569 · เดิม Obese ใช้ Adjusted BW xx kg กับ เพราะ BW มากกว่า 1.2 เท่าของ IBW)
-      cls = 'obese o' + c.obLevel; main = `ใช้ Adjusted BW ${f1(c.adj)} kg`; why = '';
+      cls = 'obese o' + c.obLevel; main = `ใช้ Adjusted BW ${W.f(c.adj)} ${W.u}`; why = '';
     } else {
       // กรณีปกติไม่มีบรรทัดเหตุผล กรณีอื่นยังบอกว่าทำไมไม่ใช้ IBW (พี่กันเลือก "เอาออกเฉพาะ Normal" แล้วสั่ง "เอาออกเลย" 5 ต.ค. 2569)
       // ไม่มีคำว่า Normal อ่านแล้วสงสัยว่าปกติอะไร และชนกับ BMI ที่อาจขึ้น Overweight (พี่กันสั่ง "เอาแบบตัดคำ Normal ออก" 5 ต.ค. 2569)
-      cls = 'normal'; main = `ใช้ Ideal BW ${f1(c.ibw)} kg`; why = '';
+      cls = 'normal'; main = `ใช้ Ideal BW ${W.f(c.ibw)} ${W.u}`; why = '';
     }
     // ขึ้นต้นด้วยกรณีแล้วทวิภาค เหมือนหมายเหตุอื่น (พี่กันเลือกแบบ 7-3 ข้อ 2 5 ต.ค. 2569 · เดิม อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ)
     if (r.ageWarn) lines.push('อายุนอกช่วง 18–92 ปี: CrCl อาจไม่แม่นยำ');
@@ -105,10 +120,11 @@
   }
 
   /** ตารางน้ำหนักสามแบบ เป็นตารางจริง */
-  function tableHTML(c) {
+  function tableHTML(c, r) {
+    const W = wOut(r);
     const row = (key, label, bw, cc, note) => {
       const on = c.pick === key;
-      const cells = note ? `<td colspan="2" class="cx-na">${note}</td>` : `<td>${f1(bw)}</td><td>${f1(cc)}</td>`;
+      const cells = note ? `<td colspan="2" class="cx-na">${note}</td>` : `<td>${W.f(bw)}</td><td>${f1(cc)}</td>`;
       // ช่องหน้าชื่อแถวจองที่ไว้ทุกแถว แถวที่ใช้มีเครื่องหมายถูก ชื่อแถวจึงตรงแนวกันทุกแถว
       // (พี่กันสั่ง "ติ๊กแบบรูป 2 เเต่ต้องเว้นระยะให้เครื่องหมายด้วย" 5 ต.ค. 2569 · เดิมเป็นแถบเขียวทางซ้าย)
       return `<tr class="${on ? 'on' : ''}"><th scope="row"><span class="cx-ck">${on ? ICON.check : ''}</span>${label}${on ? '<span class="sr"> ใช้ค่านี้</span>' : ''}</th>${cells}</tr>`;
@@ -118,7 +134,7 @@
     const rows = row('A', 'Actual BW', c.w, c.cA)
       + (note ? row('I', 'Ideal BW', 0, 0, note) + row('J', 'Adjusted BW', 0, 0, note)
               : row('I', 'Ideal BW', c.ibw, c.cI) + row('J', 'Adjusted BW', c.adj, c.cJ));
-    return `<table class="cx-bw"><thead><tr><th scope="col"><span class="sr">ชนิดน้ำหนัก</span></th><th scope="col">BW (kg)</th><th scope="col">CrCl (mL/min)</th></tr></thead><tbody>${rows}</tbody></table>`;
+    return `<table class="cx-bw"><thead><tr><th scope="col"><span class="sr">ชนิดน้ำหนัก</span></th><th scope="col">BW (${W.u})</th><th scope="col">CrCl (mL/min)</th></tr></thead><tbody>${rows}</tbody></table>`;
   }
 
   /** ส่วน CrCl — ตัวนี้ใช้ปรับขนาดยา */
@@ -129,7 +145,9 @@
     // "จริงๆเอาอันนี้ก็ได้นะ ส่วนชื่อเต็ม อาจจะเอาไว้ที่เเบนเน้อบนสุด" 5 ต.ค. 2569
     let h = '<div class="cx-sec cx-crcl"><div class="cx-sec-h"><h3 class="cx-sec-t">CrCl<span class="cx-f"> (Cockcroft-Gault)</span></h3><span class="cx-tag use">ใช้ปรับขนาดยา</span></div>';
     if (c.state === 'error') {
-      h += `<div class="cx-alert err">${ICON.alert}<span>ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ</span></div>`;
+      // บอกชื่อช่องที่เกินขอบเขต เรียงตามช่องกรอก ชื่อเดียวกับป้ายช่อง · เกินหลายช่องตก 2 บรรทัดได้
+      // (พี่กันเลือกแบบ 9-3 ข้อ 2 "เอาตาม 2 4 5 ให้สองบันทัดได้" 7 ต.ค. 2569 · เดิม ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ)
+      h += errBox(r, ['age', 'scr', 'w', 'h']);
     } else if (c.state === 'incomplete') {
       // ขึ้นต้นด้วย กรุณากรอก เหมือนข้อความใน eGFR กับ BMI (พี่กันสั่ง "เปลี่ยนเป็นกรุณาให้หมด" 5 ต.ค. 2569)
       h += `<div class="cx-big"><span class="cx-none">ยังคำนวณไม่ได้</span></div><p class="cx-hint">กรุณากรอก ${joinThai(c.missing)}</p>`;
@@ -141,7 +159,7 @@
       const below = [];   // หมายเหตุใต้แถวตัวเลข basisHTML ใส่ให้
       // กล่องบอกน้ำหนักที่ใช้ อยู่ทางขวาของตัวเลข บรรทัดเดียวกัน (พี่กันสั่ง "ย้ายจากที่อยู่บรรทัดล่าง ไปเป็นกรออกสี่เหลี่ยมขวา" 5 ต.ค. 2569 · เดิมอยู่บรรทัดใต้ตัวเลข)
       h += `<div class="cx-top"><div class="cx-big"><b class="${Number(f1(c.value)) < 30 ? 'lt30' : 'ge30'}">${f1(c.value)}</b><span>mL/min</span></div>${basisHTML(c, r, below)}</div>${below.map((t) => typeof t === 'string' ? warnLine(t, t.startsWith('อายุนอกช่วง') ? 'age' : '') : `<div class="cx-warnline ${t.cls}"><span>${t.t}</span></div>`).join('')}`
-        + tableHTML(c)
+        + tableHTML(c, r)
         // ชื่อสูตรในวงเล็บเหมือนหัวข้อ CrCl eGFR BMI · เขียน Devine Formula เต็ม (พี่กันสั่ง "มันควรเขียนว่า Devine Formula เพราะถ้าเเค่ Devine ใครมันจะรู้"
         // "วงเล้บไหมนะ เพราะตามจุดอื่น ถ้าสูตร มันจะวงเล็บ" 5 ต.ค. 2569 · เดิม IBW ใช้สูตร Devine และ Adjusted BW ใช้ตัวคูณ 0.4)
         // Adjusted BW เขียนสูตรเต็มหลังทวิภาค พี่กันเลือกจากตัวเลือกกลุ่ม 3-6 ("เอาอันีน้" ส่งภาพ IBW (Devine Formula) กับ Adjusted BW: IBW + 0.4 x (BW - IBW))
@@ -170,7 +188,8 @@
       // ตัวเลข eGFR สีเดียวกับระยะ CKD (พี่กันสั่ง "เราขอสีของค่า eGFR BMI เปลี่ยนสีตามระบบหน่อย" 5 ต.ค. 2569 · หน่วยยังเทา)
       b = `<div class="cx-kv"><span class="cx-val ${s.cls}">${f1(r.egfr.v)}<small>mL/min/1.73m²</small></span><span class="cx-cls ${s.cls}">CKD ${s.label}</span></div>`;
     } else if (r.egfr.state === 'error') {
-      b = '<p class="cx-hint">คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต</p>';
+      // กล่องแดงแบบส่วน CrCl บอกเฉพาะช่องที่ใช้คิด eGFR (พี่กันสั่ง "ลองเอา 3 ก่อน เราจะดู" แล้ว "เราโอเครนะ เอาตามนี้" 7 ต.ค. 2569 · เดิม คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต บรรทัดเทา)
+      b = errBox(r, ['age', 'scr']);
     } else {
       b = '<p class="cx-hint">กรุณากรอก Sex Age และ sCr</p>';
     }
@@ -186,7 +205,8 @@
       // ตัวเลข BMI สีเดียวกับระดับ BMI (พี่กันสั่งพร้อม eGFR 5 ต.ค. 2569)
       b = `<div class="cx-kv"><span class="cx-val ${r.bmi.cls.cls}">${f1(r.bmi.v)}<small>kg/m²</small></span><span class="cx-cls ${r.bmi.cls.cls}">${r.bmi.cls.label}</span></div>`;
     } else if (r.bmi.state === 'error') {
-      b = '<p class="cx-hint">คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต</p>';
+      // แบบเดียวกับ eGFR (9-4 ข้อ 3 · เดิม คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต บรรทัดเทา)
+      b = errBox(r, ['w', 'h']);
     } else {
       b = '<p class="cx-hint">กรุณากรอก Weight และ Height</p>';
     }
@@ -199,8 +219,14 @@
     return crclHTML(r) + (layout === 'wide' ? `<div class="cx-pair">${pair}</div>` : pair);
   }
 
-  /** ข้อความใต้ช่อง sCr */
-  function crRefMsg(r, sex) {
+  /** ข้อความใต้ช่อง sCr · su หน่วยของช่อง sCr ตอนนี้
+   *  ช่องเป็น μmol/L ค่าอ้างอิงแปลงเป็น μmol/L ด้วย (× 88.4 ตัวคูณเดียวกับปุ่มสลับหน่วย) ปัดเป็นจำนวนเต็ม ชาย 62–106 หญิง 44–88
+   *  (พี่กันเลือกแบบ ก กลุ่ม 13-1 "ก ไม่เอาทศนิยม" 7 ต.ค. 2569 · เดิมค่าอ้างอิงเป็น mg/dL ทุกหน่วย)
+   *  ระบบยังตัดสิน High Low จาก mg/dL ตาม calc.js · ปัดแล้วไม่ตรงหนึ่งค่า กรอก 44 นับเป็น Low ของหญิง (0.498 mg/dL) พี่กันเห็นข้อนี้ตอนเลือกแล้ว */
+  function crRefMsg(r, sex, su) {
+    const um = su === 'umol';
+    const n = (v) => (um ? String(Math.round(v * 88.4)) : v.toFixed(1));
+    const M = [n(0.7), n(1.2)], F = [n(0.5), n(1.0)], unit = um ? 'μmol/L' : 'mg/dL';
     // สูงหรือต่ำกว่าค่าอ้างอิง ใต้ช่องเป็นบรรทัดค่าอ้างอิงแบบปกติ สูงต่ำบอกด้วยบั้งคู่สีแดงหรือส้มต่อท้ายตัวเลขในช่อง (box.js .cx-mirror)
     // โปรแกรมอ่านจอได้ยินคำว่าสูงหรือต่ำจากข้อความซ่อน (พี่กันเลือกแบบ 7-7 ข้อ 7 กับ 8 5 ต.ค. 2569
     // เดิม sCr สูงกว่าค่าอ้างอิง (...) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด · sCr ต่ำกว่าค่าอ้างอิง (...) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง)
@@ -211,19 +237,19 @@
       const male = sex === 'male', hi = r.crRef === 'high';
       const sr = hi ? 'sCr สูงกว่าค่าอ้างอิง ' : 'sCr ต่ำกว่าค่าอ้างอิง ';
       const w = hi ? '<b class="cx-hl hi">High</b>' : '<b class="cx-hl lo">Low</b>';
-      const range = (lo, up) => (hi ? `${lo}–${up} ${w}` : `${w} ${lo}–${up}`);
-      const m = male ? `ชาย ${range('0.7', '1.2')}` : 'ชาย 0.7–1.2';
-      const f = male ? 'หญิง 0.5–1.0' : `หญิง ${range('0.5', '1.0')}`;
-      return ['mute', `<span class="cx-tight"><span class="sr">${sr}</span><span class="cx-ref${male ? ' on' : ''}">${m}</span> <span class="cx-ref${male ? '' : ' on'}">${f}</span> mg/dL</span>`];
+      const range = ([lo, up]) => (hi ? `${lo}–${up} ${w}` : `${w} ${lo}–${up}`);
+      const m = male ? `ชาย ${range(M)}` : `ชาย ${M.join('–')}`;
+      const f = male ? `หญิง ${F.join('–')}` : `หญิง ${range(F)}`;
+      return ['mute', `<span class="cx-tight"><span class="sr">${sr}</span><span class="cx-ref${male ? ' on' : ''}">${m}</span> <span class="cx-ref${male ? '' : ' on'}">${f}</span> ${unit}</span>`];
     }
     // เลือกเพศแล้ว sCr อยู่ในเกณฑ์ ข้อความเดียวกับตอนยังไม่เลือกเพศ เพศที่เลือกตัวเข้ม อีกเพศจาง (box.css .cx-ref)
     // พี่กันเลือกจากตัวเลือกใต้ภาพที่ 2 ในหน้าเกลาคำ "เอาอันนี้ละกัน ที่จะจางเข้ม" 4 ต.ค. 2569 · ข้อความตายตัว ไม่มีค่าจากผู้ใช้ปน
     if (r.crRef === 'ok') {
       const male = sex === 'male';
-      return ['mute', `<span class="cx-ref${male ? ' on' : ''}">ชาย 0.7–1.2</span> <span class="cx-ref${male ? '' : ' on'}">หญิง 0.5–1.0</span> mg/dL`];
+      return ['mute', `<span class="cx-ref${male ? ' on' : ''}">ชาย ${M.join('–')}</span> <span class="cx-ref${male ? '' : ' on'}">หญิง ${F.join('–')}</span> ${unit}`];
     }
     // ยังไม่เลือกเพศ ให้อยู่บรรทัดเดียวในช่อง 212 จุด (พี่กันสั่ง "เกลาให้เหลือ 1 บรรทัด" 4 ต.ค. 2569) · อยู่ใต้ช่อง sCr จึงไม่ต้องมีคำว่าค่าอ้างอิง sCr · หน่วยต้องมี เพราะช่อง sCr สลับเป็น μmol/L ได้
-    return ['mute', 'ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL'];
+    return ['mute', `ชาย ${M.join('–')} หญิง ${F.join('–')} ${unit}`];
   }
 
   CrCl.render = { ICON, f1, joinThai, warnLine, basisHTML, tableHTML, crclHTML, egfrHTML, bmiHTML, resultsHTML, crRefMsg };

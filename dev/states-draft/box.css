@@ -74,7 +74,8 @@
    - เส้นแบ่งระหว่างชิ้นวาดด้วย svg สีเดียวกับพื้นจอ · เส้นขอบตอนใช้แป้นพิมพ์ (outline) โดน clip-path ตัดหาย จึงเปลี่ยนสีพื้นแทน */
 .cx-pop{position:absolute;z-index:4;top:42px;left:var(--pop-x);width:212px;padding:10px 12px 12px;border:1px solid var(--line);border-radius:12px;background:#fff;box-shadow:0 10px 26px rgba(16,52,45,.18)}
 .cx-pop[hidden]{display:none}
-.cx-pop-t{margin:0 0 8px;color:var(--ink-2);font:600 12px/1.3 var(--font-sarabun),sans-serif}
+/* หัวแผง "เลือกขอบจอ" กึ่งกลาง (พี่กันเลือกแบบ 14-1 ข้อ 2 "เอาอันนี้ เเละเอาคำว่า เลือกชอบจอ อยู่กึ่งกลาง" 7 ต.ค. 2569 · เดิม ย้ายกล่องไปติดขอบ ชิดซ้าย · คำอยู่ใน box.js) */
+.cx-pop-t{margin:0 0 8px;color:var(--ink-2);font:600 12px/1.3 var(--font-sarabun),sans-serif;text-align:center}
 .cx-scr{position:relative;width:186px;height:124px;border:1.5px solid var(--field-line);border-radius:9px;background:var(--surface-2)}
 /* ชี้แล้วเข้มทันที ไม่ค่อย ๆ เปลี่ยนสี (พี่กันลองของจริงแล้วบอก "มันเข้มช้าไปนิด เราอยากได้เข้มทันทีที่เมาส์โดนเลย" 4 ต.ค. 2569) */
 .cx-edge{position:absolute;inset:4px;margin:0;padding:0;border:0;border-radius:7px;background-color:#d9ebe6;cursor:pointer}
@@ -89,6 +90,27 @@
 .cx-edge[aria-current="true"]:focus-visible{background-color:var(--accent-ink)}
 .cx-scr-gap{position:absolute;top:4px;left:4px;width:calc(100% - 8px);height:calc(100% - 8px);overflow:visible;pointer-events:none}
 .cx-scr-gap path{fill:none;stroke:var(--surface-2);stroke-width:3;stroke-linecap:round;vector-effect:non-scaling-stroke}
+/* ป้าย ตอนนี้ กลางชิ้นสีเขียว (ขอบที่ติดอยู่) ไม่รับเมาส์ ชี้แล้วยังได้ปุ่มข้างใต้ (พี่กันเลือกแบบ 14-2 ข้อ 3 7 ต.ค. 2569) */
+.cx-edge-now{position:absolute;z-index:2;transform:translate(-50%,-50%);pointer-events:none;color:#fff;font:700 11px/1.15 var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-scr[data-cur="right"] .cx-edge-now{left:84%;top:50%}
+.cx-scr[data-cur="left"] .cx-edge-now{left:16%;top:50%}
+.cx-scr[data-cur="top"] .cx-edge-now{left:50%;top:17%}
+.cx-scr[data-cur="bottom"] .cx-edge-now{left:50%;top:83%}
+/* ชื่อขอบกลางชิ้น ขึ้นทันทีตอนชี้หรือกด Tab มาที่ชิ้นที่ไม่ใช่ขอบปัจจุบัน ไม่มีหน่วงแบบป้ายของ Chrome
+   (พี่กันสั่ง "ไม่ขึ้นแบบนี้สิ ขึ้นสีเลยสิ มาขึ้นแบบนี้โคตรช้า ภาพสอง เธอก็มีเสนอเเล้วนี่ เเค่ใส่คำว่า ขอบ" 7 ต.ค. 2569 · แบบป้าย 14-2 ข้อ 2) */
+.cx-edge-lab{position:absolute;z-index:2;transform:translate(-50%,-50%);visibility:hidden;pointer-events:none;color:var(--accent-ink);font:700 11px/1.15 var(--font-sarabun),sans-serif;white-space:nowrap}
+.cx-edge-lab[data-for="right"]{left:84%;top:50%}
+.cx-edge-lab[data-for="left"]{left:16%;top:50%}
+.cx-edge-lab[data-for="top"]{left:50%;top:17%}
+.cx-edge-lab[data-for="bottom"]{left:50%;top:83%}
+.cx-edge[data-edge="right"][aria-current="false"]:hover ~ .cx-edge-lab[data-for="right"],
+.cx-edge[data-edge="right"][aria-current="false"]:focus-visible ~ .cx-edge-lab[data-for="right"],
+.cx-edge[data-edge="left"][aria-current="false"]:hover ~ .cx-edge-lab[data-for="left"],
+.cx-edge[data-edge="left"][aria-current="false"]:focus-visible ~ .cx-edge-lab[data-for="left"],
+.cx-edge[data-edge="top"][aria-current="false"]:hover ~ .cx-edge-lab[data-for="top"],
+.cx-edge[data-edge="top"][aria-current="false"]:focus-visible ~ .cx-edge-lab[data-for="top"],
+.cx-edge[data-edge="bottom"][aria-current="false"]:hover ~ .cx-edge-lab[data-for="bottom"],
+.cx-edge[data-edge="bottom"][aria-current="false"]:focus-visible ~ .cx-edge-lab[data-for="bottom"]{visibility:visible}
 
 /* ระหว่างลาก กล่องหลุดจากขอบ ลอยขึ้น เงาเข้มขึ้น ลำต้นกับโค้งเว้าจางหายไป (มอคอัปลากย้าย 3 ต.ค. 2569) */
 .dock[data-lifted="true"]{filter:drop-shadow(0 0 .7px rgba(16,52,45,.55)) drop-shadow(0 24px 40px rgba(16,52,45,.30))}
@@ -247,7 +269,9 @@
 /* หน่วยติดตัวเลขเสมอ ที่ที่กันไว้ไปอยู่หลังหน่วยแทน (พี่กันสั่ง "อัน 57.2 เอา ml ติดกับเลขหน่อย ไปเว้นไว้หลังหน่วยจบ" 5 ต.ค. 2569)
    กว้างคงที่ 137 = เลข 5 ตัวที่ 28 จุด (84) + ช่องไฟ 6 + mL/min (47) · เดิมกันที่ไว้ที่ตัวเลข หน่วยเลยห่างจากเลข 4 หลัก */
 .cx-top .cx-big{min-width:137px}
-.cx-top .cx-basis{flex:1 1 auto;min-width:0;margin-top:0;padding:5px 6px;font-size:11.5px}
+/* ขอบในซ้ายขวา 3 ให้กล่องหน่วย lb ที่เลข 3 หลักอยู่บรรทัดเดียว เช่น ใช้ Adjusted BW 164.8 lb ยาว 143.6 ที่ในกล่องเดิม 139
+   (พี่กันเลือกแบบ ก กลุ่ม 13-4 "13-4 เอา ก" 7 ต.ค. 2569 · เดิม 6 · ใช้กับทุกหน่วย) */
+.cx-top .cx-basis{flex:1 1 auto;min-width:0;margin-top:0;padding:5px 3px;font-size:11.5px}
 /* กล่อง Obese ใช้ Adjusted BW ยาวกว่าใช้ Ideal BW ขนาด 11.5 ตก 2 บรรทัด จึงลดเฉพาะกล่องนี้ (พี่กันเลือกแบบ 4-1 ข้อ 7 5 ต.ค. 2569) */
 .cx-top .cx-basis.obese{font-size:10.5px}
 /* กล่องทางขวาตัวหนังสือ 11.5 ช่องไฟ 6 ให้ "ใช้ Ideal BW 65.9 kg" อยู่บรรทัดเดียว · ตัวเลข CrCl ไม่ลดขนาด
@@ -267,9 +291,9 @@
    (พี่กันสั่ง "ลดขนาดฟอนต์ ให้มันเหลือ 1 บรรทัด" ได้ 11 · คำเตือนอายุ "ลดด้วยเลย" ได้ 10.5 · แล้ว "ลดเป็น 10.5 ให้เท่ากัน" 5 ต.ค. 2569) */
 .cx-top ~ .cx-warnline{font-size:10.5px}
 /* คำขอให้กรอกส่วนสูง อยู่ใต้กล่องในคอลัมน์ขวา ตัวเลขจึงอยู่กึ่งกลางของทั้งสองอย่าง (พี่กันสั่ง 5 ต.ค. 2569)
-   ไม่มีไอคอน เริ่มตรงกับคำว่าใช้ในกล่อง = เส้น 1 + ขอบใน 6 · ขนาด 10.5 เท่าหมายเหตุอื่น */
+   ไม่มีไอคอน เริ่มตรงกับคำว่าใช้ในกล่อง = เส้น 1 + ขอบใน 3 (เดิม 6 ก่อนแบบ 13-4 ก 7 ต.ค. 2569) · ขนาด 10.5 เท่าหมายเหตุอื่น */
 .cx-rcol{flex:1 1 auto;min-width:0}
-.cx-rcol .cx-warnline.nh{margin-top:3px;padding-left:7px;font-size:10.5px}
+.cx-rcol .cx-warnline.nh{margin-top:3px;padding-left:4px;font-size:10.5px}
 /* ตารางน้ำหนัก (พี่กันเลือก 5 ต.ค. 2569 "กรอบแบบรูปแรก · ติ๊กแบบรูป 2 เเต่ต้องเว้นระยะให้เครื่องหมายด้วย · รูปสาม เเถวอื่นจางด้วย")
    กรอบมุมมน หัวคอลัมน์พื้นเขียว เส้นแบ่งคอลัมน์ · แถวที่ใช้มีเครื่องหมายถูก พื้นเขียวอ่อน · แถวอื่นตัวหนังสือจาง
    แบบ separate เพื่อให้กรอบมุมมนได้ ตารางนี้ไม่มีหัวตรึง จึงใช้ overflow:hidden ตัดมุมได้ */

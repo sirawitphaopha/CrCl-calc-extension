@@ -111,8 +111,8 @@
         </div>
         <div class="cx-trow"><h2 class="cx-title">Creatinine Clearance (CrCl)</h2></div>
         ${float ? `<div class="cx-pop" data-pop hidden role="group" aria-label="เลือกขอบที่จะย้ายกล่องไปติด">
-          <p class="cx-pop-t">ย้ายกล่องไปติดขอบ</p>
-          <div class="cx-scr">${EDGES.map((e) => `<button type="button" class="cx-edge" data-edge="${e}"></button>`).join('')}<svg class="cx-scr-gap" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L37.5 37.5M100 0L62.5 37.5M100 100L62.5 62.5M0 100L37.5 62.5"/></svg></div>
+          <p class="cx-pop-t">เลือกขอบจอ</p>
+          <div class="cx-scr">${EDGES.map((e) => `<button type="button" class="cx-edge" data-edge="${e}"></button>`).join('')}<svg class="cx-scr-gap" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><path d="M0 0L37.5 37.5M100 0L62.5 37.5M100 100L62.5 62.5M0 100L37.5 62.5"/></svg><span class="cx-edge-now" aria-hidden="true">ตอนนี้</span>${EDGES.map((e) => `<span class="cx-edge-lab" data-for="${e}" aria-hidden="true">${EDGE_TH[e]}</span>`).join('')}</div>
         </div>` : ''}
         <div class="cx-bar" data-bar hidden>${ICON.alertSm}<span></span><button type="button" class="cx-barbtn" data-act="bar"></button></div>
         <div class="cx-body">
@@ -194,12 +194,17 @@
       const edgeBtn = el.querySelector('[data-act="edge"]');
       say(edgeBtn, ICON.edge[this.side], `ตอนนี้ติด${EDGE_TH[this.side]} กดเพื่อเลือกขอบที่จะย้ายไป`);
       edgeBtn.removeAttribute('title');
+      // ชิ้นสีเขียว (ขอบที่ติดอยู่) มีป้าย ตอนนี้ (box.css .cx-edge-now วางตาม data-cur)
+      // (พี่กันเลือกแบบ 14-2 ข้อ 3 "งั้น บอกไว้ ว่าเขียวคืออะไร" แล้ว "เอาอันนี้" 7 ต.ค. 2569 · เดิมไม่มีป้าย)
+      // ชี้ชิ้นอื่นแล้วชื่อขอบขึ้นกลางชิ้นทันที แบบป้ายของ 14-2 ข้อ 2 เติมคำว่าขอบ (box.css .cx-edge-lab) ไม่ใช้ป้ายของ Chrome ที่ขึ้นช้า
+      // (พี่กันสั่ง "ไม่ขึ้นแบบนี้สิ ขึ้นสีเลยสิ มาขึ้นแบบนี้โคตรช้า ภาพสอง เธอก็มีเสนอเเล้วนี่ เเค่ใส่คำว่า ขอบ" 7 ต.ค. 2569
+      //  เดิม title ย้ายไปติดขอบบน · ติดขอบขวาอยู่ตอนนี้) · ชื่อสำหรับโปรแกรมอ่านจอยังบอกว่ากดแล้วทำอะไร
+      el.querySelector('.cx-scr').dataset.cur = this.side;
       el.querySelectorAll('.cx-edge').forEach((b) => {
-        const cur = b.dataset.edge === this.side;
-        const t = cur ? `ติด${EDGE_TH[b.dataset.edge]}อยู่ตอนนี้` : `ย้ายไปติด${EDGE_TH[b.dataset.edge]}`;
+        const cur = b.dataset.edge === this.side, name = EDGE_TH[b.dataset.edge];
         b.setAttribute('aria-current', String(cur));
-        b.setAttribute('aria-label', t);
-        b.title = t;
+        b.setAttribute('aria-label', cur ? `ติด${name}อยู่ตอนนี้` : `ย้ายไปติด${name}`);
+        b.removeAttribute('title');
       });
       // ขอบบนล่าง box.css หมุนลูกศรของปุ่มพับให้ชี้ขึ้นลงเข้าหาขอบ
       say(el.querySelector('[data-act="fold"]'), this.side === 'left' ? ICON.foldL : ICON.foldR, 'พับเก็บไว้ที่ขอบจอ');
@@ -221,6 +226,8 @@
 
     update() {
       const st = this.st, el = this.panel, r = C.compute(st);
+      // หน่วยของแต่ละช่อง ให้ตัววาดผลแสดงน้ำหนักตามหน่วยที่กรอก (render.js wOut · 7 ต.ค. 2569) · สูตรใน calc.js ไม่แตะ
+      r.units = { wu: st.wu, hu: st.hu, su: st.su };
       this.r = r;
       el.querySelectorAll('[data-sex]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.sex === st.sex)));
       el.querySelector('.cx-seg').classList.toggle('is-warn', r.sexWarn);
@@ -254,7 +261,7 @@
         b.innerHTML = `<span>${C.UNIT_TXT[cur]}</span>${ICON.swapSm}`;
         b.setAttribute('aria-label', say); b.title = say;
       });
-      this.setMsg('scrref', R.crRefMsg(r, st.sex));
+      this.setMsg('scrref', R.crRefMsg(r, st.sex, st.su));
       this.results.innerHTML = R.resultsHTML(r, this.layout);
       this.paintBase();
     }

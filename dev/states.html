@@ -55,6 +55,8 @@
   .toc a.toc-sub.on{background:#9a6b00;color:#fff}
   .opts-q{margin:2px 0 10px;color:#9a6b00;font:500 13px/1.4 "CrClX Sarabun",sans-serif}
   .opts-row{display:flex;flex-wrap:wrap;gap:16px 28px}
+  .opts-sec{margin:14px 0 2px;padding-top:10px;border-top:1px dashed #e3c27a;color:#7a5106;font:700 13.5px/1.4 "CrClX Sarabun",sans-serif}
+  .opts-secq{margin:0 0 8px;color:#9a6b00;font:500 12.5px/1.4 "CrClX Sarabun",sans-serif}
   .opts-list{margin:0;padding-left:20px;color:#7a5106}
   .opts-list li{margin:4px 0;font:500 14px/1.5 "CrClX Sarabun",sans-serif}
   .opts-list .ls-w{margin-right:10px;color:#1f2d2a;font:600 14px/1.5 "CrClX Roboto Mono","CrClX Sarabun",monospace}
@@ -407,6 +409,9 @@ MSG12.replaceSync('.cx-msg{font-size:12px}.cx-hint{font-size:12px}');
 // บั้งคู่ในช่อง sCr ใส่ในฉบับร่าง 5 ต.ค. 2569 · ภาพตัวเลือกที่ทำก่อนหน้าซ่อนไว้ (ตัวเลือกที่ใส่ flagNew: true จะเห็น)
 const NOFLAG = new CSSStyleSheet();
 NOFLAG.replaceSync('.cx-mirror{display:none}');
+// ขอบในกล่องน้ำหนักที่ใช้ก่อน 7 ต.ค. 2569 ซ้ายขวา 6 · ฉบับร่างเปลี่ยนเป็น 3 ตามแบบ 13-4 ก · ภาพตัวเลือกที่ทำก่อนหน้านั้นคงหน้าตาเดิม (ตัวเลือกใหม่ใส่ newPad: true)
+const OLDPAD = new CSSStyleSheet();
+OLDPAD.replaceSync('.cx-crcl .cx-top .cx-basis{padding-left:6px;padding-right:6px}.cx-crcl .cx-rcol .cx-warnline.nh{padding-left:7px}');
 const OPT = new CSSStyleSheet();
 OPT.replaceSync('.opt-on{color:var(--ink-2);font-weight:700}.opt-dim{color:#b3bfbb}'
   + '.opt-unit{cursor:default}.opt-unit:hover{background-color:var(--surface-2);color:var(--ink-2)}'
@@ -1528,6 +1533,282 @@ OPTIONS[7].push(Object.assign({
   ])),
 }, W7_CROP));
 
+// ภาพที่ 9 sCr เกินขอบเขต (หญิง 50 ปี sCr 45 mg/dL) · แคลร์เสนอเกลา 4 จุด แล้วพี่กันสั่งทำมอคอัป 6 ต.ค. 2569
+// ทุกแบบแก้กล่องจริงของภาพนี้แล้วตัดเฉพาะส่วนนั้น · จำนวนบรรทัดวัดในกล่องจริงแผงแคบ
+const E9_SAID = 'ทำมอคอัปมาเลย ทั้ง 4 ข้อ';
+const E9_CROP = { cropW: 320, padTop: 6, padBottom: 5, newNum: true, flagNew: true };
+const errSet = (text) => (root) => { const sp = root.querySelector('[data-msg="scr"] span'); if (sp) sp.textContent = text; };
+const M91 = linesOf('[data-msg="scr"]');
+// ไอคอนลูกศรสมดุลตัวเดียวกับปุ่มสลับหน่วย (คัดลอกจากปุ่มในกล่อง) ขนาดเท่าตัวหนังสือ
+const unitIco = (root) => {
+  const s = root.querySelector('.cx-unit[data-unit="su"] svg'); if (!s) return '';
+  const c = s.cloneNode(true);
+  c.setAttribute('width', '12'); c.setAttribute('height', '12');
+  c.style.cssText = 'display:inline-block;margin:0 1px;vertical-align:-2px';
+  return c.outerHTML;
+};
+// o.text คำ ({ico} ตำแหน่งไอคอน {mg} ค่าที่จะได้หลังสลับ) · o.where 'between' ใต้บรรทัดแดงแล้วค่อยค่าอ้างอิง ไม่ใส่ = แทนบรรทัดค่าอ้างอิง
+// o.grey สีเทาแบบค่าอ้างอิง ไม่ใส่ = เขียวน้ำทะเล · o.ring กรอบเขียวที่ปุ่มหน่วย
+const unitHint = (o) => (root) => {
+  const ref = root.querySelector('[data-msg="scrref"]'); const inp = root.querySelector('[data-k="scr"]');
+  if (!ref || !inp) return;
+  const mg = (Number(inp.value) / 88.4).toFixed(2);   // แปลงแบบเดียวกับปุ่มสลับหน่วย μmol/L → mg/dL
+  const html = `<span style="color:${o.grey ? 'var(--ink-3)' : 'var(--accent-ink)'}">${o.text.replace('{ico}', unitIco(root)).replace('{mg}', mg)}</span>`;
+  if (o.where === 'between') ref.insertAdjacentHTML('beforebegin', `<div class="cx-msg" data-msg="hint9">${html}</div>`);
+  else { ref.className = 'cx-msg'; ref.dataset.msg = 'hint9'; ref.innerHTML = html; }
+  if (o.ring) { const u = root.querySelector('.cx-unit[data-unit="su"]'); if (u) u.style.cssText = 'box-shadow:inset 0 0 0 2px var(--accent);background-color:var(--accent-soft);color:var(--accent-ink)'; }
+};
+const M92 = linesOf('[data-msg="hint9"]');
+// คำว่ากดกับลูกศรติดกันเสมอ ตกบรรทัดก็ไปด้วยกัน ไม่ให้ลูกศรตกไปอยู่บรรทัดล่างตัวเดียว
+const HINT9 = 'ถ้าเป็น μmol/L <span style="white-space:nowrap">กดสลับหน่วย {ico}</span>';
+const crclErr = (text) => (root) => { const sp = root.querySelector('.cx-crcl .cx-alert span'); if (sp) sp.textContent = text; };
+const M93 = linesOf('.cx-crcl .cx-alert');
+// ฉบับร่างเปลี่ยน eGFR เป็นกล่องแดงแล้ว (9-4 ข้อ 3 · 7 ต.ค. 2569) ภาพแบบบรรทัดเทาจึงสร้างบรรทัดขึ้นใหม่แทนกล่องแดง
+const egfrErr = (text) => (root) => {
+  const old = root.querySelector('.cx-egfr .cx-hint, .cx-egfr .cx-alert'); if (!old) return;
+  const p = document.createElement('p'); p.className = 'cx-hint'; p.textContent = text; old.replaceWith(p);
+};
+const M94 = linesOf('.cx-egfr .cx-hint');
+OPTIONS[9] = [Object.assign({
+  title: 'ตัวเลือก บรรทัดแดงใต้ช่อง sCr ตอนเกินขอบเขต · แบบที่เลือกจะใช้กับข้อความเกินขอบของทุกช่องในภาพ 11 กับ 12 ด้วย · หน่วย μmol/L ใช้ช่วง 9–2652',
+  said: E9_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'ค่า sCr สูงเกินไป (สูงสุด 30 mg/dL) · ข้อความเดิมจาก TB calc', apply: errSet('ค่า sCr สูงเกินไป (สูงสุด 30 mg/dL)'), measure: M91 },
+    { chosen: true, name: 'เกินช่วงที่คำนวณได้ แล้วบอกทั้งช่วง', sub: 'เกินช่วงที่คำนวณได้ 0.1–30 mg/dL · แบบเดียวกับใต้ช่องอายุ เกินช่วงอายุที่สูตรรองรับ 18–92 ปี · ค่าต่ำกว่าช่วงขึ้น ต่ำกว่าช่วงที่คำนวณได้ (แคลร์แนะนำ)', apply: errSet('เกินช่วงที่คำนวณได้ 0.1–30 mg/dL'), measure: M91 },
+    { name: 'มีชื่อช่องนำหน้า', sub: 'sCr เกินช่วงที่คำนวณได้ 0.1–30 mg/dL · อ่านบรรทัดเดียวรู้ว่าช่องไหน', apply: errSet('sCr เกินช่วงที่คำนวณได้ 0.1–30 mg/dL'), measure: M91 },
+    { name: 'สั้นที่สุด', sub: 'เกินช่วง 0.1–30 mg/dL', apply: errSet('เกินช่วง 0.1–30 mg/dL'), measure: M91 },
+    { name: 'ขึ้นต้นด้วยกรณีแล้วทวิภาค', sub: 'sCr > 30 mg/dL: เกินช่วงที่คำนวณได้ · แบบเดียวกับหมายเหตุ ส่วนสูง < 152 cm: · ค่าต่ำกว่าช่วงขึ้น sCr < 0.1 mg/dL:', apply: errSet('sCr > 30 mg/dL: เกินช่วงที่คำนวณได้'), measure: M91 },
+    { name: 'บอกช่วงอย่างเดียว', sub: 'ช่วงที่คำนวณได้ 0.1–30 mg/dL · ช่องเป็นสีแดงอยู่แล้ว ไม่ต้องบอกว่าเกิน', apply: errSet('ช่วงที่คำนวณได้ 0.1–30 mg/dL'), measure: M91 },
+  ],
+}, E9_CROP), Object.assign({
+  // พี่กันไม่เอาทั้งกลุ่ม 7 ต.ค. 2569 "9-2 ไท่เอานะ ไทยไม่ค่อยใช้่หน่วยนี้" · เก็บไว้ในหน้าตามกฎ ห้ามลบ
+  title: 'ไม่เอา เพราะไทยไม่ค่อยใช้หน่วย μmol/L (พี่กันบอก 7 ต.ค. 2569) · ตัวเลือก บอกให้ลองสลับหน่วย · ขึ้นเฉพาะตอนเลขเกิน 30 mg/dL แต่ยังอยู่ในช่วง μmol/L 9–2652 · ระบบไม่สลับหน่วยให้เอง · 45 μmol/L เท่ากับ 0.51 mg/dL',
+  said: E9_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  items: [
+    { name: 'แบบตอนนี้ ไม่มีคำแนะนำ', sub: 'ใต้บรรทัดแดงเป็นบรรทัดค่าอ้างอิงแบบปกติ' },
+    { name: 'แทนบรรทัดค่าอ้างอิง', sub: 'ถ้าเป็น μmol/L กดสลับหน่วย ตามด้วยลูกศรตัวเดียวกับปุ่มหน่วย สีเขียวน้ำทะเลแบบปุ่มหน่วย (แคลร์แนะนำ)', apply: unitHint({ text: HINT9 }), measure: M92 },
+    { name: 'ใต้บรรทัดแดง ค่าอ้างอิงยังอยู่', sub: 'เป็น 3 บรรทัด บรรทัดแดง คำแนะนำ แล้วค่าอ้างอิง', apply: unitHint({ text: HINT9, where: 'between' }), measure: M92 },
+    { name: 'บอกค่าที่จะได้หลังสลับ', sub: 'ถ้าเป็น μmol/L เท่ากับ 0.51 mg/dL กด ⇌ · คิดจากเลขที่กรอกหาร 88.4 แบบเดียวกับปุ่มสลับหน่วย', apply: unitHint({ text: 'ถ้าเป็น μmol/L เท่ากับ {mg} mg/dL <span style="white-space:nowrap">กด {ico}</span>' }), measure: M92 },
+    { name: 'กรอบเขียวที่ปุ่มหน่วย', sub: 'คำแนะนำแบบข้อ 2 กับปุ่มหน่วยเป็นกรอบเขียว ชี้ว่ากดตรงนี้', apply: unitHint({ text: HINT9, ring: true }), measure: M92 },
+    { name: 'สีเทาแบบค่าอ้างอิง', sub: 'คำแนะนำแบบข้อ 2 สีเทา ไม่แย่งสายตาจากบรรทัดแดง', apply: unitHint({ text: HINT9, grey: true }), measure: M92 },
+  ],
+}, E9_CROP), Object.assign({
+  title: 'ตัวเลือก กล่องแดงในส่วน CrCl ตอนมีช่องเกินขอบเขต · บอกชื่อช่องที่เกิน เรียงตามช่องกรอก · ตัวหนังสือในกล่องแดงขนาดเดิม (พี่กันสั่งคงไว้ 5 ต.ค. 2569)',
+  said: E9_SAID,
+  cropSel: '.cx-crcl', cropEnd: '.cx-crcl',
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ', apply: crclErr('ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ'), measure: M93 },
+    { chosen: true, name: 'บอกว่าทำไมคำนวณไม่ได้', sub: 'คำนวณไม่ได้ เพราะ sCr เกินขอบเขต · แบบเดียวกับบรรทัด eGFR (แคลร์แนะนำ)', apply: crclErr('คำนวณไม่ได้ เพราะ sCr เกินขอบเขต'), measure: M93 },
+    { name: 'ชื่อช่องแล้วกรุณาตรวจสอบ', sub: 'sCr เกินขอบเขต กรุณาตรวจสอบ', apply: crclErr('sCr เกินขอบเขต กรุณาตรวจสอบ'), measure: M93 },
+    { chosen: true, name: 'ตัวอย่างข้อ 2 ตอนเกินสองช่อง', sub: 'คำนวณไม่ได้ เพราะ sCr และ Weight เกินขอบเขต · ดูว่ายังอยู่บรรทัดเดียวไหม', apply: crclErr('คำนวณไม่ได้ เพราะ sCr และ Weight เกินขอบเขต'), measure: M93 },
+    { chosen: true, name: 'ตัวอย่างข้อ 2 ตอนเกินทุกช่อง', sub: 'คำนวณไม่ได้ เพราะ Age sCr Weight และ Height เกินขอบเขต · แบบภาพ 11 กับ 12', apply: crclErr('คำนวณไม่ได้ เพราะ Age sCr Weight และ Height เกินขอบเขต'), measure: M93 },
+    { name: 'ไม่มีกล่องแดง แบบภาพ 1', sub: 'คำนวณไม่ได้ ตัวเทาแทนตัวเลข แล้วบรรทัดเล็ก เพราะ sCr เกินขอบเขต · ช่องที่เกินเป็นสีแดงอยู่แล้ว', apply: (root) => { const a = root.querySelector('.cx-crcl .cx-alert'); if (a) a.outerHTML = '<div class="cx-big"><span class="cx-none">คำนวณไม่ได้</span></div><p class="cx-hint">เพราะ sCr เกินขอบเขต</p>'; }, measure: linesOf('.cx-crcl .cx-hint') },
+  ],
+}, E9_CROP), Object.assign({
+  title: 'ตัวเลือก บรรทัด eGFR ตอนคำนวณไม่ได้ · บอกเฉพาะช่องที่เกินจริง แทน sCr หรืออายุ · BMI ใช้แบบเดียวกัน (Weight หรือ Height)',
+  said: E9_SAID,
+  cropSel: '.cx-egfr', cropEnd: '.cx-egfr',
+  items: [
+    { name: 'แบบก่อนเลือก', sub: 'คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต', apply: egfrErr('คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต'), measure: M94 },
+    { name: 'บอกช่องที่เกินจริง', sub: 'คำนวณไม่ได้ เพราะ sCr เกินขอบเขต · คำเดียวกับกล่อง CrCl 9-3 ข้อ 2 (แคลร์แนะนำ)', apply: egfrErr('คำนวณไม่ได้ เพราะ sCr เกินขอบเขต'), measure: M94 },
+    { chosen: true, name: 'กล่องแดงแบบส่วน CrCl', sub: 'คำนวณไม่ได้ เพราะ sCr เกินขอบเขต ในกล่องแดง ทั้งสองส่วนหน้าตาเดียวกัน', apply: (root) => { const p = root.querySelector('.cx-egfr .cx-hint'); const a = root.querySelector('.cx-crcl .cx-alert'); if (p && a) { const c = a.cloneNode(true); c.querySelector('span').textContent = 'คำนวณไม่ได้ เพราะ sCr เกินขอบเขต'; p.replaceWith(c); } }, measure: linesOf('.cx-egfr .cx-alert') },
+    { name: 'ไม่บอกเหตุผล', sub: 'คำนวณไม่ได้ · เหตุผลอยู่ที่ช่องสีแดงกับส่วน CrCl แล้ว', apply: egfrErr('คำนวณไม่ได้'), measure: M94 },
+  ],
+}, E9_CROP)];
+
+// ภาพที่ 13 หน่วยอื่น · ข้อความบรรยายต้องเปลี่ยนหน่วยตามช่องที่สลับ (พี่กันสั่ง 7 ต.ค. 2569)
+// แต่ละกลุ่มสลับหน่วยช่องเดียว ช่องอื่นเป็นหน่วยหลัก เพราะข้อความแต่ละบรรทัดขึ้นกับหน่วยของช่องตัวเองช่องเดียว สลับหลายช่องพร้อมกันก็เปลี่ยนตามช่องใครช่องมัน
+// ตัวเลขแปลงด้วยตัวคูณเดียวกับปุ่มสลับหน่วย (μmol/L = mg/dL × 88.4 · lb = kg × 2.20462 · in = cm ÷ 2.54) · เกณฑ์ที่ระบบใช้ตัดสินไม่เปลี่ยน
+// คำพี่กันแก้ตัวสะกดให้ถูกแล้ว ความหมายเดิม (พี่กันสั่ง "ประโยคที่เธอเอาจากเราไปเขียนใหม่ แก้ตัวสะกดเราให้ถูกด้วยสิ จะคงอันเขียนผิดทำไม" 7 ต.ค. 2569)
+const U13_SAID = 'ไม่เอาออก เพราะถ้าที่ รพ. อื่นมีหน่วยแปลกมา งงแน่นอน มีเผื่อไว้น่ะ · ดังนั้น ตามข้อ 1 2 ต้องเปลี่ยนหน่วยที่ตัวบรรยายด้วย ทำมอคอัปมาทุก scenario ที่เกิด';
+const U13_CROP = { cropW: 320, padTop: 6, padBottom: 5, newNum: true, flagNew: true };
+const f1u = (v) => v.toFixed(1);
+
+// 13-1 บรรทัดค่าอ้างอิงใต้ช่อง sCr ตอนหน่วย μmol/L · โครงเดียวกับ crRefMsg ของฉบับร่าง เปลี่ยนแค่ตัวเลขกับหน่วย
+const UMOL_FMT = { int: (v) => String(Math.round(v * 88.4)), d1: (v) => (v * 88.4).toFixed(1) };
+const refUmol = (fmt) => (root, box) => {
+  const m = root.querySelector('[data-msg="scrref"]'); if (!m || !box) return;
+  const r = box.r, male = box.st.sex === 'male', f = UMOL_FMT[fmt];
+  const M = [f(0.7), f(1.2)], F = [f(0.5), f(1.0)];
+  m.className = 'cx-msg mute';
+  if (r.crRef === 'low' || r.crRef === 'high') {
+    const hi = r.crRef === 'high';
+    const w = hi ? '<b class="cx-hl hi">High</b>' : '<b class="cx-hl lo">Low</b>';
+    const range = ([lo, up]) => (hi ? `${lo}–${up} ${w}` : `${w} ${lo}–${up}`);
+    m.innerHTML = `<span><span class="cx-tight"><span class="sr">sCr ${hi ? 'สูง' : 'ต่ำ'}กว่าค่าอ้างอิง </span><span class="cx-ref${male ? ' on' : ''}">ชาย ${male ? range(M) : M.join('–')}</span> <span class="cx-ref${male ? '' : ' on'}">หญิง ${male ? F.join('–') : range(F)}</span> μmol/L</span></span>`;
+  } else if (r.crRef === 'ok') {
+    m.innerHTML = `<span><span class="cx-ref${male ? ' on' : ''}">ชาย ${M.join('–')}</span> <span class="cx-ref${male ? '' : ' on'}">หญิง ${F.join('–')}</span> μmol/L</span>`;
+  } else {
+    m.innerHTML = `<span>ชาย ${M.join('–')} หญิง ${F.join('–')} μmol/L</span>`;
+  }
+};
+const U1_BASE = { age: '65', w: '70', h: '170', wu: 'kg', hu: 'cm', su: 'umol' };
+const U1_CASES = [
+  ['ยังไม่เลือกเพศ', { sex: '', scr: '80' }],
+  ['ชาย ปกติ', { sex: 'male', scr: '90' }],
+  ['หญิง ปกติ', { sex: 'female', scr: '70' }],
+  ['ชาย High', { sex: 'male', scr: '150' }],
+  ['ชาย Low', { sex: 'male', scr: '50' }],
+  ['หญิง High', { sex: 'female', scr: '120' }],
+  ['หญิง Low', { sex: 'female', scr: '35' }],
+];
+const M131 = linesOf('[data-msg="scrref"]');
+
+// 13-2 กล่องน้ำหนักที่ใช้กับตารางน้ำหนัก ตอนกรอกน้ำหนักเป็น lb · ค่าในกล่องแปลงจาก kg ที่ระบบคิด ทศนิยม 1 ตำแหน่งเท่าเดิม
+const LB = 2.20462;
+const wLb = (both) => (root, box) => {
+  const c = box && box.r.crcl; if (!c || !(c.state === 'full' || c.state === 'noheight')) return;
+  const kg = c.pick === 'A' ? c.w : c.pick === 'I' ? c.ibw : c.adj;
+  const name = c.pick === 'A' ? 'Actual BW' : c.pick === 'I' ? 'Ideal BW' : 'Adjusted BW';
+  const main = root.querySelector('.cx-basis-main');
+  if (main) main.textContent = `ใช้ ${name} ${f1u(kg * LB)} lb${both ? ` (${f1u(kg)} kg)` : ''}`;
+  const th = root.querySelectorAll('.cx-bw thead th')[1]; if (th) th.textContent = 'BW (lb)';
+  const vals = [c.w, c.ibw, c.adj];
+  root.querySelectorAll('.cx-bw tbody tr').forEach((tr, i) => {
+    const td = tr.querySelector('td'); if (td && td.colSpan === 1) td.textContent = f1u(vals[i] * LB);   // แถวที่เขียน N/A หรือกรุณากรอกส่วนสูงข้ามไป
+  });
+};
+const U2_CASES = [
+  ['ปกติ ใช้ Ideal BW', 'ชาย 65 ปี 154 lb 170 cm', { sex: 'male', age: '65', w: '154', h: '170', scr: '1.2' }],
+  ['ผอม ใช้ Actual BW', 'หญิง 78 ปี 90 lb 158 cm', { sex: 'female', age: '78', w: '90', h: '158', scr: '0.8' }],
+  ['อ้วน ใช้ Adjusted BW', 'ชาย 55 ปี 209 lb 165 cm', { sex: 'male', age: '55', w: '209', h: '165', scr: '1.1' }],
+  ['เตี้ย ใช้ Actual BW', 'หญิง 72 ปี 115 lb 148 cm', { sex: 'female', age: '72', w: '115', h: '148', scr: '1.0' }],
+  ['ไม่กรอกส่วนสูง ใช้ Actual BW', 'ชาย 60 ปี 128 lb', { sex: 'male', age: '60', w: '128', h: '', scr: '1.1' }],
+];
+const lbSt = (s) => Object.assign({ wu: 'lb', hu: 'cm', su: 'mgdl' }, s);
+const M132 = linesOf('.cx-crcl .cx-basis-main');
+
+// 13-3 หมายเหตุคนเตี้ยตอนกรอกส่วนสูงเป็น in · เกณฑ์ระบบคือต่ำกว่า 152 cm = 59.84 in · ช่องที่สลับจาก cm ให้ทศนิยม 1 ตำแหน่ง
+const shortNote = (html) => (root) => { const s = root.querySelector('.cx-crcl .cx-top ~ .cx-warnline span'); if (s) s.innerHTML = html; };
+const U3_ST = { sex: 'female', age: '72', w: '52', h: '58.3', scr: '1.0', wu: 'kg', hu: 'inch', su: 'mgdl' };
+const M133 = linesOf('.cx-crcl .cx-top ~ .cx-warnline');
+
+// แบ่งหมวดย่อยตามแบบที่ต้องเลือก (พี่กันสั่ง "เธอจัดหมวดดีๆหน่อย ... ถ้ามันกลุ่มเดียวกัน ก็ควรจะเเบ่งย่อยอีก" 7 ต.ค. 2569 · เดิมวางคู่สลับกัน 15 ข้อในแถวเดียว)
+const U1_ITEMS = (fmt) => U1_CASES.map(([n, s]) => ({ chosen: fmt === 'int', name: n, sub: `sCr ${s.scr} μmol/L`, apply: (root, box) => { box.setState(Object.assign({}, U1_BASE, s)); refUmol(fmt)(root, box); }, measure: M131 }));
+// ฉบับร่างใส่แบบ ก แล้ว (7 ต.ค. 2569) ภาพแบบตอนนี้จึงเขียนค่าอ้างอิง mg/dL ทับกลับให้เห็นหน้าตาก่อนเลือก
+const oldMgRef = (root) => { const m = root.querySelector('[data-msg="scrref"]'); if (m) { m.className = 'cx-msg mute'; m.innerHTML = '<span><span class="cx-ref on">ชาย 0.7–1.2</span> <span class="cx-ref">หญิง 0.5–1.0</span> mg/dL</span>'; } };
+OPTIONS[13] = [Object.assign({
+  title: 'ตัวเลือก บรรทัดค่าอ้างอิงใต้ช่อง sCr ตอนหน่วย μmol/L · แปลงจาก mg/dL × 88.4 · เลือกแบบ ก หรือ ข (พี่กันเลือกแบบ ก) · แต่ละแบบมีครบ 7 กรณี · ระบบยังตัดสิน High Low จาก mg/dL เหมือนเดิม',
+  said: U13_SAID,
+  cropSel: SCR_ROW, cropEnd: SCR_ROW,
+  sections: [
+    { label: 'แบบตอนนี้', note: 'กรอก μmol/L แต่ค่าอ้างอิงยังเป็น mg/dL', items: [
+      { name: 'ชาย ปกติ', sub: 'sCr 90 μmol/L', apply: (root, box) => { box.setState(Object.assign({}, U1_BASE, { sex: 'male', scr: '90' })); oldMgRef(root); }, measure: M131 },
+    ] },
+    { label: 'แบบ ก จำนวนเต็ม · ชาย 62–106 หญิง 44–88 μmol/L', note: 'ไม่ตรงหนึ่งค่า กรอก 44 ระบบนับเป็น Low ของหญิง (0.498 mg/dL) แต่บรรทัดบอกว่า 44 อยู่ในช่วง', items: U1_ITEMS('int') },
+    { label: 'แบบ ข ทศนิยม 1 ตำแหน่ง · ชาย 61.9–106.1 หญิง 44.2–88.4 μmol/L', note: 'กรอกเป็นจำนวนเต็มแล้วตรงกับที่ระบบตัดสินทุกค่า (ผลแล็บ μmol/L มักเป็นจำนวนเต็ม)', items: U1_ITEMS('d1') },
+  ],
+}, U13_CROP), Object.assign({
+  // แบ่งหมวดแบบเดียวกับ 13-1 (พี่กันสั่ง "13-2 แบ่งหมวดแบบ 13-1 ด้วย" 7 ต.ค. 2569 · เดิมวางคู่สลับกัน 11 ข้อ)
+  title: 'ตัวเลือก กล่องน้ำหนักที่ใช้กับตารางน้ำหนัก ตอนกรอกน้ำหนักเป็น lb · เลือกแบบ ก หรือ ข (พี่กันเลือกแบบ ก) · แต่ละแบบมีครบ 5 กรณี · ตารางเป็น lb ทั้งสองแบบ · หมายเหตุใต้ตาราง BMI และสูตรในกล่อง Devine Formula ยังเป็น kg เพราะสูตรคิดเป็น kg',
+  said: U13_SAID,
+  cropSel: '.cx-crcl .cx-top', cropEnd: '.cx-crcl .cx-bw',
+  sections: [
+    { label: 'แบบตอนนี้', note: 'กรอก lb แต่กล่องกับตารางเป็น kg', items: [
+      // ฉบับร่างใส่แบบ ก แล้ว (7 ต.ค. 2569) ภาพนี้วาดผลใหม่โดยไม่บอกหน่วย ได้ kg แบบก่อนเลือก
+      { name: 'ปกติ ใช้ Ideal BW', sub: U2_CASES[0][1], apply: (root, box) => { box.setState(lbSt(U2_CASES[0][2])); box.r.units = null; box.results.innerHTML = NOW.render.resultsHTML(box.r, box.layout); }, measure: M132 },
+    ] },
+    { label: 'แบบ ก lb อย่างเดียว · เช่น ใช้ Ideal BW 145.4 lb', note: 'กล่องกับตารางเป็น lb · ตกเป็น 2 บรรทัดตอนเลข lb 3 หลักกับ Actual หรือ Adjusted (อ้วน เตี้ย ไม่กรอกส่วนสูง)', items: U2_CASES.map(([n, d, s]) => ({ chosen: true, name: n, sub: d, apply: (root, box) => { box.setState(lbSt(s)); wLb(false)(root, box); }, measure: M132 })) },
+    { label: 'แบบ ข lb แล้ว kg ในวงเล็บ · เช่น ใช้ Ideal BW 145.4 lb (65.9 kg)', note: 'กล่องบอกทั้งสองหน่วย ตารางเป็น lb · กล่องตก 2 บรรทัดทุกกรณี', items: U2_CASES.map(([n, d, s]) => ({ name: n, sub: d, apply: (root, box) => { box.setState(lbSt(s)); wLb(true)(root, box); }, measure: M132 })) },
+  ],
+}, U13_CROP), Object.assign({
+  title: 'ตัวเลือก หมายเหตุคนเตี้ยตอนกรอกส่วนสูงเป็น in · เกณฑ์ระบบคือต่ำกว่า 152 cm เท่ากับ 59.84 in · กรณีเดียวที่มีหน่วยส่วนสูงในข้อความ (ไม่กรอกส่วนสูงไม่มีหน่วย) · หญิง 72 ปี 58.3 in (148 cm)',
+  said: U13_SAID,
+  cropSel: '.cx-crcl .cx-top', cropEnd: '.cx-crcl .cx-top ~ .cx-warnline',
+  items: [
+    { name: 'แบบตอนนี้', sub: 'ส่วนสูง < 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง · กรอกเป็น in แต่หมายเหตุเป็น cm', apply: (root, box) => { box.setState(U3_ST); shortNote('ส่วนสูง &lt; 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง')(root); }, measure: M133 },
+    { chosen: true, name: 'เปลี่ยนเป็น in เครื่องหมายน้อยกว่า', sub: 'ส่วนสูง < 59.8 in: · ไม่ตรงที่ค่าพอดี กรอก 59.8 in (151.9 cm) ระบบนับว่าเตี้ย แต่ข้อความบอกว่าต้องต่ำกว่า 59.8', apply: (root, box) => { box.setState(U3_ST); shortNote('ส่วนสูง &lt; 59.8 in: อาจหลังค่อม CrCl อาจต่ำเกินจริง')(root); }, measure: M133 },
+    { name: 'เปลี่ยนเป็น in เครื่องหมายน้อยกว่าหรือเท่ากับ', sub: 'ส่วนสูง ≤ 59.8 in: · ตรงกับที่ระบบตัดสินเมื่อกรอกทศนิยม 1 ตำแหน่ง 59.8 เตี้ย 59.9 ไม่เตี้ย', apply: (root, box) => { box.setState(U3_ST); shortNote('ส่วนสูง ≤ 59.8 in: อาจหลังค่อม CrCl อาจต่ำเกินจริง')(root); }, measure: M133 },
+    { name: 'คงเกณฑ์ cm แล้วบอก in ในวงเล็บ', sub: 'ส่วนสูง < 152 cm (59.8 in): · เกณฑ์ต้นฉบับยังเห็นเป็น cm', apply: (root, box) => { box.setState(U3_ST); shortNote('ส่วนสูง &lt; 152 cm (59.8 in): อาจหลังค่อม CrCl อาจต่ำเกินจริง')(root); }, measure: M133 },
+  ],
+}, U13_CROP)];
+
+// 13-4 ต่อจาก 13-2 แบบ ก · กล่องน้ำหนักเคาะไว้ว่าบรรทัดเดียวทุกกรณี แต่เลข lb 3 หลักกับ Actual หรือ Adjusted ยาว 143.6 จุด ที่ในกล่องมี 139 จุด
+// แคลร์เลือกวิธีบีบเองตามที่ตาเห็นต่างกัน 2 ทาง (ไม่ทำตัวเลือกที่หน้าตาไม่ต่างกัน บันทึกคำด่า 5 ต.ค. 2569 (3))
+const LB_SAID = 'ก ไม่เอาวงเล็บ (กล่องน้ำหนักเคาะไว้ว่าบรรทัดเดียวทุกกรณี แคลร์บอกไว้ว่าเลือกแล้วจะทำตัวเลือกบีบให้อยู่บรรทัดเดียวต่อ)';
+// ขอบในกล่องแคบลงข้างละ 3 จุด ทุกหน่วย · คำขอให้กรอกส่วนสูงใต้กล่องขยับตามให้ยังตรงคำว่าใช้
+const tightBox = (root) => addCss(root, '.cx-crcl .cx-top .cx-basis{padding-left:3px;padding-right:3px}.cx-crcl .cx-rcol .cx-warnline.nh{padding-left:4px}');
+// เลข lb ไม่มีทศนิยม ทั้งกล่องและตาราง (ปุ่มสลับหน่วยก็ปัด lb เป็นจำนวนเต็ม)
+const lbInt = (root, box) => {
+  const c = box && box.r.crcl; if (!c || !(c.state === 'full' || c.state === 'noheight')) return;
+  const kg = c.pick === 'A' ? c.w : c.pick === 'I' ? c.ibw : c.adj;
+  const name = c.pick === 'A' ? 'Actual BW' : c.pick === 'I' ? 'Ideal BW' : 'Adjusted BW';
+  const main = root.querySelector('.cx-basis-main'); if (main) main.textContent = `ใช้ ${name} ${Math.round(kg * LB)} lb`;
+  const vals = [c.w, c.ibw, c.adj];
+  root.querySelectorAll('.cx-bw tbody tr').forEach((tr, i) => { const td = tr.querySelector('td'); if (td && td.colSpan === 1) td.textContent = String(Math.round(vals[i] * LB)); });
+};
+const U4_LONG = U2_CASES.slice(2);   // อ้วน เตี้ย ไม่กรอกส่วนสูง ตัวที่ตก 2 บรรทัด
+OPTIONS[13].push(Object.assign({
+  title: 'ตัวเลือก ให้กล่องน้ำหนักที่ใช้อยู่บรรทัดเดียวตอนช่อง Weight เป็น lb · ต่อจาก 13-2 แบบ ก · ข้อความยาวสุด 143.6 จุด ที่ในกล่องมี 139 จุด ขาด 4.6 จุด · เลือกแบบ ก หรือ ข (พี่กันเลือกแบบ ก)',
+  said: LB_SAID,
+  cropSel: '.cx-crcl .cx-top', cropEnd: '.cx-crcl .cx-bw',
+  sections: [
+    { label: 'แบบตอนนี้', note: 'เลข lb 3 หลักกับ Actual หรือ Adjusted ตก 2 บรรทัด', items: U4_LONG.map(([n, d, s]) => ({ name: n, sub: d, apply: (root, box) => box.setState(lbSt(s)), measure: M132 })) },
+    { label: 'แบบ ก ขอบในกล่องแคบลงข้างละ 3 จุด ทุกหน่วย · ตัวหนังสือขนาดเดิม', note: 'ข้อสุดท้ายเป็น kg ให้เห็นว่ากล่องหน่วย kg เปลี่ยนด้วย · คำว่า กรุณากรอกส่วนสูง ขยับตามให้ยังตรงคำว่าใช้',
+      items: U4_LONG.map(([n, d, s]) => ({ chosen: true, name: n, sub: d, apply: (root, box) => { box.setState(lbSt(s)); tightBox(root); }, measure: M132 }))
+        .concat([{ chosen: true, name: 'ปกติ หน่วย kg', sub: 'ชาย 65 ปี 70 kg 170 cm', apply: (root, box) => { box.setState(S.normal); tightBox(root); }, measure: M132 }]) },
+    { label: 'แบบ ข เลข lb ไม่มีทศนิยม เช่น ใช้ Actual BW 115 lb · กล่องกับตาราง', note: 'ปุ่มสลับหน่วยก็ปัด lb เป็นจำนวนเต็มอยู่แล้ว · ระบบยังคิดจากค่าเต็ม หน่วย kg ยังมีทศนิยม 1 ตำแหน่งเหมือนเดิม',
+      items: U2_CASES.map(([n, d, s]) => ({ name: n, sub: d, apply: (root, box) => { box.setState(lbSt(s)); lbInt(root, box); }, measure: M132 })) },
+  ],
+}, U13_CROP));
+
+// ภาพที่ 14 แผงเลือกขอบเปิดอยู่ (พี่กันสั่ง "ทำภาพ 14 ต่อ" 7 ต.ค. 2569) · ทุกแบบเปิดแผงในกล่องจริงแล้วตัดตั้งแต่หัวกล่องถึงท้ายแผง
+const E14_SAID = 'ทำภาพ 14 ต่อ';
+const E14_CROP = { cropSel: '.cx-head', cropEnd: '.cx-pop', cropW: 320, padTop: 6, padBottom: 8, newNum: true, flagNew: true, newPad: true };
+// ภาพตัวเลือกภาพ 14 คงหน้าตาตอนเสนอ หัวแผงชิดซ้าย (ก่อนแบบ 14-1 ข้อ 2) และไม่มีป้าย ตอนนี้ ของฉบับร่าง (ก่อนแบบ 14-2 ข้อ 3)
+const hideNow = (root) => addCss(root, '.cx-edge-now{display:none}');
+const popLeft = (root) => { addCss(root, '.cx-pop .cx-pop-t{text-align:left}'); hideNow(root); };
+const popTitle = (t) => (root) => { const p = root.querySelector('.cx-pop .cx-pop-t'); if (!p) return; if (t === null) p.remove(); else p.textContent = t; };
+// ป้ายบนรูปจอ วางกลางแต่ละชิ้น (ชิ้นคางหมูตัดด้วย clip-path ตัวหนังสือในปุ่มจะโดนตัด จึงวางเป็นชั้นลอยบนจอ ไม่รับเมาส์)
+const EDGE_POS = { top: ['50%', '17%'], bottom: ['50%', '83%'], left: ['16%', '50%'], right: ['84%', '50%'] };
+const EDGE_TH = { top: 'บน', bottom: 'ล่าง', left: 'ซ้าย', right: 'ขวา' };
+const edgeLabels = (mode) => (root) => {
+  const scr = root.querySelector('.cx-pop .cx-scr'); if (!scr) return;
+  const curBtn = root.querySelector('.cx-pop .cx-edge[aria-current="true"]'); const cur = curBtn ? curBtn.dataset.edge : '';
+  for (const [e, [x, y]] of Object.entries(EDGE_POS)) {
+    const isCur = e === cur;
+    const html = mode === 'all' ? EDGE_TH[e] : mode === 'cur' ? (isCur ? 'ตอนนี้' : '') : (isCur ? `${EDGE_TH[e]}<br><small style="font-weight:600;font-size:9.5px">ตอนนี้</small>` : EDGE_TH[e]);
+    if (!html) continue;
+    const s = document.createElement('span');
+    s.innerHTML = html;
+    s.style.cssText = `position:absolute;left:${x};top:${y};z-index:2;transform:translate(-50%,-50%);pointer-events:none;text-align:center;font:700 11px/1.15 var(--font-sarabun),sans-serif;color:${isCur ? '#fff' : 'var(--accent-ink)'}`;
+    scr.appendChild(s);
+  }
+};
+OPTIONS[14] = [Object.assign({
+  // หัวกลุ่มเขียนตรง ๆ ว่าเสนออะไร (พี่กันสั่ง "ก้เขียนมาตรงๆสิว่าเสนอคำพูด มาเขียน ตัวเลือก หัวแผงเลือกขอบ · ตอนนี้ ย้ายกล่องไปติดขอบ เราต้องแปลเป้นไทย เเถมงงอีก" 7 ต.ค. 2569)
+  title: 'เสนอคำพูดบนหัวแผง (บรรทัดเหนือรูปจอ) · ตอนนี้เขียนว่า ย้ายกล่องไปติดขอบ',
+  said: E14_SAID,
+  // ฉบับร่างเปลี่ยนเป็น เลือกขอบจอ กึ่งกลางแล้ว (7 ต.ค. 2569) ภาพในกลุ่มนี้ใส่คำเดิมและชิดซ้ายกลับ ให้เห็นหน้าตาตอนเลือก
+  items: [
+    { name: 'แบบตอนนี้', sub: 'ย้ายกล่องไปติดขอบ', apply: (root) => { popTitle('ย้ายกล่องไปติดขอบ')(root); popLeft(root); } },
+    { chosen: true, name: 'บอกว่าเลือกอะไร', sub: 'เลือกขอบจอ · พี่กันให้ย้ายคำไปกึ่งกลาง', apply: (root) => { popTitle('เลือกขอบจอ')(root); popLeft(root); } },
+    { name: 'บอกว่าต้องทำอะไร', sub: 'กดขอบที่จะย้ายไป', apply: (root) => { popTitle('กดขอบที่จะย้ายไป')(root); popLeft(root); } },
+    { name: 'สั้นที่สุด', sub: 'ย้ายไปขอบ', apply: (root) => { popTitle('ย้ายไปขอบ')(root); popLeft(root); } },
+    { name: 'ไม่มีหัว', sub: 'แผงเหลือแค่รูปจอ เตี้ยลง · ชื่อแผงยังมีให้โปรแกรมอ่านจอ', apply: (root) => { popTitle(null)(root); hideNow(root); } },
+  ],
+}, E14_CROP), Object.assign({
+  title: 'เสนอใส่ป้ายบนรูปจอ ให้รู้ว่าชิ้นไหนคือขอบไหน · ตอนนี้ไม่มีป้าย ขอบที่กล่องติดอยู่เป็นสีเข้ม · ในภาพกล่องติดขอบขวา',
+  said: E14_SAID,
+  items: [
+    { name: 'แบบตอนนี้ ไม่มีป้าย', sub: 'ขอบที่ติดอยู่สีเข้ม ขอบอื่นสีอ่อน', apply: hideNow },
+    { name: 'ป้ายทุกขอบ', sub: 'บน ล่าง ซ้าย ขวา กลางแต่ละชิ้น', apply: (root) => { hideNow(root); edgeLabels('all')(root); } },
+    { chosen: true, name: 'ป้ายเฉพาะขอบที่ติดอยู่', sub: 'ชิ้นสีเข้มเขียนว่า ตอนนี้', apply: (root) => { hideNow(root); edgeLabels('cur')(root); } },
+    { name: 'ป้ายทุกขอบ และบอกขอบที่ติดอยู่', sub: 'บน ล่าง ซ้าย · ชิ้นสีเข้มเขียนว่า ขวา ตอนนี้', apply: (root) => { hideNow(root); edgeLabels('both')(root); } },
+  ],
+}, E14_CROP), {
+  title: 'ไม่ใช้ พี่กันกำหนดเอง ชี้ขอบไหนขึ้นชื่อขอบนั้น ขอบบน ขอบล่าง ขอบซ้าย ขอบขวา (7 ต.ค. 2569) · เสนอคำพูดที่ขึ้นตอนเอาเมาส์ชี้ขอบในรูปจอ (โปรแกรมอ่านจอก็อ่านคำนี้) · ตอนนี้ขอบอื่นเขียนว่า ย้ายไปติดขอบบน ขอบที่กล่องติดอยู่เขียนว่า ติดขอบขวาอยู่ตอนนี้',
+  said: E14_SAID,
+  list: [
+    { from: 'ย้ายไปติดขอบบน', to: 'ย้ายไปขอบบน', why: 'ตัดคำว่าติด สั้นลง ความหมายเท่าเดิม · ล่าง ซ้าย ขวาเหมือนกัน' },
+    { from: 'ติดขอบขวาอยู่ตอนนี้', to: 'ตอนนี้อยู่ขอบขวา', why: 'ขึ้นต้นด้วยตอนนี้ แบบเดียวกับปุ่มอื่นบนหัวกล่อง เช่น ตอนนี้เป็นแผงแคบ กดเพื่อสลับเป็นแผงกว้าง' },
+    { from: 'ติดขอบขวาอยู่ตอนนี้', to: 'ติดขอบขวาอยู่แล้ว', why: 'บอกว่ากดไปก็ไม่ย้าย เพราะอยู่ตรงนี้แล้ว' },
+    { from: 'ย้ายไปติดขอบบน', to: 'ย้ายกล่องไปขอบบน', why: 'บอกว่าอะไรย้าย ถ้าเลือกหัวแผงแบบไม่มีหัว คำนี้จะเป็นคำเดียวที่บอกว่าแผงนี้ทำอะไร' },
+  ],
+}];
+
 // ตัวเลือกที่ดูแค่สัญลักษณ์ ไม่วาดทั้งกล่อง · ปุ่มหน่วยขนาดจริงจากสไตล์ฉบับร่าง กับสัญลักษณ์ขยาย
 const ICO = new CSSStyleSheet();
 ICO.replaceSync('.ico-g{margin:0 0 6px;color:#7a5106;font:700 13px/1.4 var(--font-sarabun),sans-serif}'
@@ -1673,8 +1954,20 @@ function buildOptions(fig, o, after, spec) {
     fig.insertBefore(blk, fig.querySelector('.hist'));
     return;
   }
-  const rowEl = blk.querySelector('.opts-row');
-  for (const it of spec.items) {
+  // กลุ่มที่มีหลายแบบแต่ละแบบหลายกรณี แบ่งเป็นหมวดย่อย หมวดละแถว มีหัวหมวดบอกว่าเลือกอะไร
+  // (พี่กันสั่ง "เธอจัดหมวดดีๆหน่อย เธอเอามาให้เราดู 15 ข้อ เเล้วเราจะเลือกอะไร ถ้ามันกลุ่มเดียวกัน ก็ควรจะเเบ่งย่อยอีก" 7 ต.ค. 2569)
+  // เลขแต่ละแบบนับต่อกันทั้งกลุ่ม อ้างได้ว่า 13-1 ข้อ 5 เหมือนเดิม
+  const row0 = blk.querySelector('.opts-row');
+  const secs = spec.sections || [{ items: spec.items }];
+  if (spec.sections) row0.remove();
+  for (const sec of secs) {
+  let rowEl = row0;
+  if (spec.sections) {
+    const h = document.createElement('p'); h.className = 'opts-sec'; h.textContent = sec.label; blk.appendChild(h);
+    if (sec.note) { const q = document.createElement('p'); q.className = 'opts-secq'; q.textContent = sec.note; blk.appendChild(q); }
+    rowEl = document.createElement('div'); rowEl.className = 'opts-row'; blk.appendChild(rowEl);
+  }
+  for (const it of sec.items) {
     const col = document.createElement('div');
     col.innerHTML = '<p class="col-t mark"></p><p class="opt-sub"></p>';
     col.children[0].textContent = it.name + (it.chosen ? ' · พี่กันเลือกแบบนี้' : '');
@@ -1701,6 +1994,7 @@ function buildOptions(fig, o, after, spec) {
     if (!spec.newNum) root.adoptedStyleSheets = [...root.adoptedStyleSheets, OLDNUM];
     if (!spec.newNum || spec.msg12) root.adoptedStyleSheets = [...root.adoptedStyleSheets, MSG12];
     if (!spec.flagNew) root.adoptedStyleSheets = [...root.adoptedStyleSheets, NOFLAG];
+    if (!spec.newPad) root.adoptedStyleSheets = [...root.adoptedStyleSheets, OLDPAD];
     if (it.apply) it.apply(root, box);
     // ตัดเฉพาะส่วน eGFR กับ BMI · วัดหลังฟอนต์โหลด (ตัวจับเวลา ไม่พึ่งจังหวะวาดจอ แท็บที่ซ่อนก็ทำงาน)
     if (spec.pairCrop || spec.cropSel) {
@@ -1716,6 +2010,7 @@ function buildOptions(fig, o, after, spec) {
       };
       (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(fit, 60));
     }
+  }
   }
   fig.insertBefore(blk, fig.querySelector('.hist'));
 }
@@ -1855,7 +2150,47 @@ const HISTORY = {
     { date: '5 ต.ค. 2569', what: 'ข้อความใต้ช่อง sCr ตอนต่ำกว่าค่าอ้างอิง แบบ Low ทำตัวเลือก 8 แบบใต้แถวนี้ (กลุ่ม 10-1) คู่กับกลุ่ม 7-4 ข้อต่อข้อ สีส้ม #ea580c', said: LOW_SAID },
   ],
   8: [
+    { date: '6 ต.ค. 2569', what: 'พี่กันดูแล้วผ่าน ไม่แก้', said: 'ภาพ 8 อันนี้ ok ไม่แก้' },
     { date: '4 ต.ค. 2569', what: 'ค่าอ้างอิง Cr ตอนยังไม่เลือกเพศ เปลี่ยนตามภาพที่ 1 เหลือบรรทัดเดียว', said: '' },
+  ],
+  9: [
+    { date: '7 ต.ค. 2569', what: 'พี่กันดูแล้วเอาแบบ 9-4 ข้อ 3 กล่องแดงทั้ง eGFR กับ BMI ตามที่ลองไว้ · ภาพ 9 เกลาครบทั้ง 4 กลุ่ม (9-1 ข้อ 2 · 9-2 ไม่เอา · 9-3 ข้อ 2 · 9-4 ข้อ 3)', said: 'เราโอเครนะ เอาตามนี้' },
+    { date: '7 ต.ค. 2569', what: 'ลองแบบ 9-4 ข้อ 3 ให้พี่กันดู eGFR ตอนคำนวณไม่ได้เป็นกล่องแดงแบบส่วน CrCl คำนวณไม่ได้ เพราะ sCr เกินขอบเขต บอกเฉพาะช่องที่ใช้คิด eGFR (Age sCr) · BMI แบบเดียวกัน บอกเฉพาะ Weight Height (ฉบับร่าง render.js errBox · เดิมบรรทัดเทา คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต) · ภาพ 11 12 กับแผงกว้างเปลี่ยนตาม', said: 'ลองเอา 3 ก่อน เราจะดู (ก่อนหน้านั้นถาม 3 ใช่มะ)' },
+    { date: '7 ต.ค. 2569', what: 'พี่กันเลือกแบบ 9-3 ข้อ 2 (รวมข้อ 4 กับ 5 ตอนเกินหลายช่อง) กล่องแดงในส่วน CrCl เป็น คำนวณไม่ได้ เพราะ sCr เกินขอบเขต · ชื่อช่องเปลี่ยนตามช่องที่เกิน เรียงตามช่องกรอก Age sCr Weight Height · เกินหลายช่องตก 2 บรรทัดได้ (ฉบับร่าง render.js) · ภาพ 11 12 กับแผงกว้างเปลี่ยนตาม', said: 'เอาตาม 2 4 5 ให้สองบันทัดได้ (ก่อนหน้านั้นถาม 9-3 แปลว่า 2 4 5 คืออันเดียวกันใช่มะ)' },
+    { date: '7 ต.ค. 2569', what: 'กลุ่ม 9-2 บอกให้ลองสลับหน่วย ไม่เอาทั้งกลุ่ม ฉบับร่างไม่เปลี่ยน · ตัวเลือกเก็บไว้ในหน้า ใส่หัวว่าไม่เอาเพราะอะไร', said: '9-2 ไท่เอานะ ไทยไม่ค่อยใช้่หน่วยนี้' },
+    { date: '7 ต.ค. 2569', what: 'พี่กันเลือกแบบ 9-1 ข้อ 2 ข้อความใต้ช่องตอนเกินขอบเขตเป็น เกินช่วงที่คำนวณได้ 0.1–30 mg/dL · ค่าต่ำกว่าช่วงขึ้น ต่ำกว่าช่วงที่คำนวณได้ · ใช้กับทุกช่องทุกหน่วย Age 15–110 ปี sCr 0.1–30 mg/dL 9–2652 μmol/L Weight 20–200 kg 44–441 lb Height 100–230 cm 40–91 in (ฉบับร่าง calc.js · เดิมตาม lang.js ของ TB calc) · ภาพ 11 12 กับแผงกว้างเปลี่ยนตาม · ขอบเขตเท่าเดิม', said: '9-1 เอาข้อ 2' },
+    { date: '6 ต.ค. 2569', what: 'แคลร์เสนอเกลา 4 จุด ทำตัวเลือกใต้แถวนี้ บรรทัดแดงใต้ช่อง sCr (กลุ่ม 9-1) · บอกให้ลองสลับหน่วย (9-2) · กล่องแดงส่วน CrCl (9-3) · บรรทัด eGFR (9-4)', said: E9_SAID },
+  ],
+  14: [
+    { date: '7 ต.ค. 2569', what: 'ชี้ชิ้นที่ไม่ใช่ขอบปัจจุบันแล้ว ชื่อขอบขึ้นกลางชิ้นทันที ขอบบน ขอบล่าง ขอบซ้าย ขอบขวา แบบป้ายของ 14-2 ข้อ 2 เติมคำว่าขอบ · กด Tab มาที่ชิ้นก็ขึ้น · เอาป้ายของ Chrome ที่ขึ้นช้าออก (ฉบับร่าง box.js box.css .cx-edge-lab · เดิมขึ้นชื่อขอบเป็นป้ายของ Chrome) · ชิ้นสีเขียวยังเป็น ตอนนี้', said: 'ไม่ขึ้นแบบนี้สิ ขึ้นสีเลยสิ มาขึ้นแบบนี้โคตรช้า · ภาพสอง เธอก็มีเสนอแล้วนี่ แค่ใส่คำว่า ขอบ (ส่งภาพป้ายของ Chrome ขอบซ้าย กับภาพแบบ 14-2 ข้อ 2)' },
+    { date: '7 ต.ค. 2569', what: 'พี่กันเลือกแบบ 14-2 ข้อ 3 ชิ้นสีเขียว (ขอบที่กล่องติดอยู่) มีป้าย ตอนนี้ กลางชิ้น (ฉบับร่าง box.js box.css .cx-edge-now) · ชี้ขอบไหนขึ้นชื่อขอบนั้น ขอบบน ขอบล่าง ขอบซ้าย ขอบขวา (เดิม ย้ายไปติดขอบบน · ติดขอบขวาอยู่ตอนนี้) · ชื่อสำหรับโปรแกรมอ่านจอยังบอกว่ากดแล้วทำอะไร · ตัวเลือกคำกลุ่ม 14-3 ของแคลร์เก็บไว้ ใส่หัวว่าไม่ใช้', said: 'งั้น บอกไว้ ว่าเขียวคืออะไร แต่ถ้าเอาเมาส์ไปชี้ปุ่มว่าง มันก็ควรขึ้นบอกนะ แบบ ขอบบน ขอบขวา ขอบซ้าย บลา ๆ · เข้าใจอะไรผิดปะ เอาอันนี้ (ส่งภาพแบบ 14-2 ข้อ 3) · เราเข้าใจว่า 14-2 ภาพ 3 คือ 14-3 เราเลยบอก 14-3' },
+    { date: '7 ต.ค. 2569', what: 'พี่กันพิมพ์ 14-3 หมายถึงภาพที่ 3 ของกลุ่ม 14-2 แคลร์อ่านเป็นกลุ่ม 14-3 คำตอนชี้ เลยไม่ใส่ป้าย แล้วเขียนคำอธิบายสีเขียวลงคำตอนชี้แทน · แก้แล้วในบรรทัดบน', said: '14-2 เธอว่าไง ควรมีไหม คนใช้จะเข้าใจอยู่ไหมนะ แม้ไม่มีบอก · 14-3 งั้น บอกไว้ ว่าเขียวคืออะไร' },
+    { date: '7 ต.ค. 2569', what: 'พี่กันเลือกแบบ 14-1 ข้อ 2 หัวแผงเลือกขอบเป็น เลือกขอบจอ อยู่กึ่งกลาง (ฉบับร่าง box.js box.css · เดิม ย้ายกล่องไปติดขอบ ชิดซ้าย) · ชื่อแผงสำหรับโปรแกรมอ่านจอยังเป็น เลือกขอบที่จะย้ายกล่องไปติด · ภาพแผงข้างกับแผงกว้างที่เปิดแผงนี้เปลี่ยนตาม', said: 'เอาอันนี้ และเอาคำว่า เลือกขอบจอ อยู่กึ่งกลาง (ส่งภาพแบบ 14-1 ข้อ 2)' },
+    { date: '7 ต.ค. 2569', what: 'หัวกลุ่ม 14-1 ถึง 14-3 เขียนใหม่ให้บอกตรง ๆ ว่าเสนออะไร เช่น เสนอคำพูดบนหัวแผง (บรรทัดเหนือรูปจอ) · เดิม ตัวเลือก หัวแผงเลือกขอบ · ตอนนี้ ย้ายกล่องไปติดขอบ', said: 'อันนี้คือเธอเสนอแค่คำพูดใช่ไหม ก็เขียนมาตรง ๆ สิว่าเสนอคำพูด มาเขียน ตัวเลือก หัวแผงเลือกขอบ · ตอนนี้ ย้ายกล่องไปติดขอบ เราต้องแปลเป็นไทย แถมงงอีก' },
+    { date: '7 ต.ค. 2569', what: 'ทำตัวเลือกใต้แถวนี้ หัวแผงเลือกขอบ 5 แบบ (กลุ่ม 14-1) · ป้ายบนรูปจอ 4 แบบ (14-2) · คำตอนชี้เมาส์ที่ขอบ เป็นรายการคำ (14-3)', said: E14_SAID },
+  ],
+  13: [
+    { date: '7 ต.ค. 2569', what: 'แบบ 13-3 ข้อ 2 ช่อง Height เป็น in หมายเหตุคนเตี้ยเป็น ส่วนสูง < 59.8 in: อาจหลังค่อม CrCl อาจต่ำเกินจริง · cm เหมือนเดิม (ฉบับร่าง render.js basisHTML · 59.8 คิดจาก 152 ÷ 2.54) · พี่กันให้เลือกแบบที่ใช้กันปกติ แคลร์เลือกเครื่องหมายน้อยกว่าแบบเดียวกับเกณฑ์ต้นฉบับ < 152 cm · ระบบยังตัดสินจาก cm', said: 'อ๋อ เก็ต · แล้ว 13-3 เอาอันไหนดี 2 หรือ 3 ที่ต่างแค่เครื่องหมาย ปกติเขาใช้อันไหน เอาอันนั้น' },
+    { date: '7 ต.ค. 2569', what: 'พี่กันเลือกแบบ ก กลุ่ม 13-4 ขอบในซ้ายขวาของกล่องน้ำหนักที่ใช้ 6 เป็น 3 ทุกหน่วย ตัวหนังสือขนาดเดิม · คำขอ กรุณากรอกส่วนสูง เริ่ม 7 เป็น 4 ให้ยังตรงคำว่าใช้ (ฉบับร่าง box.css) · กล่อง lb เลข 3 หลักอยู่บรรทัดเดียวแล้ว · ทุกภาพที่มีกล่องนี้เปลี่ยนตาม ภาพตัวเลือกก่อนหน้าคงขอบเดิม (OLDPAD)', said: '13-4 เอา ก' },
+    { date: '7 ต.ค. 2569', what: 'กล่องน้ำหนักตอน lb ตก 2 บรรทัดเมื่อเลข lb 3 หลัก (อ้วน เตี้ย ไม่กรอกส่วนสูง) ขัดกับที่เคาะไว้ว่าบรรทัดเดียวทุกกรณี · ทำตัวเลือกใต้แถวนี้ (กลุ่ม 13-4) แบบ ก ขอบในกล่องแคบลงข้างละ 3 จุด · แบบ ข เลข lb ไม่มีทศนิยม', said: LB_SAID },
+    { date: '7 ต.ค. 2569', what: 'พี่กันเลือกแบบ ก กลุ่ม 13-2 ช่อง Weight เป็น lb กล่องน้ำหนักที่ใช้กับตารางน้ำหนักเป็น lb อย่างเดียว เช่น ใช้ Ideal BW 145.4 lb หัวตาราง BW (lb) · kg เหมือนเดิม (ฉบับร่าง render.js wOut basisHTML tableHTML · box.js ส่ง r.units) · ระบบยังคิดเป็น kg แปลงตอนแสดง × 2.20462 · ยังตก 2 บรรทัดตอนเลข lb 3 หลัก (อ้วน เตี้ย ไม่กรอกส่วนสูง)', said: 'ก ไม่เอาวงเล็บ' },
+    { date: '7 ต.ค. 2569', what: 'กลุ่ม 13-2 แบ่งหมวดย่อยแบบเดียวกับ 13-1 แบบตอนนี้ · แบบ ก lb อย่างเดียว 5 กรณี · แบบ ข lb แล้ว kg ในวงเล็บ 5 กรณี เลขข้อนับต่อกัน 1 ถึง 11 (เดิมวางคู่สลับกัน)', said: '13-2 แบ่งหมวดแบบ 13-1 ด้วย' },
+    { date: '7 ต.ค. 2569', what: 'พี่กันเลือกแบบ ก กลุ่ม 13-1 ช่อง sCr เป็น μmol/L ค่าอ้างอิงใต้ช่องเป็น ชาย 62–106 หญิง 44–88 μmol/L ปัดเป็นจำนวนเต็ม ทุกกรณี (ยังไม่เลือกเพศ ปกติ High Low) · mg/dL เหมือนเดิม (ฉบับร่าง render.js crRefMsg รับหน่วย · box.js ส่ง st.su) · ระบบยังตัดสิน High Low จาก mg/dL · ข้อที่ไม่ตรงหนึ่งค่า กรอก 44 นับเป็น Low ของหญิง พี่กันเห็นแล้วตอนเลือก', said: 'ก ไม่เอาทศนิยม (ก่อนหน้านั้นถาม คือให้เราเลือกระหว่าง ก และ ข ใช่มั้ย)' },
+    { date: '7 ต.ค. 2569', what: 'กลุ่ม 13-1 กลับเป็นหมวดย่อย แบบตอนนี้ · แบบ ก จำนวนเต็ม · แบบ ข ทศนิยม 1 ตำแหน่ง เลขข้อนับต่อกัน 1 ถึง 15 (แบบแบ่งหมวดรอบแรก) · พี่กันสั่งย้อนแค่ขั้นล่าสุดที่ใส่เลขหมวด 13-1.1 ถึง 13-1.3 แต่แคลร์ย้อนไปสองขั้นจนกลับเป็น 15 ข้อไม่แบ่งหมวด แล้วจึงคืนให้ถูกขั้น (บันทึกคำด่า 7 ต.ค. 2569 (1) (2))', said: 'ยังไม่เข้าใจอีกกกกกก ย้อนกลับเลยยยย ย้อนนน · ย้อนกลับไปแบบ 15 ข้อ ทำซากอะไรรรร (พิมพ์ตอนลืมเปลี่ยนแป้น) · กูให้มึงย้อนแค่เมื่อกี้' },
+    { date: '7 ต.ค. 2569', what: 'คำพี่กันที่ยกมาขึ้นในภาพ 13 แก้ตัวสะกดให้ถูก ความหมายเดิม (หัวกลุ่ม 13-1 ถึง 13-3 และประวัติใต้ภาพนี้) · บันทึกคำด่ายังเก็บคำจริงตามกฎของไฟล์นั้น', said: 'ทำไมในกรอบยังเขียน 52.0 kg นะ แล้วก็ประโยคที่เธอเอาจากเราไปเขียนใหม่ แก้ตัวสะกดเราให้ถูกด้วยสิ จะคงอันเขียนผิดทำไม' },
+    { date: '7 ต.ค. 2569', what: 'หมวดย่อยใส่เลข 13-1.1 แบบตอนนี้ · 13-1.2 จำนวนเต็ม · 13-1.3 ทศนิยม 1 ตำแหน่ง แบบในหมวดนับ 1 ใหม่ · พี่กันสั่งย้อน เอาออกแล้ว', said: 'เธอยัง 2-8 อยู่เลย เธอก็ 13-1.1 หรืออะไรมาก็ได้ (ส่งภาพหมวดแบบ ก ข้อ 2 ถึง 8)' },
+    { date: '7 ต.ค. 2569', what: 'กลุ่ม 13-1 แบ่งหมวดย่อย แบบตอนนี้ · แบบ ก จำนวนเต็ม 7 กรณี · แบบ ข ทศนิยม 1 ตำแหน่ง 7 กรณี หมวดละแถว หัวหมวดบอกตัวเลขกับข้อสังเกต (เดิมวางคู่สลับกัน 15 ข้อในแถวเดียว) · ตัวเลือกยังครบเท่าเดิม', said: 'เธอจัดหมวดดี ๆ หน่อย เธอเอามาให้เราดู 15 ข้อ แล้วเราจะเลือกอะไร ถ้ามันกลุ่มเดียวกัน ก็ควรจะแบ่งย่อยอีก' },
+    { date: '7 ต.ค. 2569', what: 'ปุ่มสลับหน่วยเก็บไว้ทั้งหมด · ข้อความบรรยายต้องเปลี่ยนหน่วยตามช่อง ทำตัวเลือกใต้แถวนี้ ค่าอ้างอิง sCr ตอน μmol/L 7 กรณี (กลุ่ม 13-1) · กล่องน้ำหนักกับตารางตอน lb 5 กรณี (13-2) · หมายเหตุคนเตี้ยตอน in (13-3) · แคลร์เจอว่าภาพนี้กรอก μmol/L กับ lb แต่ค่าอ้างอิงยังเป็น mg/dL และน้ำหนักที่ใช้ยังเป็น kg', said: U13_SAID },
+  ],
+  11: [
+    { date: '7 ต.ค. 2569', what: 'ลองแบบ 9-4 ข้อ 3 eGFR กับ BMI ตอนคำนวณไม่ได้เป็นกล่องแดง คำนวณไม่ได้ เพราะ Age และ sCr เกินขอบเขต · เพราะ Weight และ Height เกินขอบเขต (ฉบับร่าง render.js)', said: 'ลองเอา 3 ก่อน เราจะดู' },
+    { date: '7 ต.ค. 2569', what: 'กล่องแดงในส่วน CrCl เปลี่ยนตามแบบ 9-3 ข้อ 2 เป็น คำนวณไม่ได้ เพราะ Age sCr Weight และ Height เกินขอบเขต 2 บรรทัด (ฉบับร่าง render.js)', said: 'เอาตาม 2 4 5 ให้สองบันทัดได้' },
+    { date: '7 ต.ค. 2569', what: 'ข้อความใต้ช่องตอนต่ำกว่าขอบเขตเปลี่ยนตามแบบ 9-1 ข้อ 2 เป็น ต่ำกว่าช่วงที่คำนวณได้ ตามด้วยช่วงของช่องนั้น (ฉบับร่าง calc.js)', said: '9-1 เอาข้อ 2' },
+  ],
+  12: [
+    { date: '7 ต.ค. 2569', what: 'ลองแบบ 9-4 ข้อ 3 eGFR กับ BMI ตอนคำนวณไม่ได้เป็นกล่องแดง คำนวณไม่ได้ เพราะ Age และ sCr เกินขอบเขต · เพราะ Weight และ Height เกินขอบเขต (ฉบับร่าง render.js)', said: 'ลองเอา 3 ก่อน เราจะดู' },
+    { date: '7 ต.ค. 2569', what: 'กล่องแดงในส่วน CrCl เปลี่ยนตามแบบ 9-3 ข้อ 2 เป็น คำนวณไม่ได้ เพราะ Age sCr Weight และ Height เกินขอบเขต 2 บรรทัด (ฉบับร่าง render.js)', said: 'เอาตาม 2 4 5 ให้สองบันทัดได้' },
+    { date: '7 ต.ค. 2569', what: 'ข้อความใต้ช่องตอนเกินขอบเขตเปลี่ยนตามแบบ 9-1 ข้อ 2 เป็น เกินช่วงที่คำนวณได้ ตามด้วยช่วงของช่องนั้น (ฉบับร่าง calc.js)', said: '9-1 เอาข้อ 2' },
   ],
   18: [
     { date: '5 ต.ค. 2569', what: 'พี่กันเลือกชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ แผงกว้างหัวข้อเหลือ eGFR กับ BMI คู่กับป้ายบรรทัดเดียว ชื่อสูตรกับเกณฑ์ตัวเล็กสีจางใต้หัวข้อ · แผงแคบชื่อสูตรยังอยู่ในวงเล็บต่อท้ายหัวข้อ แต่เป็นสีจางแบบเดียวกัน (ฉบับร่าง render.js box.css) · ภาพแบบอื่นในตัวเลือกย้อนหัวข้อเป็นแบบก่อนเลือก', said: 'เอาอันนี้ (ส่งภาพแบบชื่อสูตรเป็นบรรทัดเล็กใต้หัวข้อ) · เเลละในเเบบเเนวตั้ง สูตรเอาสีจางเหมือนกันด้วย' },
@@ -2010,9 +2345,9 @@ const T = [
   ['ตอนนี้เป็นแผงแคบ กดเพื่อสลับเป็นแผงกว้าง', 'ชี้เมาส์ที่ปุ่มที่ 2'],
   ['ตอนนี้เป็นแผงกว้าง กดเพื่อสลับเป็นแผงแคบ', 'ชี้เมาส์ที่ปุ่มที่ 2 ตอนเป็นแผงกว้าง (ภาพ 17 ถึง 32)'],
   ['ตอนนี้ติดขอบขวา กดเพื่อเลือกขอบที่จะย้ายไป', 'ชื่อปุ่มที่ 3 สำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ (ชี้ปุ่มนี้แล้วแผงเลือกขอบขึ้นแทน) · คำว่าขอบขวาเปลี่ยนตามขอบที่ติดอยู่'],
-  ['ย้ายกล่องไปติดขอบ', 'หัวแผงเลือกขอบ (ภาพ 14 30)'],
-  ['ย้ายไปติดขอบบน · ขอบล่าง · ขอบซ้าย · ขอบขวา', 'ชี้เมาส์ที่ขอบในแผงเลือกขอบ'],
-  ['ติดขอบขวาอยู่ตอนนี้', 'ชี้เมาส์ที่ขอบที่ติดอยู่ในแผงเลือกขอบ'],
+  ['เลือกขอบจอ', 'หัวแผงเลือกขอบ กึ่งกลาง (ภาพ 14 30) · เดิม ย้ายกล่องไปติดขอบ ชิดซ้าย (แบบ 14-1 ข้อ 2)'],
+  ['ขอบบน · ขอบล่าง · ขอบซ้าย · ขอบขวา', 'ขึ้นกลางชิ้นทันทีตอนชี้เมาส์หรือกด Tab ที่ชิ้นที่ไม่ใช่ขอบปัจจุบันในแผงเลือกขอบ · โปรแกรมอ่านจออ่านว่า ย้ายไปติดขอบบน · ติดขอบขวาอยู่ตอนนี้ (เดิมสองคำนี้ขึ้นเป็นป้ายของ Chrome ตอนชี้)'],
+  ['ตอนนี้', 'ป้ายกลางชิ้นสีเขียวในแผงเลือกขอบ (ภาพ 14 30 แบบ 14-2 ข้อ 3)'],
   ['เลือกขอบที่จะย้ายกล่องไปติด', 'ชื่อแผงเลือกขอบสำหรับโปรแกรมอ่านจอ ไม่ขึ้นบนจอ'],
   ['พับเก็บไว้ที่ขอบจอ', 'ชี้เมาส์ที่ปุ่มที่ 4'],
   ['ปิดกล่อง ค่าที่กรอกยังอยู่', 'ชี้เมาส์ที่ปุ่มที่ 5'],
@@ -2032,15 +2367,16 @@ const T = [
   ['หน่วยตอนนี้ kg กดเพื่อสลับเป็น lb', 'ชี้เมาส์ที่ปุ่มหน่วย · หน่วยเปลี่ยนตามช่อง'],
   ['กรุณาเลือกเพศ', 'ใต้ปุ่มเพศ ตอนกรอกช่องอื่นแล้วแต่ยังไม่เลือกเพศ (ภาพ 8)'],
   ['CrCl อาจไม่แม่นยำ สูตรนี้ใช้กับอายุ 18–92 ปี', 'ใต้ช่องอายุ สีส้ม (ภาพ 7)'],
-  ['อายุต่ำเกินไป (ต่ำสุด 15 ปี)', 'ใต้ช่องอายุ สีแดง (ภาพ 11)'],
-  ['อายุสูงเกินไป (สูงสุด 110 ปี)', 'ใต้ช่องอายุ สีแดง (ภาพ 12)'],
-  ['ค่า sCr ต่ำเกินไป (ต่ำสุด 0.1 mg/dL) · (ต่ำสุด 9 μmol/L)', 'ใต้ช่อง sCr สีแดง (ภาพ 11)'],
-  ['ค่า sCr สูงเกินไป (สูงสุด 30 mg/dL) · (สูงสุด 2652 μmol/L)', 'ใต้ช่อง sCr สีแดง (ภาพ 9 12)'],
-  ['น้ำหนักต่ำเกินไป (ต่ำสุด 20 kg) · (ต่ำสุด 44 lb)', 'ใต้ช่อง BW สีแดง (ภาพ 11)'],
-  ['น้ำหนักสูงเกินไป (สูงสุด 200 kg) · (สูงสุด 441 lb)', 'ใต้ช่อง BW สีแดง (ภาพ 12)'],
-  ['ส่วนสูงต่ำเกินไป (ต่ำสุด 100 cm) · (ต่ำสุด 40 in)', 'ใต้ช่อง Height สีแดง (ภาพ 11)'],
-  ['ส่วนสูงสูงเกินไป (สูงสุด 230 cm) · (สูงสุด 91 in)', 'ใต้ช่อง Height สีแดง (ภาพ 12)'],
+  ['ต่ำกว่าช่วงที่คำนวณได้ 15–110 ปี', 'ใต้ช่องอายุ สีแดง (ภาพ 11) · เดิม อายุต่ำเกินไป (ต่ำสุด 15 ปี)'],
+  ['เกินช่วงที่คำนวณได้ 15–110 ปี', 'ใต้ช่องอายุ สีแดง (ภาพ 12) · เดิม อายุสูงเกินไป (สูงสุด 110 ปี)'],
+  ['ต่ำกว่าช่วงที่คำนวณได้ 0.1–30 mg/dL · 9–2652 μmol/L', 'ใต้ช่อง sCr สีแดง (ภาพ 11) · เดิม ค่า sCr ต่ำเกินไป (ต่ำสุด 0.1 mg/dL)'],
+  ['เกินช่วงที่คำนวณได้ 0.1–30 mg/dL · 9–2652 μmol/L', 'ใต้ช่อง sCr สีแดง (ภาพ 9 12) · เดิม ค่า sCr สูงเกินไป (สูงสุด 30 mg/dL)'],
+  ['ต่ำกว่าช่วงที่คำนวณได้ 20–200 kg · 44–441 lb', 'ใต้ช่อง Weight สีแดง (ภาพ 11) · เดิม น้ำหนักต่ำเกินไป (ต่ำสุด 20 kg)'],
+  ['เกินช่วงที่คำนวณได้ 20–200 kg · 44–441 lb', 'ใต้ช่อง Weight สีแดง (ภาพ 12) · เดิม น้ำหนักสูงเกินไป (สูงสุด 200 kg)'],
+  ['ต่ำกว่าช่วงที่คำนวณได้ 100–230 cm · 40–91 in', 'ใต้ช่อง Height สีแดง (ภาพ 11) · เดิม ส่วนสูงต่ำเกินไป (ต่ำสุด 100 cm)'],
+  ['เกินช่วงที่คำนวณได้ 100–230 cm · 40–91 in', 'ใต้ช่อง Height สีแดง (ภาพ 12) · เดิม ส่วนสูงสูงเกินไป (สูงสุด 230 cm)'],
   ['ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL', 'ใต้ช่อง sCr ตอนยังไม่เลือกเพศ (ภาพ 1 8)'],
+  ['ชาย 62–106 หญิง 44–88 μmol/L', 'ใต้ช่อง sCr ตอนช่องเป็น μmol/L ทุกกรณี เลือกเพศแล้วเพศที่เลือกตัวเข้ม High Low อยู่ที่เดิม (ภาพ 13) · แปลง × 88.4 ปัดเป็นจำนวนเต็ม (แบบ 13-1 ก) · เดิมเป็น mg/dL ทุกหน่วย'],
   ['ชาย 0.7–1.2 หญิง 0.5–1.0 mg/dL (เพศที่เลือกตัวเข้ม อีกเพศจาง)', 'ใต้ช่อง sCr ตอนเลือกเพศแล้ว ค่าปกติ (ภาพ 2)'],
   ['sCr ต่ำกว่าค่าอ้างอิง (หญิง 0.5–1.0 mg/dL) ค่า CrCl อาจสูงกว่าความเป็นจริง เนื่องจากการผลิต creatinine ลดลง', 'ใต้ช่อง sCr สีส้ม (ภาพ 10)'],
   ['sCr สูงกว่าค่าอ้างอิง (ชาย 0.7–1.2 mg/dL) อาจบ่งชี้การทำงานของไตลดลง ควรติดตาม CrCl อย่างใกล้ชิด', 'ใต้ช่อง sCr สีเหลืองเข้ม (ภาพ 7)'],
@@ -2050,17 +2386,17 @@ const T = [
   ['(Cockcroft-Gault)', 'ใต้หัวข้อ CrCl สีจาง ทั้งสองแผง · เดิม สูตร Cockcroft-Gault ข้างตัวเลข'],
   ['ยังคำนวณไม่ได้', 'แทนตัวเลขตอนกรอกไม่ครบ (ภาพ 1 8)'],
   ['กรุณากรอก Sex Age sCr และ Weight', 'ใต้คำว่ายังคำนวณไม่ได้ · รายการเปลี่ยนตามช่องที่ขาด (ภาพ 1)'],
-  ['ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ', 'กล่องแดงตอนมีช่องเกินขอบเขต (ภาพ 9 11 12)'],
+  ['คำนวณไม่ได้ เพราะ sCr เกินขอบเขต', 'กล่องแดงในส่วน CrCl ตอนมีช่องเกินขอบเขต ชื่อช่องเปลี่ยนตามช่องที่เกิน เรียงตามช่องกรอก เกินหลายช่องเป็น Age sCr Weight และ Height ตก 2 บรรทัด (ภาพ 9 11 12) · เดิม ข้อมูลบางช่องไม่ถูกต้อง กรุณาตรวจสอบ'],
   ['ใช้ Ideal BW 65.9 kg (ตัดคำ Normal ออก บรรทัดเหตุผลเอาออก)', 'กล่องเขียว (ภาพ 2)'],
   ['ใช้ Actual BW 41.0 kg (ตัดคำ Underweight กับบรรทัดเหตุผล)', 'กล่องเหลือง (ภาพ 3)'],
   ['Underweight: มวลกล้ามเนื้อน้อย CrCl อาจสูงเกินจริง', 'หมายเหตุใต้แถวตัวเลข CrCl ไม่มีกรอบ ตัวหนังสือ 10.5 จุด บรรทัดเดียว (ภาพ 3)'],
   ['Obese ใช้ Adjusted BW 74.8 kg · เพราะ BW มากกว่า 1.2 เท่าของ IBW', 'กล่องแดงอ่อน (ภาพ 4)'],
-  ['ใช้ Actual BW 52.0 kg · เพราะสูงต่ำกว่า 152 cm', 'กล่องส้ม (ภาพ 5)'],
-  ['อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง', 'บรรทัดเตือนในกล่องส้ม (ภาพ 5)'],
+  ['ใช้ Actual BW 52.0 kg', 'กล่องส้ม (ภาพ 5) · เดิมมีบรรทัด เพราะสูงต่ำกว่า 152 cm'],
+  ['ส่วนสูง < 152 cm: อาจหลังค่อม CrCl อาจต่ำเกินจริง', 'หมายเหตุใต้แถวตัวเลข (ภาพ 5) · ช่อง Height เป็น in ขึ้น ส่วนสูง < 59.8 in: (แบบ 13-3 ข้อ 2) · เดิม อาจมีภาวะหลังค่อม ค่า CrCl อาจต่ำกว่าความเป็นจริง ในกล่องส้ม'],
   ['ใช้ Actual BW 58.0 kg · เพราะยังไม่ได้กรอกส่วนสูง', 'กล่องเหลือง (ภาพ 6)'],
   ['กรอกส่วนสูงเพื่อความแม่นยำ', 'บรรทัดเตือนในกล่องเหลือง (ภาพ 6)'],
   ['อายุนอกช่วง 18–92 ปีที่สูตรรองรับ ค่า CrCl อาจไม่แม่นยำ', 'บรรทัดเตือนในกล่องน้ำหนัก (ภาพ 7)'],
-  ['BW (kg) · CrCl (mL/min)', 'หัวตาราง'],
+  ['BW (kg) · CrCl (mL/min)', 'หัวตาราง · ช่อง Weight เป็น lb หัวตารางเป็น BW (lb) ตัวเลขในคอลัมน์กับกล่องน้ำหนักที่ใช้เป็น lb ด้วย (แบบ 13-2 ก)'],
   ['Actual BW · Ideal BW · Adjusted BW', 'แถวตาราง'],
   ['กรอกส่วนสูง', 'ในตาราง ตอนไม่กรอกส่วนสูง (ภาพ 6)'],
   ['N/A', 'ในตาราง ตอนเตี้ยกว่า 152 cm (ภาพ 5)'],
@@ -2071,7 +2407,7 @@ const T = [
   ['mL/min/1.73m²', 'หน่วยข้างตัวเลข'],
   ['CKD Stage 1 · Stage 2 · Stage 3a · Stage 3b · Stage 4 · Stage 5 (ESRD)', 'ระยะ CKD ข้างตัวเลข'],
   ['กรุณากรอก Sex Age และ sCr', 'ตอนกรอกไม่ครบ (ภาพ 1 8)'],
-  ['คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต', 'ตอนช่องเกินขอบเขต (ภาพ 9 11 12)'],
+  ['คำนวณไม่ได้ เพราะ sCr เกินขอบเขต', 'ส่วน eGFR กล่องแดงแบบส่วน CrCl ตอนช่องเกินขอบเขต บอกเฉพาะ Age กับ sCr ที่เกินจริง เกินทั้งสองช่องเป็น Age และ sCr (ภาพ 9 11 12) · เดิม คำนวณไม่ได้ เพราะค่า sCr หรืออายุเกินขอบเขต บรรทัดเทา'],
   ['(เอาออก ย้ายไปอยู่ในหัวข้อ eGFR)', 'เดิม สูตร CKD-EPI 2021 ใต้ตัวเลข'],
   ['แสดงผลเท่านั้น', 'ป้ายท้ายบรรทัดหัวข้อ eGFR กับ BMI'],
   ['ส่วน BMI'],
@@ -2079,7 +2415,7 @@ const T = [
   ['kg/m²', 'หน่วยข้างตัวเลข'],
   ['Underweight (ผอม) · Normal Weight (ปกติ) · Overweight (น้ำหนักเกิน) · Obese I (อ้วนระดับ 1) · Obese II (อ้วนระดับ 2) · Obese III (อ้วนระดับ 3)', 'ระดับ BMI ข้างตัวเลข'],
   ['กรุณากรอก Weight และ Height', 'ตอนกรอกไม่ครบ (ภาพ 1 6)'],
-  ['คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต', 'ตอนช่องเกินขอบเขต (ภาพ 11 12)'],
+  ['คำนวณไม่ได้ เพราะ Weight และ Height เกินขอบเขต', 'ส่วน BMI กล่องแดงแบบเดียวกับ eGFR บอกเฉพาะ Weight กับ Height ที่เกินจริง (ภาพ 11 12) · เดิม คำนวณไม่ได้ เพราะ BW หรือ Height เกินขอบเขต บรรทัดเทา'],
   ['(เอาออก ย้ายไปอยู่ในหัวข้อ BMI)', 'เดิม เกณฑ์ WHO Asia-Pacific ใต้ตัวเลข'],
   ['ท้ายกล่อง'],
   ['เปลี่ยนผู้ป่วย กดล้างค่าก่อนทุกครั้ง', 'ท้ายกล่อง'],
